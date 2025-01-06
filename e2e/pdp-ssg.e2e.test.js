@@ -20,7 +20,6 @@ const runtimePackage = 'aem-commerce-ssg'
 const actionUrl = `https://${namespace}.${hostname}/api/v1/web/${runtimePackage}/pdp-ssg`
 
 test('returns hello world', async () => {
-  console.log('Config', Config.get())
   const res = await fetch(actionUrl);
   const content = await res.text();
   expect(content).toEqual('Hello World!');
