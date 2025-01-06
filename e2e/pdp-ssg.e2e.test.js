@@ -19,8 +19,6 @@ const hostname = Config.get('cna.hostname') || 'adobeioruntime.net'
 const runtimePackage = 'aem-commerce-ssg'
 const actionUrl = `https://${namespace}.${hostname}/api/v1/web/${runtimePackage}/pdp-ssg`
 
-// The deployed actions are secured with the `require-adobe-auth` annotation.
-// If the authorization header is missing, Adobe I/O Runtime returns with a 401 before the action is executed.
 test('returns hello world', async () => {
   const res = await fetch(actionUrl);
   const content = await res.text();

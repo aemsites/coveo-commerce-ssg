@@ -49,3 +49,5 @@ jobs:
           os: ${{ matrix.os }}
           command: deploy
           noPublish: true
+      - name: E2E Tests
+        run: aio app test --e2e
