@@ -1,0 +1,16 @@
+application:
+  actions: actions
+  runtimeManifest:
+    packages:
+      aem-commerce-ssg:
+        license: Apache-2.0
+        actions:
+          pdp-ssg:
+            function: actions/pdp-ssg/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              require-adobe-auth: true
+              final: true
