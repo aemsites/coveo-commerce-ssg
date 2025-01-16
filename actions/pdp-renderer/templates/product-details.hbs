@@ -4,4 +4,49 @@
       <h1>{{name}}</h1>
     </div>
   </div>
+  {{#if hasImages }}
+  <div>
+    <div><h2>Images</h2></div>
+    <div>
+      <ul>
+        {{#each imageList}}
+        <li><a href="{{this}}">{{this}}</a></li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+  {{/if}}
+  {{#if description}}
+  <div>
+    <div><h2>Description</h2></div>
+    <div>{{{description}}}</div>
+  </div>
+  {{/if}}
+  {{#if priceString}}
+  <div>
+    <div><h2>Price</h2></div>
+    <div>{{priceString}}</div>
+  </div>
+  {{/if}}
+  {{#if options}}
+  <div>
+    <div><h2>Options</h2></div>
+    <div>
+      <ul>
+        {{#each options}}
+        <li>
+          {{title}}
+          {{#if values}}
+          <ul>
+            {{#each values}}
+            <li>{{title}}</li>
+            {{/each}}
+          </ul>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+  {{/if}}
 </div>
