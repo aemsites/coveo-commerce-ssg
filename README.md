@@ -1,6 +1,4 @@
-# aemssgdevelop
-
-Welcome to my Adobe I/O Application!
+# AppBuilder SSG Template for Edge Delivery Storefront
 
 ## Setup
 
@@ -100,23 +98,6 @@ You can generate this file using the command `aio app use`.
      before deploying it as a zipped action. Use this method if you want to keep
      your action's dependencies separated.
 
-## Debugging in VS Code
-
-While running your local server (`aio app run`), both UI and actions can be debugged, to do so open the vscode debugger
-and select the debugging configuration called `WebAndActions`.
-Alternatively, there are also debug configs for only UI and each separate action.
-
-## Typescript support for UI
-
-To use typescript use `.tsx` extension for react components and add a `tsconfig.json` 
-and make sure you have the below config added
-```
- {
-  "compilerOptions": {
-      "jsx": "react"
-    }
-  } 
-```
 ## LiveSearch
 
 The action uses LiveSearch to list products from the store.
