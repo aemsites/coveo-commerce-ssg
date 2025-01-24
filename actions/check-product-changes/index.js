@@ -10,19 +10,17 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const { Core } = require('@adobe/aio-sdk');
-const { stateLib } = require('@adobe/aio-lib-state');
+const { Core, State, Files } = require('@adobe/aio-sdk');
 const { poll } = require('./poller');
 const { StateManager } = require('./lib/state');
 
 async function main(params) {
-  const state = await stateLib.init();
-
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
-  const stateMgr = new StateManager(state, { logger });
+  const stateLib = await State.init();
+  const filesLib = await Files.init();
+  const stateMgr = new StateManager(stateLib, { logger });
 
   const running = await stateMgr.get('running');
-
   if (running?.value === 'true') {
     return { state: 'skipped' };
   }
@@ -32,7 +30,7 @@ async function main(params) {
     // this might not be updated and action execution could be permanently skipped
     // a ttl == function timeout is a mitigation for this risk
     await stateMgr.put('running', 'true', 3600);
-    return await poll(params, state);
+    return await poll(params, filesLib);
   } finally {
     await stateMgr.put('running', 'false');
   }

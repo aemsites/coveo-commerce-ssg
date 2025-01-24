@@ -1,20 +1,11 @@
 const assert = require('node:assert/strict');
-const { loadState, saveState } = require('../actions/check-product-changes/poller.js');
-const { StateManager } = require('../actions/check-product-changes/lib/state.js');
-const { MockState } = require('./__mocks__/state.js');
-
-
-const logger = { debug: () => {}, info: () => {}, error: () => {} };
-
-const createStateManager = () => {
-  const stateLib = new MockState(0);
-  return new StateManager(stateLib, logger);
-}
+const { loadState, saveState, getFileLocation } = require('../actions/check-product-changes/poller.js');
+const Files = require('./__mocks__/files.js');
 
 describe('Poller', () => {
   it('loadState returns default state', async () => {
-    const stateMgr = createStateManager();
-    const state = await loadState('uk', stateMgr);
+    const filesLib = new Files(0);
+    const state = await loadState('uk', filesLib);
     assert.deepEqual(
       state,
       {
@@ -26,9 +17,9 @@ describe('Poller', () => {
   });
 
   it('loadState returns parsed state', async () => {
-    const stateMgr = createStateManager();
-    await stateMgr.put('uk', '1,sku1,2,sku2,3,sku3,4');
-    const state = await loadState('uk', stateMgr);
+    const filesLib = new Files(0);
+    await filesLib.write(getFileLocation('uk'), '1,sku1,2,sku2,3,sku3,4');
+    const state = await loadState('uk', filesLib);
     assert.deepEqual(
       state,
       {
@@ -44,31 +35,31 @@ describe('Poller', () => {
   });
 
   it('loadState after saveState', async () => {
-    const stateMgr = createStateManager();
-    await stateMgr.put('uk', '1,sku1,2,sku2,3,sku3,4');
-    const state = await loadState('uk', stateMgr);
+    const filesLib = new Files(0);
+    await filesLib.write(getFileLocation('uk'), '1,sku1,2,sku2,3,sku3,4');
+    const state = await loadState('uk', filesLib);
     state.skusLastQueriedAt = new Date(5);
     state.skus['sku1'] = new Date(5);
     state.skus['sku2'] = new Date(6);
-    await saveState(state, stateMgr);
+    await saveState(state, filesLib);
 
-    const serializedState = await stateMgr.get('uk');
-    assert.equal(serializedState?.value, '5,sku1,5,sku2,6,sku3,4');
+    const serializedState = await filesLib.read(getFileLocation('uk'));
+    assert.equal(serializedState, '5,sku1,5,sku2,6,sku3,4');
 
-    const newState = await loadState('uk', stateMgr);
+    const newState = await loadState('uk', filesLib);
     assert.deepEqual(newState, state);
   });
 
   it('loadState after saveState with null storeCode', async () => {
-    const stateMgr = createStateManager();
-    await stateMgr.put('default', '1,sku1,2,sku2,3,sku3,4');
-    const state = await loadState(null, stateMgr);
+    const filesLib = new Files(0);
+    await filesLib.write(getFileLocation('default'), '1,sku1,2,sku2,3,sku3,4');
+    const state = await loadState(null, filesLib);
     state.skusLastQueriedAt = new Date(5);
     state.skus['sku1'] = new Date(5);
     state.skus['sku2'] = new Date(6);
-    await saveState(state, stateMgr);
+    await saveState(state, filesLib);
 
-    const serializedState = await stateMgr.get('default');
-    assert.equal(serializedState?.value, '5,sku1,5,sku2,6,sku3,4');
+    const serializedState = await filesLib.read(getFileLocation('default'));
+    assert.equal(serializedState, '5,sku1,5,sku2,6,sku3,4');
   });
 });
