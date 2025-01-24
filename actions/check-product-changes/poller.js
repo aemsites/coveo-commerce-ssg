@@ -18,9 +18,9 @@ const { Core } = require('@adobe/aio-sdk');
 
 const BATCH_SIZE = 50;
 
-async function loadState(locale, stateLib) {
+async function loadState(locale, stateMgr) {
   const stateKey = locale ? `${locale}` : 'default';
-  const stateData = await stateLib.get(stateKey);
+  const stateData = await stateMgr.get(stateKey);
   if (!stateData?.value) {
     return {
       locale,
@@ -42,7 +42,7 @@ async function loadState(locale, stateLib) {
   };
 }
 
-async function saveState(state, stateLib) {
+async function saveState(state, stateMgr) {
   let { locale } = state;
   if (!locale) {
     locale = 'default';
@@ -52,7 +52,7 @@ async function saveState(state, stateLib) {
     state.skusLastQueriedAt.getTime(),
     ...Object.entries(state.skus).flatMap(([sku, lastPreviewedAt]) => [sku, lastPreviewedAt.getTime()]),
   ].join(',');
-  await stateLib.put(stateKey, stateData);
+  await stateMgr.put(stateKey, stateData);
 }
 
 /**
@@ -72,7 +72,7 @@ async function saveState(state, stateLib) {
  * @param {string} [params.HLX_STORE_URL] - The store's base URL.
  * @param {string} [params.HLX_LOCALES] - Comma-separated list of allowed locales.
  * @param {string} [params.LOG_LEVEL] - The log level.
- * @param {Object} stateLib - The state provider object.
+ * @param {Object} stateMgr - The StateManager instance object.
  * @returns {Promise<Object>} The result of the polling action.
  */
 function checkParams(params) {
@@ -107,7 +107,7 @@ function shouldProcessProduct(product) {
   return urlKey?.match(/^[a-zA-Z0-9-]+$/) && lastModifiedDate >= lastPreviewDate;
 }
 
-async function poll(params, stateLib) {
+async function poll(params, stateMgr) {
   checkParams(params);
 
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
@@ -144,7 +144,7 @@ async function poll(params, stateLib) {
     const results = await Promise.all(locales.map(async (locale) => {
       const timings = new Timings();
       // load state
-      const state = await loadState(locale, stateLib);
+      const state = await loadState(locale, stateMgr);
       timings.sample('loadedState');
 
       let context = { ...sharedContext };
@@ -222,7 +222,7 @@ async function poll(params, stateLib) {
             counts.failed++;
           }
         }
-        await saveState(state, stateLib);
+        await saveState(state, stateMgr);
       }
 
       timings.sample('publishedPaths');
@@ -251,7 +251,7 @@ async function poll(params, stateLib) {
             await deleteBatch({ counts, batch, state, adminApi });
           }
           // save state after deletes
-          await saveState(state, stateLib);
+          await saveState(state, stateMgr);
         }
       } catch (e) {
         // in case the index doesn't yet exist or any other error
