@@ -10,20 +10,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const { Timings, aggregate } = require('./lib/benchmark');
-const { AdminAPI } = require('./lib/aem');
+const { Timings, aggregate } = require('../lib/benchmark');
+const { AdminAPI } = require('../lib/aem');
 const { requestSaaS, requestSpreadsheet, isValidUrl, getProductUrl, mapLocale } = require('../utils');
-const { GetAllSkusQuery, GetLastModifiedQuery } = require('../queries');
+const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
 const crypto = require('crypto');
-
+const { FILE_PREFIX, FILE_EXT } = require('../utils');
 const BATCH_SIZE = 50;
-const STATE_FILE_PREFIX = 'check-product-changes';
-const STATE_FILE_EXT = 'csv';
 
 function getStateFileLocation(stateKey) {
-  return `${STATE_FILE_PREFIX}/${stateKey}.${STATE_FILE_EXT}`;
+  return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
 }
 
 function getSkusLastQueriedStateKey(stateKey) {
@@ -349,10 +347,12 @@ async function poll(params, aioLibs) {
       // Refresh SKUs if needed
       if (timings.now - state.skusLastQueriedAt >= skusRefreshInterval) {
         state.skusLastQueriedAt = new Date();
-        const allSkusResp = await requestSaaS(GetAllSkusQuery, 'getAllSkus', {}, context);
-        const allSkus = allSkusResp.data.productSearch.items
-          .map(({ productView }) => productView || {})
-          .filter(Boolean);
+
+        const { filesLib } = aioLibs;
+        const productsFileName = getStateFileLocation(`${locale || 'default'}-products`);
+        const allskuBuffer = await filesLib.read(productsFileName);
+        const allSkusString = allskuBuffer.toString();
+        let allSkus = JSON.parse(allSkusString);
 
         // add new skus to state if any
         for (const sku of allSkus) {

@@ -11,11 +11,11 @@ governing permissions and limitations under the License.
 */
 
 const assert = require('node:assert/strict');
-const { loadState, saveState, getStateFileLocation, poll } = require('../actions/check-product-changes/poller.js');
-const Files = require('./__mocks__/files.js');
-const { AdminAPI } = require('../actions/check-product-changes/lib/aem');
+const { loadState, saveState, getStateFileLocation, poll } = require('../actions/check-product-changes/poller');
+const Files = require('./__mocks__/files');
+const { AdminAPI } = require('../actions/lib/aem');
 const { requestSaaS, requestSpreadsheet, isValidUrl} = require('../actions/utils');
-const { MockState } = require('./__mocks__/state.js');
+const { MockState } = require('./__mocks__/state');
 
 const EXAMPLE_STATE = 'sku1,1,\nsku2,2,\nsku3,3,';
 
@@ -116,8 +116,15 @@ describe('Poller', () => {
     const skuEntries = Object.entries(skuData).map(([sku, { timestamp, hash = '' }]) => 
       `${sku},${timestamp},${hash}`
     ).join('\n');
-    
-    filesLib.read.mockResolvedValueOnce(skuEntries);
+
+    let skuInfo = Object.entries(skuData).map(([sku]) => (
+      {
+        sku: `${sku}`
+      }
+    ));
+
+    skuInfo = JSON.stringify(skuInfo);    
+    filesLib.read.mockResolvedValueOnce(skuEntries).mockResolvedValueOnce(skuInfo);
     stateLib.get.mockResolvedValueOnce({ value: lastQueriedAt });
   };
 
