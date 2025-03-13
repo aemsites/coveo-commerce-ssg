@@ -6,12 +6,8 @@ application:
         license: Apache-2.0
         inputs:
           LOG_LEVEL: debug
-          HLX_CONTENT_URL: "https://main--aem-dev--abcam-ltd.aem.live"
-          HLX_PRODUCTS_TEMPLATE: "https://main--aem-dev--abcam-ltd.aem.live/products/default"
           HLX_ORG_NAME: "abcam-ltd"
           HLX_SITE_NAME: "aem-dev"
-          HLX_STORE_URL: "https://main--aem-dev--abcam-ltd.aem.live"
-          HLX_CONFIG_NAME: "configs"
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
           # HLX_LOCALES: comma-seprated list of allowed locales.
           # i.e. us,uk,it,de,fr,es - or just one
@@ -35,7 +31,7 @@ application:
               memorySize: 128
               timeout: 3600000
             inputs:
-              authToken: ${AEM_ADMIN_API_AUTH_TOKEN}
+              authToken: ${AEM_TOKEN}
             annotations:
               final: true
           fetch-all-products:

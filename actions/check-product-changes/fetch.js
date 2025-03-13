@@ -1,0 +1,435 @@
+/*
+Copyright 2025 Adobe. All rights reserved.
+This file is licensed to you under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License. You may obtain a copy
+of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+OF ANY KIND, either express or implied. See the License for the specific language
+governing permissions and limitations under the License.
+*/
+
+const { Timings, aggregate } = require('../lib/benchmark');
+const { AdminAPI } = require('../lib/aem');
+const { requestSaaS, requestSpreadsheet, isValidUrl, getProductUrl, mapLocale } = require('../utils');
+const { GetLastModifiedQuery } = require('../queries');
+const { Core } = require('@adobe/aio-sdk');
+const { generateProductHtml } = require('../pdp-renderer/render');
+const crypto = require('crypto');
+const { FILE_PREFIX, FILE_EXT } = require('../utils');
+const BATCH_SIZE = 50;
+
+function getStateFileLocation(stateKey) {
+  return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
+}
+
+/**
+ * @typedef {Object} PollerState
+ * @property {string} locale - The locale (or store code).
+ * @property {Array<Object>} skus - The SKUs with last previewed timestamp and hash.
+ */
+
+/**
+ * @typedef {import('@adobe/aio-sdk').Files.Files} FilesProvider
+ */
+
+/**
+ * Saves the state to the cloud file system.
+ *
+ * @param {String} locale - The locale (or store code).
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
+ */
+async function loadState(locale, aioLibs) {
+  const { filesLib } = aioLibs;
+  const stateObj = { locale };
+  try {
+    const stateKey = locale || 'default';
+    const fileLocation = getStateFileLocation(stateKey);
+    const buffer = await filesLib.read(fileLocation);
+    const stateData = buffer?.toString();
+    if (stateData) {
+      const lines = stateData.split('\n');
+      stateObj.skus = lines.reduce((acc, line) => {
+        // the format of the state object is:
+        // <sku1>,<timestamp>,<hash>
+        // <sku2>,<timestamp>,<hash>
+        // ...
+        // each row is a set of SKUs, last previewed timestamp and hash
+        const [sku, time, hash] = line.split(',');
+        acc[sku] = { lastPreviewedAt: new Date(parseInt(time)), hash };
+        return acc;
+      }, {});
+    } else {
+      stateObj.skus = {};
+    }
+  // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    stateObj.skus = {};
+  }
+  return stateObj;
+}
+
+/**
+ * Saves the state to the cloud file system.
+ *
+ * @param {PollerState} state - The object describing state and metadata.
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<void>} - A promise that resolves when the state is saved.
+ */
+async function saveState(state, aioLibs) {
+  const { filesLib } = aioLibs;
+  let { locale } = state;
+  const stateKey = locale || 'default';
+  const fileLocation = getStateFileLocation(stateKey);
+  const csvData = [
+    ...Object.entries(state.skus)
+      .map(([sku, { lastPreviewedAt, hash }]) => {
+        return `${sku},${lastPreviewedAt.getTime()},${hash || ''}`;
+      }),
+  ].join('\n');
+  return await filesLib.write(fileLocation, csvData);
+}
+
+/**
+ * Deletes the state from the cloud file system.
+ *
+ * @param {String} locale - The key of the state to be deleted.
+ * @param {FilesProvider} filesLib - The Files library instance from '@adobe/aio-sdk'.
+ * @returns {Promise<void>} - A promise that resolves when the state is deleted.
+ */
+async function deleteState(locale, filesLib) {
+  const stateKey = `${locale}`;
+  const fileLocation = getStateFileLocation(stateKey);
+  await filesLib.delete(fileLocation);
+}
+
+/**
+ * Checks the Adobe Commerce store for product changes, performs
+ * preview/publish/delete operstions if needed, then updates the
+ * state accordingly.
+ *
+ * @param {Object} params - The parameters object.
+ * @param {string} params.HLX_SITE_NAME - The name of the site (repo or repoless).
+ * @param {string} params.HLX_PATH_FORMAT - The URL format for product detail pages.
+ * @param {string} params.HLX_ORG_NAME - The name of the organization.
+ * @param {string} params.HLX_CONFIG_NAME - The name of the configuration json/xlsx.
+ * @param {string} params.HLX_PRODUCTS_TEMPLATE URL to the products template page
+ * @param {string} params.authToken - The authentication token.
+ * @param {string} [params.HLX_STORE_URL] - The store's base URL.
+ * @param {string} [params.HLX_LOCALES] - Comma-separated list of allowed locales.
+ * @param {string} [params.LOG_LEVEL] - The log level.
+ * @param {FilesProvider} filesLib - The files provider object.
+ * @returns {Promise<Object>} The result of the polling action.
+ */
+function checkParams(params) {
+  const requiredParams = ['HLX_SITE_NAME', 'HLX_PATH_FORMAT', 'HLX_ORG_NAME', 'HLX_CONFIG_NAME', 'authToken'];
+  const missingParams = requiredParams.filter(param => !params[param]);
+  if (missingParams.length > 0) {
+    throw new Error(`Missing required parameters: ${missingParams.join(', ')}`);
+  }
+
+  if (params.HLX_STORE_URL && !isValidUrl(params.HLX_STORE_URL)) {
+    throw new Error('Invalid storeUrl');
+  }
+}
+
+/**
+ * Creates batches of products for processing
+ * @param products
+ * @param context
+ * @returns {*}
+ */
+function createBatches(products, context) {
+  return products.reduce((acc, product) => {
+        const { sku, urlKey } = product;
+        const path = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
+
+        if (!acc.length || acc[acc.length - 1].length === BATCH_SIZE) {
+          acc.push([]);
+        }
+        acc[acc.length - 1].push({ path, sku });
+
+        return acc;
+      }, []);
+}
+
+/**
+ * Returns array of promises for preview and publish
+ * @param batches
+ * @param locale
+ * @param adminApi
+ * @returns {*}
+ */
+function previewAndPublish(batches, locale, adminApi) {
+  let batchNumber = 0;
+  return batches.reduce((acc, batch) => {
+    batchNumber++;
+    acc.push(adminApi.previewAndPublish(batch, locale, batchNumber));
+    return acc;
+  }, []);
+}
+
+/**
+ * Returns array of promises for unpublish and delete
+ * @param batches
+ * @param locale
+ * @param adminApi
+ * @returns {*}
+ */
+function unpublishAndDelete(batches, locale, adminApi) {
+    let batchNumber = 0;
+    return batches.reduce((acc, batch) => {
+        batchNumber++;
+        acc.push(adminApi.unpublishAndDelete(batch, locale, batchNumber));
+        return acc;
+    }, []);
+}
+
+/**
+ * Checks if a product should be processed
+ * @param product
+ * @returns {boolean}
+ */
+function shouldProcessProduct(product) {
+  const { urlKey, lastModifiedDate, lastPreviewDate, currentHash, newHash } = product;
+  return urlKey?.match(/^[a-zA-Z0-9-]+$/) && lastModifiedDate >= lastPreviewDate && currentHash !== newHash;
+}
+
+/**
+ * Processes a product to determine if it needs to be updated
+ * @param {Object} product - The product to process
+ * @param {Object} state - The current state
+ * @param {Object} context - The context object with logger and other utilities
+ * @returns {Object} Enhanced product with additional metadata
+ */
+async function enrichProductWithMetadata(product, state, context) {
+  const { logger } = context;
+  const { sku, urlKey, lastModifiedAt } = product;
+  const lastPreviewDate = state.skus[sku]?.lastPreviewedAt || new Date(0);
+  const lastModifiedDate = new Date(lastModifiedAt);
+  let newHash = null;
+  let productHtml = null;
+  
+  try {
+    productHtml = await generateProductHtml(sku, urlKey, context);
+    newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
+    
+    // Create enriched product object
+    const enrichedProduct = {
+      ...product,
+      lastModifiedDate,
+      lastPreviewDate,
+      currentHash: state.skus[sku]?.hash || null,
+      newHash,
+      productHtml
+    };
+    
+    // Save HTML immediately if product should be processed
+    if (shouldProcessProduct(enrichedProduct) && productHtml) {
+      try {
+        const { filesLib } = context.aioLibs;
+        const productUrl = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
+        const htmlPath = `/public/pdps${productUrl}`;
+        await filesLib.write(htmlPath, productHtml);
+        logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
+      } catch (e) {
+        logger.error(`Error saving HTML for product ${sku}:`, e);
+      }
+    }
+    
+    return enrichedProduct;
+  } catch (e) {
+    logger.error(`Error generating product HTML for SKU ${sku}:`, e);
+    // Return product with metadata even if HTML generation fails
+    return {
+      ...product,
+      lastModifiedDate,
+      lastPreviewDate,
+      currentHash: state.skus[sku]?.hash || null,
+      newHash: null,
+      productHtml: null
+    };
+  }
+}
+
+/**
+ * Processes publish batches and updates state
+ */
+async function processPublishBatches(promiseBatches, state, counts, products, aioLibs) {
+  const response = await Promise.all(promiseBatches);
+  for (const { records, previewedAt, publishedAt } of response) {
+    if (previewedAt && publishedAt) {
+      records.map((record) => {
+        const product = products.find(p => p.sku === record.sku);
+        state.skus[record.sku] = {
+          lastPreviewedAt: previewedAt,
+          hash: product?.newHash
+        };
+        counts.published++;
+      });
+    } else {
+      counts.failed += records.length;
+    }
+    await saveState(state, aioLibs);
+  }
+}
+
+/**
+ * Identifies and processes products that need to be deleted
+ */
+async function processDeletedProducts(remainingSkus, locale, state, counts, context, adminApi, aioLibs, logger) {
+  if (!remainingSkus.length) return;
+
+  try {
+    const { filesLib } = aioLibs;
+    const publishedProducts = await requestSpreadsheet('published-products-index', null, context);
+    const deletedProducts = publishedProducts.data.filter(({ sku }) => remainingSkus.includes(sku));
+
+    // Process in batches
+    if (deletedProducts.length) {
+      // delete in batches of BATCH_SIZE, then save state in case we get interrupted
+      const batches = createBatches(deletedProducts, context);
+      const promiseBatches = unpublishAndDelete(batches, locale, adminApi);
+
+      const response = await Promise.all(promiseBatches);
+      for (const { records, liveUnpublishedAt, previewUnpublishedAt } of response) {
+        if (liveUnpublishedAt && previewUnpublishedAt) {
+          records.map((record) => {
+            // Delete the HTML file from public storage
+            try {
+              const product = deletedProducts.find(p => p.sku === record.sku);
+              if (product) {
+                const productUrl = getProductUrl({ urlKey: product.urlKey, sku: product.sku }, context, false).toLowerCase();
+                const htmlPath = `/public/pdps${productUrl}`;
+                filesLib.delete(htmlPath);
+                logger.debug(`Deleted HTML file for product ${record.sku} from ${htmlPath}`);
+              }
+            } catch (e) {
+              logger.error(`Error deleting HTML file for product ${record.sku}:`, e);
+            }
+            
+            delete state.skus[record.sku];
+            counts.unpublished++;
+          });
+        } else {
+          counts.failed += records.length;
+        }
+        await saveState(state, aioLibs);
+      }
+    }
+  } catch (e) {
+    logger.error('Error processing deleted products:', e);
+  }
+}
+
+function makeContext(params) {
+	const ctx = {};
+	ctx.path = params.__ow_path;
+	ctx.method = params.__ow_method;
+  ctx.headers = params.__ow_headers;
+  ctx.body = params.__ow_body;
+  ctx.config = {
+    apitoken: params.AEM_TOKEN,
+    coveoHost: params.COVEO_HOST,
+    coveoOrg: params.COVEO_ORG,
+    coveoPipeline: params.COVEO_PIPELINE,
+    coveoSearchHub: params.COVEO_SEARCHHUB,
+    coveoAuth: params.COVEO_AUTH,
+  }
+	return ctx;
+}
+
+async function fetch(params, aioLibs) {
+  const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
+
+  const ctx = makeContext(params, logger);
+  const skus = ctx.body || ["ab31908","ab31909","ab92547","ab183685","ab8227","ab2413","ab117496","ab5000","ab187912","ab48506"];
+  
+  const {
+    HLX_SITE_NAME: siteName,
+    HLX_ORG_NAME: orgName,
+    authToken,
+  } = params;
+
+  const counts = {
+    published: 0, unpublished: 0, ignored: 0, failed: 0,
+  };
+  const sharedContext = {
+    logger, counts
+  };
+  const timings = new Timings();
+  const adminApi = new AdminAPI({
+    org: orgName,
+    site: siteName,
+  }, sharedContext, { authToken });
+
+  const url = `https://${ctx.config.coveoOrg}.org.coveo.com/rest/search/v2`;
+  try {
+    // start processing preview and publish queues
+    await adminApi.startProcessing();
+    const batches = createBatches(skus, ctx);
+    const results = await Promise.all(batches.map(async (batch) => {
+      let paths = [];
+      const resp = await requestCOVEO(url, { skus: [...batch] }, ctx);
+      timings.sample('fetchedData');
+      logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
+
+      // Enrich products with metadata
+      const products = await Promise.all(
+        resp?.results?.map(product => {
+          const path = `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
+          paths.push(path);
+          enrichProductWithMetadata(product, state, ctx)
+        })
+      );
+
+      const promiseBatches = previewAndPublish(paths, 'en-us', adminApi);
+
+      timings.sample('publishedPaths');
+
+      return timings.measures;
+    }));
+  } catch (e) {
+    logger.error(e);
+    // wait for queues to finish, even in error case
+    await adminApi.stopProcessing();
+  }
+
+  // aggregate timings
+  for (const measure of results) {
+    for (const [name, value] of Object.entries(measure)) {
+      if (!timings.measures[name]) timings.measures[name] = [];
+      if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
+      timings.measures[name].push(value);
+    }
+  }
+  for (const [name, values] of Object.entries(timings.measures)) {
+    timings.measures[name] = aggregate(values);
+  }
+  timings.measures.previewDuration = aggregate(adminApi.previewDurations);
+
+  const elapsed = new Date() - timings.now;
+
+  logger.info(`Finished polling, elapsed: ${elapsed}ms`);
+
+  return {
+    state: 'completed',
+    elapsed,
+    status: { ...counts },
+    timings: timings.measures,
+  };
+}
+
+module.exports = {
+  fetch,
+  deleteState,
+  loadState,
+  saveState,
+  getStateFileLocation,
+};

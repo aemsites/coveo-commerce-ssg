@@ -220,6 +220,52 @@ async function getConfig(context) {
 }
 
 /**
+ * Requests product from Coveo Service API.
+ *
+ * @param {string} url to be requested.
+ * @param {[string]} skus list of product ids.
+  * @param {object} ctx the context object.
+ *
+ * @returns {Promise<object>} Coveo response as object.
+ */
+async function requestCOVEO(url, skus, ctx) {
+  const body = {
+    context: { productid: skus },
+    pipeline: ctx.config.coveoPipeline,
+    searchHub: ctx.config.coveoSearchHub,
+    numberOfResults: skus.length,
+  };
+
+  const options = {
+    body: JSON.stringify(body),
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+      authorization: `Bearer ${ctx.config.coveoAuth}`,
+    },
+  };
+
+  const response = await fetch(url, options);
+  logger.debug({
+    url: coveoUrl.href,
+    status: resp.status,
+    statusText: resp.statusText,
+  });
+
+  if (!response.ok) {
+    logger.warn('failed to fetch product: ', response.status, response.statusText);
+    try {
+      logger.info('body: ', await response.text());
+    } catch {
+      logger.error('Error in gettting product from coveo:', e);
+    }
+    return;
+  }
+
+  return await response.json();
+}
+
+/**
  * Requests data from Commerce Catalog Service API.
  *
  * @param {string} query GraphQL query.
