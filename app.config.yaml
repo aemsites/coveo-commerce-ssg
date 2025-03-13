@@ -27,12 +27,17 @@ application:
               final: true
             include:
               - ["actions/pdp-renderer/templates/*.hbs", "templates/"]
+          webhook-product-updates:
+            function: actions/webhook-product-updates/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            annotations:
+              final: true
           check-product-changes:
             function: actions/check-product-changes/index.js
             web: 'no'
             runtime: nodejs:22
             limits:
-              memorySize: 128
               timeout: 3600000
             inputs:
               authToken: ${AEM_ADMIN_API_AUTH_TOKEN}
