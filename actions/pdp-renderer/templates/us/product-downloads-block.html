@@ -1,0 +1,13 @@
+<div class="product-downloads {{class}}">
+    {{#if protocolsdownloads}}
+        {{#each protocolsdownloads}}        
+            {{#if this.url}}
+            <div>
+                <div><em>{{this.documentType}}</em></div>
+                <div><span>{{ this.language }}</span></div>
+                <div><a href="{{concat '/content/dam/abcam' this.url}}" target="_blank"></a></div>
+            </div>
+            {{/if}}
+        {{/each}}
+    {{/if}}
+</div>

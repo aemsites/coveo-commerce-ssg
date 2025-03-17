@@ -1,0 +1,12 @@
+<div class="product-notes {{class}}">
+    {{#if notes}}
+    <div>
+        <div><h3>Notes</h3></div>
+    </div>
+    <div>
+        {{#each notes}}
+        <div>{{{this.statement}}}</div>
+        {{/each}}
+    </div>
+    {{/if}}  
+</div>

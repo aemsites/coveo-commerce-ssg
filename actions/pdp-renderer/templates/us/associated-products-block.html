@@ -1,0 +1,21 @@
+{{#if associatedproducts}}
+<div class="associated-products {{class}}">
+    <div>
+        <div><h3>Associated Products</h3></div>
+    </div>
+    {{#each associatedproducts}}
+    <div>   
+        <div>
+            <h6>{{this.relationship}}</h6>
+            <h5>{{this.associatedProduct.categoryType}}</h5>
+            <h4>{{this.associatedProduct.name}}</h4>
+            <div>{{this.associatedProduct.productCode}}</div>        
+            {{#if this.associatedProduct.reviewsSummary}}
+            <div>{{this.associatedProduct.reviewsSummary.aggregatedRating}}</div>
+            <div>({{this.associatedProduct.reviewsSummary.numberOfReviews}} reviews)</div>
+            {{/if}}
+        </div>
+    </div>
+    {{/each}}
+</div>
+{{/if}}

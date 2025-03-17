@@ -1,0 +1,53 @@
+<div class="product-publications {{class}}">
+   <div>
+      <div>
+         <div><h3>Publications ({{raw.adpublicationscount}})</h3></div>
+         <div>Recent publications for all applications. Explore the <a href="#">full list</a> and refine your search</div>
+      </div>
+   </div>
+
+   {{#each publications}}
+   <div>
+      <div>
+         <div>
+            <span>{{ this.journal }}</span>
+            <span>{{ this.pages }}</span>
+            <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ this.pubmedId }}?dopt=Abstract">PubMed{{ this.pubmedId }}</a>
+         </div>
+         <div>
+            <span>{{ this.publicationYear }}</span>
+         </div>
+      </div>
+      <div>
+         <div>{{ this.name }}</div>
+      </div>
+      <div>
+         <div>
+            <p>Applications</p>
+            <p>
+               {{#each this.references }}
+                  {{#if @last}} {{ this.application }}
+                  {{else}} {{ this.application }}, 
+                  {{/if}}
+               {{/each}}
+            </p>
+         </div>
+         <div>
+            <p>Species</p>
+            <p>
+               {{#each this.references }}
+                  {{#if @last}} {{ this.species }}
+                  {{else}} {{ this.species }}, 
+                  {{/if}}
+               {{/each}}
+            </p>
+         </div>
+      </div>
+      <div>{{ this.authors }}</div>
+   </div>
+   {{/each}}
+
+   <div>
+      <div><p> View all publications </p></div>
+   </div>
+</div>

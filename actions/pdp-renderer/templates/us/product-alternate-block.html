@@ -1,0 +1,64 @@
+<div class="product-alternate {{class}}">
+   {{#if alternateproducts}}
+   <div>
+      <div><h3>Consider this alternative</h3></div>
+   </div>
+   <div>
+      <div><p>{{ alternateproducts.categoryType }}</p></div>
+   </div>
+   <div>
+      <div><p>{{ alternateproducts.productCode }}</p></div>
+   </div>
+   <div>
+      <div><h3>{{ alternateproducts.name }}</h3></div>
+   </div>
+   <div>
+      <div><p>{{ alternateproducts.reviewsSummary.aggregatedRating }}</p></div>
+   </div>
+   <div>
+      <div><p>{{ alternateproducts.reviewsSummary.numberOfReviews }} Reviews</p></div>
+   </div>
+   <div>
+      <div><a href="{{concat '/en-us/product' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+   </div>
+   {{/if}}
+
+   {{#if toprecommendedproducts}}
+   <div>
+      <div><h3>Abcam Recommends</h3></div>
+   </div>
+      {{#each toprecommendedproducts}}
+      {{#if this.categoryType}}
+      <div>
+         <div><p>{{ this.categoryType }}</p></div>
+      </div>
+      {{/if}}
+      {{#if this.productCode}}
+      <div>
+         <div><p>{{ this.productCode }}</p></div>
+      </div>
+      {{/if}}
+      {{#if this.name}}
+      <div>
+         <div><h3>{{ this.name }}</h3></div>
+      </div>
+      {{/if}}
+      {{#if this.reviewsSummary}}
+      <div>
+         <div><p>{{ this.reviewsSummary.aggregatedRating }}</p></div>
+      </div>
+      {{/if}}
+      {{#if this.reviewsSummary}}
+      <div>
+         <div><p>{{ this.reviewsSummary.numberOfReviews }} Reviews</p></div>
+      </div>
+      {{/if}}
+      {{#if this.productSlug}}
+      <div>
+         <div><a href="{{concat '/en-us/product' this.type this.productSlug}}" target="_blank">View product</a></div>
+      </div>
+      {{/if}}
+      {{/each}}
+   </div>
+   {{/if}}
+</div>

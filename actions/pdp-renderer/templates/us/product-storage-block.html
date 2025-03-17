@@ -1,0 +1,41 @@
+<div class="product-storage-info {{class}}">
+  <div>
+    <div><h3>Storage information</h3></div>
+  </div>
+  {{#if raw.adstorageinformation}}
+  <div>
+    <div><h5>Storage information</h5></div>
+    <div><span>{{raw.adstorageinformation}}</span></div>
+  </div>
+  {{/if}}
+  {{#if raw.adshippedatconditions}}
+  <div>
+    <div><h5>Shipped at conditions</h5></div>
+    <div><span>{{raw.adshippedatconditions}}</span></div>
+  </div>
+  {{/if}}
+  {{#if raw.adappropriateshorttermstorageduration}}
+  <div>
+    <div><h5>Appropriate short-term storage duration</h5></div>
+    <div><spanp>{{raw.adappropriateshorttermstorageduration}}</span></div>
+  </div>
+  {{/if}}
+  {{#if raw.adappropriateshorttermstorageconditions}}
+  <div>
+    <div><h5>Appropriate short-term storage conditions</h5></div>
+    <div><span>{{raw.adappropriateshorttermstorageconditions}}</span></div>
+  </div>
+  {{/if}}
+  {{#if raw.adappropriatelongtermstorageconditions}}
+  <div>
+    <div><h5>Appropriate long-term storage conditions</h5></div>
+    <div><span>{{raw.adappropriatelongtermstorageconditions}}</span></div>
+  </div>
+  {{/if}}
+  {{#if raw.adaliquotinginformation}}
+  <div>
+    <div><h5>Aliquoting information</h5></div>
+    <div><span>{{raw.adaliquotinginformation}}</span></div>
+  </div>
+  {{/if}}
+</div>
