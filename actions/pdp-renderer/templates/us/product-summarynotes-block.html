@@ -1,0 +1,18 @@
+<div class="product-supplementary-info {{class}}">
+    {{#if summarynotes}}
+    <div>
+        <div>
+            <h3>Supplementary info</h3>
+            <p>This supplementary information is collated from multiple sources and compiled automatically.</p>
+        </div>
+    </div>
+        {{#each summarynotes}}
+        <div>
+            <div>
+                <h5>{{this.noteType}}</h5>
+                <p>{{this.statement}}</p>
+            </div>
+        </div>
+        {{/each}}
+    {{/if}}
+</div>

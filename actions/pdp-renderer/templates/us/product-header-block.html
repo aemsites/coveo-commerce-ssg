@@ -1,0 +1,36 @@
+<div class="product-header {{class}}">
+    <div>
+        <div>
+            <em>{{raw.adassetdefinitionnumber}}</em>
+        </div>
+        <div>
+            <h1>{{title}}</h1>
+            <ul>
+            {{#each raw.adtags}}
+            <li>{{ this }}</li>
+            {{/each}}
+            <li><a href="#">What is this?</a></li>
+            </ul>
+            {{#if raw.adreviewsaggregaterating}}
+            <em>{{raw.adreviewsaggregaterating}}</em>
+            <em>({{raw.adreviewscount}} Reviews)</em>
+            {{else}}
+            <p>Be the first to review this product! <a
+                href="https://www.abcam.com/reviews/submit-review-2?productCode={{raw.productcode}}">Submit a
+                review</a></p>
+            {{/if}}
+            | <em>({{raw.adpublicationscount}} Publications)</em>
+            <p>{{{raw.adproductsummary}}}</p>
+        </div>
+        <div>
+            <p>View alternative names</p>
+            <div>
+            {{#each alternativenames}}
+                {{#if @last}} {{ this }}
+                {{else}} {{ this }}, 
+                {{/if}}
+            {{/each}}
+            </div>
+        </div>
+    </div>
+</div>

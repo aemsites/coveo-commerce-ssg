@@ -1,0 +1,23 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <meta name="description" content="{{raw.description}}">
+  <meta name="published-time" content="where in json?">
+  <meta name="modified-time" content="where in json?">
+  <meta name="category-type" content="{{raw.adcategorytype}}">
+  <meta name="product-slug" content="{{raw.adproductslug}}">
+  <meta name="clickableuri" content="{{raw.clickableuri}}">
+  {{> meta-jsonld}}
+</head>
+
+<body>
+  <header></header>
+  <main>
+    {{> overview-section }}
+  </main>
+  <footer></footer>
+</body>
+
+</html>

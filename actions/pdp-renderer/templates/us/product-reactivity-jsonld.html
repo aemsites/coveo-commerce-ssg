@@ -1,0 +1,89 @@
+<script type="application/ld+json" id="reactivitytable" class="{{raw.adcategorytype}}">[
+    {
+        {{#if (eq raw.adcategorytype "Primary Antibodies")}}
+            {{#if tabledata}}            
+            "title": "Reactivity Data",
+            "filters": {
+                "stats": ["", "Species", "Dilution Info", "Notes"],
+                "tabs": {
+                    "all-applications": "all-applications",
+                    {{#each applications}}
+                    {{#if @last}} "{{this.fullName}}" : "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}"
+                    {{else}} "{{this.fullName}}" : "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}",
+                    {{/if}}
+                    {{/each}}
+                },
+                "product-promise": {
+                    "all": "all",
+                    "TESTED_AND_REACTS": "tested",
+                    "NO_EXPERIMENTAL_DATA_EXPECTED_TO_REACT": "expected",
+                    "EXPECTED_TO_REACT": "predicted",
+                    "REACTS": "reacts",
+                    "NOT_RECOMMENDED": "not-recommended"
+                }
+            },
+            "values": {
+                {{#each tabledata}}
+                {{#if @last}}
+                "{{this.species}}": {
+                    {{#each ../applications}}
+                    {{#if @last}}
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}"
+                    {{else}}             
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}",                
+                    {{/if}}
+                    {{/each}}
+                }
+                {{else}}
+                "{{this.species}}": {
+                    {{#each ../applications}}
+                    {{#if @last}}
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}"             
+                    {{else}}
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
+                        "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}",                
+                    {{/if}}
+                    {{/each}}
+                },
+                {{/if}}
+                {{/each}}            
+            }
+            {{/if}} 
+        {{else}}
+            {{#if applications}}    
+            "title": "Reactivity Data",
+            "filters": {
+                "stats": ["", "Reactivity", "Dilution Info", "Notes"]
+            },            
+            "values": {   
+            {{#each applications}}               
+                {{#if @last}}
+                "{{this.name}}": {
+                    {{#each species}}           
+                        "reactivity":"{{this.suitability}}",
+                        "dilution-info":"{{this.recommendedDilution}}",
+                        "notes":"{{{this.notes}}}"
+                    {{/each}}
+                }
+                {{else}}
+                "{{this.name}}": {
+                    {{#each species}}           
+                        "reactivity":"{{this.suitability}}",
+                        "dilution-info":"{{this.recommendedDilution}}",
+                        "notes":"{{{this.notes}}}"
+                    {{/each}}
+                },
+                {{/if}}
+            {{/each}}
+            }
+            {{/if}}
+        {{/if}}
+    }
+]</script>
