@@ -416,6 +416,7 @@ async function fetch(params, aioLibs) {
 
   logger.info(`Finished polling, elapsed: ${elapsed}ms`);
 
+  // TO-DO: rresponse to be sent in mail
   return {
     state: 'completed',
     elapsed,
