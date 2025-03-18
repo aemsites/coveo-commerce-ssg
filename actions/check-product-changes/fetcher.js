@@ -195,8 +195,8 @@ function unpublishAndDelete(batches, locale, adminApi) {
  * @returns {boolean}
  */
 function shouldProcessProduct(product) {
-  const { urlKey, lastModifiedDate, lastPreviewDate, currentHash, newHash } = product;
-  return urlKey?.match(/^[a-zA-Z0-9-]+$/) && lastModifiedDate >= lastPreviewDate && currentHash !== newHash;
+  const { currentHash, newHash } = product;
+  return currentHash !== newHash;
 }
 
 /**
@@ -208,20 +208,23 @@ function shouldProcessProduct(product) {
  */
 async function enrichProductWithMetadata(product, state, context) {
   const { logger } = context;
-  const { sku, urlKey, lastModifiedAt } = product;
+  const { sku: skuOriginal, adproductslug: urlKey } = product?.raw;
+  const sku = skuOriginal.split('-')[0].toLowerCase();
+  logger.info('sku - urlKey', sku, urlKey);
   const lastPreviewDate = state.skus[sku]?.lastPreviewedAt || new Date(0);
-  const lastModifiedDate = new Date(lastModifiedAt);
   let newHash = null;
   let productHtml = null;
   
   try {
-    productHtml = await generateProductHtml(product, context);
+    productResponse = await generateProductHtml(product, context);
+    productHtml = productResponse?.body;
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
     
     // Create enriched product object
     const enrichedProduct = {
       ...product,
-      lastModifiedDate,
+      sku,
+      urlKey,
       lastPreviewDate,
       currentHash: state.skus[sku]?.hash || null,
       newHash,
@@ -232,9 +235,9 @@ async function enrichProductWithMetadata(product, state, context) {
     if (shouldProcessProduct(enrichedProduct) && productHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const productPath = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
-        // const htmlPath = `/public/pdps${productUrl}`;
-        await filesLib.write(productPath, productHtml);
+        const productPath = getProductUrl(product, context, false);
+        const htmlPath = `/public/pdps${productPath}`;
+        await filesLib.write(htmlPath, productHtml);
         logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
       } catch (e) {
         logger.error(`Error saving HTML for product ${sku}:`, e);
@@ -247,7 +250,8 @@ async function enrichProductWithMetadata(product, state, context) {
     // Return product with metadata even if HTML generation fails
     return {
       ...product,
-      lastModifiedDate,
+      sku,
+      urlKey,
       lastPreviewDate,
       currentHash: state.skus[sku]?.hash || null,
       newHash: null,
@@ -345,7 +349,6 @@ function makeContext(params) {
 
 async function fetcher(params, aioLibs) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
-  logger.info('params', params);
   const { stateLib } = aioLibs;
   const wskContext = makeContext(params, logger);
   const {
@@ -358,7 +361,7 @@ async function fetcher(params, aioLibs) {
     published: 0, unpublished: 0, ignored: 0, failed: 0,
   };
   const sharedContext = {
-    logger, counts
+    logger, counts, aioLibs
   };
   const timings = new Timings();
   const adminApi = new AdminAPI({
@@ -379,65 +382,85 @@ async function fetcher(params, aioLibs) {
   try {
     // start processing preview and publish queues
     await adminApi.startProcessing();
+    
+    // Get the first key only
+    let firstKey = null;
     for await (const { keys } of stateLib.list({ match: 'webhook-skus-updated.*' })) {
-      keys.forEach(async (key) => {
-        const skusState = await stateLib.get(key);
-        try {
-          const skus = JSON.parse(skusState.value);
-          console.log('skus', skus);
-          const batches = createBatches(skus);
-          console.log('batches', batches);
-          const results = await Promise.all(batches.map(async (batch) => {
-            const resp = await requestCOVEO(coveoUrl, batch, context);
-            console.log('resp', resp);
-            timings.sample('fetchedData');
-            logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
+      if (keys.length > 0) {
+        firstKey = keys[0];
+        break;
+      }
+    }
+    
+    if (firstKey) {
+      logger.info(`Processing single key: ${firstKey}`);
+      const skusState = await stateLib.get(firstKey);
+      
+      try {
+        const skus = JSON.parse(skusState.value);
+        const batches = createBatches(skus);
+        logger.info(`Created ${batches.length} batches from ${skus.length} SKUs`);
+        
+        // Process each batch sequentially to maintain log order
+        for (const batch of batches) {
+          const resp = await requestCOVEO(coveoUrl, batch, context);
+          timings.sample('fetchedData');
+          logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
+          
+          // Enrich products with metadata
+          const products = await Promise.all(
+            resp?.results?.map(product => enrichProductWithMetadata(product, state, context))
+          );
+          
+          const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
+          const filteredPaths = filteredProducts.map(product => ({ 
+            sku: product.sku, 
+            path: getProductUrl(product, context, false)
+          }));
 
-            // Enrich products with metadata
-            const products = await Promise.all(
-              resp?.results?.map(product => {
-                enrichProductWithMetadata(product, state, context)
-              })
-            );
-            const filteredProducts = products.filter(shouldProcessProduct);
-            const filteredPaths = filteredProducts.map(product => ({ sku: product.sku, path: getProductUrl({ urlKey: product.urlKey, sku: product.sku }, context, false).toLowerCase()}));
-
-            const promiseBatches = previewAndPublish(filteredPaths, 'en-us', adminApi);
+          counts.ignored += products.length - filteredPaths.length;
+          logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
+          
+          if (filteredPaths.length > 0) {
+            const promiseBatches = previewAndPublish(createBatches(filteredPaths), 'en-us', adminApi);
             await processPublishBatches(promiseBatches, state, counts, products, aioLibs);
             timings.sample('publishedPaths');
-
-            return timings.measures;
-          }));
-          // aggregate timings
-          for (const measure of results) {
-            for (const [name, value] of Object.entries(measure)) {
-              if (!timings.measures[name]) timings.measures[name] = [];
-              if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
-              timings.measures[name].push(value);
-            }
           }
-        } catch (e) {
-          logger.error('Error parsing skus', e);
-          // await stateLib.delete(key);
         }
-      });
+        
+        // After processing, delete the key
+        await stateLib.delete(firstKey);
+        logger.info(`Deleted processed key: ${firstKey}`);
+        
+      } catch (e) {
+        logger.error(`Error processing key ${firstKey}:`, e);
+      }
+    } else {
+      logger.info('No keys found to process');
     }
+    
+    // Aggregate timings
+    for (const [name, values] of Object.entries(timings.measures)) {
+      if (Array.isArray(values)) {
+        timings.measures[name] = aggregate(values);
+      }
+    }
+    
+    if (adminApi.previewDurations && adminApi.previewDurations.length > 0) {
+      timings.measures.previewDuration = aggregate(adminApi.previewDurations);
+    }
+    
     await adminApi.stopProcessing();
   } catch (e) {
-    logger.error(e);
+    logger.error('Error in fetcher:', e);
     // wait for queues to finish, even in error case
     await adminApi.stopProcessing();
   }
-  for (const [name, values] of Object.entries(timings.measures)) {
-    timings.measures[name] = aggregate(values);
-  }
-  timings.measures.previewDuration = aggregate(adminApi.previewDurations);
-
+  
   const elapsed = new Date() - timings.now;
-
   logger.info(`Finished polling, elapsed: ${elapsed}ms`);
 
-  // TO-DO: rresponse to be sent in mail
+  // Return the result after all operations are complete
   return {
     state: 'completed',
     elapsed,
