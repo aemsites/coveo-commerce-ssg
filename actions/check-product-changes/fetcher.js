@@ -347,10 +347,8 @@ function makeContext(params) {
 
 async function fetcher(params, aioLibs) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
-
+  const { stateLib } = aioLibs;
   const ctx = makeContext(params, logger);
-  const skus = ctx.body || ["ab31908","ab31909","ab92547","ab183685","ab8227","ab2413","ab117496","ab5000","ab187912","ab48506"];
-  
   const {
     HLX_SITE_NAME: siteName,
     HLX_ORG_NAME: orgName,
@@ -373,39 +371,51 @@ async function fetcher(params, aioLibs) {
   try {
     // start processing preview and publish queues
     await adminApi.startProcessing();
-    const batches = createBatches(skus, ctx);
-    const results = await Promise.all(batches.map(async (batch) => {
-      let paths = [];
-      const resp = await requestCOVEO(url, { skus: [...batch] }, ctx);
-      timings.sample('fetchedData');
-      logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
+    const skus = [];
+    for await (const { keys } of stateLib.list({ match: 'webhook-skus-updated.*' })) {
+      keys.forEach(async (key) => {
+        const skusState = await stateLib.get(key);
+        try {
+        const skus = JSON.parse(skusState.value);
+        console.log('skus', skus);
+        const batches = createBatches(skus, ctx);
+        const results = await Promise.all(batches.map(async (batch) => {
+          let paths = [];
+          const resp = await requestCOVEO(url, { skus: [...batch] }, ctx);
+          timings.sample('fetchedData');
+          logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
 
-      // Enrich products with metadata
-      const products = await Promise.all(
-        resp?.results?.map(product => {
-          enrichProductWithMetadata(product, state, ctx)
-        })
-      );
+          // Enrich products with metadata
+          const products = await Promise.all(
+            resp?.results?.map(product => {
+              enrichProductWithMetadata(product, state, ctx)
+            })
+          );
 
-      const promiseBatches = previewAndPublish(paths, 'en-us', adminApi);
+          const promiseBatches = previewAndPublish(paths, 'en-us', adminApi);
 
-      timings.sample('publishedPaths');
+          timings.sample('publishedPaths');
 
-      return timings.measures;
-    }));
+          return timings.measures;
+        }));
+        // aggregate timings
+        for (const measure of results) {
+          for (const [name, value] of Object.entries(measure)) {
+            if (!timings.measures[name]) timings.measures[name] = [];
+            if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
+            timings.measures[name].push(value);
+          }
+        }
+      } catch (e) {
+        logger.error('Error parsing skus', e);
+        await stateLib.delete(key);
+        }
+      });
+    }
   } catch (e) {
     logger.error(e);
     // wait for queues to finish, even in error case
     await adminApi.stopProcessing();
-  }
-
-  // aggregate timings
-  for (const measure of results) {
-    for (const [name, value] of Object.entries(measure)) {
-      if (!timings.measures[name]) timings.measures[name] = [];
-      if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
-      timings.measures[name].push(value);
-    }
   }
   for (const [name, values] of Object.entries(timings.measures)) {
     timings.measures[name] = aggregate(values);

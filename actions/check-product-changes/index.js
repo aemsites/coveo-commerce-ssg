@@ -12,15 +12,13 @@ governing permissions and limitations under the License.
 
 const { Core, State, Files } = require('@adobe/aio-sdk');
 const { fetcher } = require('./fetcher');
-const { StateManager } = require('../lib/state');
 
 async function main(params) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
   const stateLib = await State.init(params.libInit || {});
   const filesLib = await Files.init(params.libInit || {});
-  const stateMgr = new StateManager(stateLib, { logger });
 
-  const running = await stateMgr.get('running');
+  const running = await stateLib.get('running');
   if (running?.value === 'true') {
     return { state: 'skipped' };
   }
@@ -29,10 +27,10 @@ async function main(params) {
     // if there is any failure preventing a reset of the 'running' state key to 'false',
     // this might not be updated and action execution could be permanently skipped
     // a ttl == function timeout is a mitigation for this risk
-    await stateMgr.put('running', 'true', { ttl: 3600 });
-    return await fetcher(params, { stateLib: stateMgr, filesLib });
+    await stateLib.put('running', 'true', { ttl: 3600 });
+    return await fetcher(params, { stateLib, filesLib });
   } finally {
-    await stateMgr.put('running', 'false');
+    await stateLib.put('running', 'false');
   }
 }
 
