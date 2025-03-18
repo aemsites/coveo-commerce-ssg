@@ -345,7 +345,7 @@ function makeContext(params) {
 	return ctx;
 }
 
-async function fetch(params, aioLibs) {
+async function fetcher(params, aioLibs) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
 
   const ctx = makeContext(params, logger);
@@ -426,7 +426,7 @@ async function fetch(params, aioLibs) {
 }
 
 module.exports = {
-  fetch,
+  fetcher,
   deleteState,
   loadState,
   saveState,
