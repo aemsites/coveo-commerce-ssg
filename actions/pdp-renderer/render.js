@@ -131,7 +131,30 @@ async function generateProductHtml(product, ctx) {
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
 
     // load the templates
-    const templateNames = ctx.config.templates || [];
+    const templateNames = [
+      "page",
+      "overview-section",
+      "datasheet-section",
+      "support-section",
+      "product-header-block",
+      "product-overview-block",
+      "product-buybox-block",
+      "product-alternate-block",
+      "product-publications-block",
+      "product-target-block",
+      "product-reactivity-block",
+      "product-datasheet-block",
+      "product-protocols-block",
+      "product-storage-block",
+      "product-notes-block",
+      "product-summarynotes-block",
+      "product-promise-block",
+      "associated-products-block",
+      "product-downloads-block",
+      "section-metadata-block",
+      "meta-jsonld",
+      "product-reactivity-jsonld"
+  ];
     let template = '';
     templateNames.forEach((templateName) => {
       const templateContent = fs.readFileSync(
