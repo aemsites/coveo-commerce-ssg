@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 const { Core, State, Files } = require('@adobe/aio-sdk');
-const { poll } = require('./poller');
+const { fetcher } = require('./fetcher');
 const { StateManager } = require('../lib/state');
 
 async function main(params) {
@@ -30,7 +30,7 @@ async function main(params) {
     // this might not be updated and action execution could be permanently skipped
     // a ttl == function timeout is a mitigation for this risk
     await stateMgr.put('running', 'true', { ttl: 3600 });
-    return await poll(params, { stateLib: stateMgr, filesLib });
+    return await fetcher(params, { stateLib: stateMgr, filesLib });
   } finally {
     await stateMgr.put('running', 'false');
   }

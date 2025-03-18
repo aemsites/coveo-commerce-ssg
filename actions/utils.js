@@ -341,33 +341,34 @@ function isValidUrl(string) {
  * @returns {string} The product url or null if storeUrl or pathFormat are missing.
  */
 function getProductUrl(product, context, addStore = true) {
-  const { storeUrl, pathFormat } = context;
-  if (!storeUrl || !pathFormat) {
-    return null;
-  }
+  const path = `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
+  // const { storeUrl, pathFormat } = context;
+  // if (!storeUrl || !pathFormat) {
+  //   return null;
+  // }
 
-  const availableParams = {
-    sku: product.sku,
-    urlKey: product.urlKey,
-    locale: context.locale,
-  };
+  // const availableParams = {
+  //   sku: product.sku,
+  //   urlKey: product.urlKey,
+  //   locale: context.locale,
+  // };
 
-  let path = pathFormat.split('/')
-    .filter(Boolean)
-    .map(part => {
-      if (part.startsWith('{') && part.endsWith('}')) {
-        const key = part.substring(1, part.length - 1);
-        return availableParams[key];
-      }
-      return part;
-    });
+  // let path = pathFormat.split('/')
+  //   .filter(Boolean)
+  //   .map(part => {
+  //     if (part.startsWith('{') && part.endsWith('}')) {
+  //       const key = part.substring(1, part.length - 1);
+  //       return availableParams[key];
+  //     }
+  //     return part;
+  //   });
 
-  if (addStore) {
-    path.unshift(storeUrl);
-    return path.join('/');
-  }
+  // if (addStore) {
+  //   path.unshift(storeUrl);
+  //   return path.join('/');
+  // }
 
-  return `/${path.join('/')}`;
+  return path;
 }
 
 /**

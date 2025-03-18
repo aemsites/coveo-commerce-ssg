@@ -217,7 +217,7 @@ async function enrichProductWithMetadata(product, state, context) {
   let productHtml = null;
   
   try {
-    productHtml = await generateProductHtml(sku, urlKey, context);
+    productHtml = await generateProductHtml(product, context);
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
     
     // Create enriched product object
@@ -234,9 +234,9 @@ async function enrichProductWithMetadata(product, state, context) {
     if (shouldProcessProduct(enrichedProduct) && productHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const productUrl = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
-        const htmlPath = `/public/pdps${productUrl}`;
-        await filesLib.write(htmlPath, productHtml);
+        const productPath = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
+        // const htmlPath = `/public/pdps${productUrl}`;
+        await filesLib.write(productPath, productHtml);
         logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
       } catch (e) {
         logger.error(`Error saving HTML for product ${sku}:`, e);
@@ -383,8 +383,6 @@ async function fetch(params, aioLibs) {
       // Enrich products with metadata
       const products = await Promise.all(
         resp?.results?.map(product => {
-          const path = `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
-          paths.push(path);
           enrichProductWithMetadata(product, state, ctx)
         })
       );

@@ -94,16 +94,10 @@ function parseJson(jsonString) {
   }
 }
 
-async function generateProductHtml(sku, urlKey, context) {
-  const files = await Files.init();
-  const data = await files.read(`${ctx.path}.json`)
-  if (!data) {
-    logger.error(`Key not found or empty: ${ctx.path}.json`);
-    return;
-  }
+async function generateProductHtml(product, context) {
 
   try {
-    const product = JSON.parse(data?.toString());
+    // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
 
     product.categorytype = product.raw.adcategorytype?.toLowerCase()?.replace(/ /g, '-');
