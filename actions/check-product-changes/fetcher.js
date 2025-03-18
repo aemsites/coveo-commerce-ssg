@@ -17,8 +17,8 @@ const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
 const crypto = require('crypto');
-const { FILE_PREFIX, FILE_EXT } = require('../utils');
-const BATCH_SIZE = 50;
+const { FILE_PREFIX, FILE_EXT, requestCOVEO } = require('../utils');
+const BATCH_SIZE = 100;
 
 function getStateFileLocation(stateKey) {
   return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
@@ -145,18 +145,16 @@ function checkParams(params) {
  * @param context
  * @returns {*}
  */
-function createBatches(products, context) {
-  return products.reduce((acc, product) => {
-        const { sku, urlKey } = product;
-        const path = getProductUrl({ urlKey, sku }, context, false).toLowerCase();
+function createBatches(skus) {
+  return skus.reduce((acc, sku) => {
 
-        if (!acc.length || acc[acc.length - 1].length === BATCH_SIZE) {
-          acc.push([]);
-        }
-        acc[acc.length - 1].push({ path, sku });
+    if (!acc.length || acc[acc.length - 1].length === BATCH_SIZE) {
+      acc.push([]);
+    }
+    acc[acc.length - 1].push(sku);
 
-        return acc;
-      }, []);
+    return acc;
+  }, []);
 }
 
 /**
@@ -378,10 +376,10 @@ async function fetcher(params, aioLibs) {
         try {
         const skus = JSON.parse(skusState.value);
         console.log('skus', skus);
-        const batches = createBatches(skus, ctx);
+        const batches = createBatches(skus);
         const results = await Promise.all(batches.map(async (batch) => {
           let paths = [];
-          const resp = await requestCOVEO(url, { skus: [...batch] }, ctx);
+          const resp = await requestCOVEO(url, batch, ctx);
           timings.sample('fetchedData');
           logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
 

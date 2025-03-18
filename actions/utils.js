@@ -399,6 +399,7 @@ module.exports = {
   stringParameters,
   checkMissingRequestInputs,
   requestSaaS,
+  requestCOVEO,
   getConfig,
   request,
   requestSpreadsheet,
