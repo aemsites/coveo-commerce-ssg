@@ -215,7 +215,7 @@ async function enrichProductWithMetadata(product, state, context) {
   let productHtml = null;
   
   try {
-    productHtml = await generateProductHtml(product, context);
+    productHtml = await generateProductHtml(product);
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
     
     // Create enriched product object

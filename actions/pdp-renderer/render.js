@@ -94,7 +94,7 @@ function parseJson(jsonString) {
   }
 }
 
-async function generateProductHtml(product, context) {
+async function generateProductHtml(product) {
 
   try {
     // const product = JSON.parse(data?.toString());
