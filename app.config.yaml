@@ -9,6 +9,12 @@ application:
           HLX_ORG_NAME: "abcam-ltd"
           HLX_SITE_NAME: "aem-dev"
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
+          COVEO_HOST: stage.lifesciences.danaher.com
+          COVEO_ORG: danahernonproduction1892f3fhz
+          COVEO_PIPELINE: Abcam Product Details
+          COVEO_SEARCHHUB: AbcamProductDetails
+          COVEO_AUTH: $COVEO_AUTH
+          AEM_TOKEN: $AEM_TOKEN
           # HLX_LOCALES: comma-seprated list of allowed locales.
           # i.e. us,uk,it,de,fr,es - or just one
           # null if there is a single store and no
