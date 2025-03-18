@@ -11,12 +11,16 @@ const { main } = require('../actions/check-product-changes/index');
                     auth: process.env.AIO_runtime_auth,
                 }
             },
-            authToken: process.env.EDS_API_KEY,
-            HLX_SITE_NAME: process.env.HLX_SITE_NAME,
-            HLX_PATH_FORMAT: process.env.HLX_PATH_FORMAT,
-            HLX_ORG_NAME: process.env.HLX_ORG_NAME,
-            HLX_CONTENT_URL: process.env.HLX_CONTENT_URL,
-            HLX_CONFIG_NAME: process.env.HLX_CONFIG_NAME,
+            authToken: process.env.AEM_TOKEN,
+            HLX_ORG_NAME: "abcam-ltd",
+            HLX_SITE_NAME: "aem-dev",
+            HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}",
+            COVEO_HOST: "stage.lifesciences.danaher.com",
+            COVEO_ORG: "danahernonproduction1892f3fhz",
+            COVEO_PIPELINE: "Abcam Product Details",
+            COVEO_SEARCHHUB: "AbcamProductDetails",
+            COVEO_AUTH: process.env.COVEO_AUTH,
+            AEM_TOKEN: process.env.AEM_TOKEN,
             LOG_LEVEL: 'info',
         });
         console.log(JSON.stringify(resp, null, 2));

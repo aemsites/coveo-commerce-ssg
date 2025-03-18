@@ -215,7 +215,7 @@ async function enrichProductWithMetadata(product, state, context) {
   let productHtml = null;
   
   try {
-    productHtml = await generateProductHtml(product);
+    productHtml = await generateProductHtml(product, context);
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
     
     // Create enriched product object
@@ -345,8 +345,9 @@ function makeContext(params) {
 
 async function fetcher(params, aioLibs) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
+  logger.info('params', params);
   const { stateLib } = aioLibs;
-  const ctx = makeContext(params, logger);
+  const wskContext = makeContext(params, logger);
   const {
     HLX_SITE_NAME: siteName,
     HLX_ORG_NAME: orgName,
@@ -364,52 +365,64 @@ async function fetcher(params, aioLibs) {
     org: orgName,
     site: siteName,
   }, sharedContext, { authToken });
+  const locale = 'en-us';
+  logger.info(`Polling for locale ${locale}`);
+  // load state
+  const state = await loadState(locale, aioLibs);
+  timings.sample('loadedState');
+  const context = {
+    ...wskContext,
+    ...sharedContext,
+  }
 
-  const url = `https://${ctx.config.coveoOrg}.org.coveo.com/rest/search/v2`;
+  const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
     // start processing preview and publish queues
     await adminApi.startProcessing();
-    const skus = [];
     for await (const { keys } of stateLib.list({ match: 'webhook-skus-updated.*' })) {
       keys.forEach(async (key) => {
         const skusState = await stateLib.get(key);
         try {
-        const skus = JSON.parse(skusState.value);
-        console.log('skus', skus);
-        const batches = createBatches(skus);
-        const results = await Promise.all(batches.map(async (batch) => {
-          let paths = [];
-          const resp = await requestCOVEO(url, batch, ctx);
-          timings.sample('fetchedData');
-          logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
+          const skus = JSON.parse(skusState.value);
+          console.log('skus', skus);
+          const batches = createBatches(skus);
+          console.log('batches', batches);
+          const results = await Promise.all(batches.map(async (batch) => {
+            const resp = await requestCOVEO(coveoUrl, batch, context);
+            console.log('resp', resp);
+            timings.sample('fetchedData');
+            logger.info(`Fetched data for ${resp?.results?.length} skus, total ${skus.length}`);
 
-          // Enrich products with metadata
-          const products = await Promise.all(
-            resp?.results?.map(product => {
-              enrichProductWithMetadata(product, state, ctx)
-            })
-          );
+            // Enrich products with metadata
+            const products = await Promise.all(
+              resp?.results?.map(product => {
+                enrichProductWithMetadata(product, state, context)
+              })
+            );
+            const filteredProducts = products.filter(shouldProcessProduct);
+            const filteredPaths = filteredProducts.map(product => ({ sku: product.sku, path: getProductUrl({ urlKey: product.urlKey, sku: product.sku }, context, false).toLowerCase()}));
 
-          const promiseBatches = previewAndPublish(paths, 'en-us', adminApi);
+            const promiseBatches = previewAndPublish(filteredPaths, 'en-us', adminApi);
+            await processPublishBatches(promiseBatches, state, counts, products, aioLibs);
+            timings.sample('publishedPaths');
 
-          timings.sample('publishedPaths');
-
-          return timings.measures;
-        }));
-        // aggregate timings
-        for (const measure of results) {
-          for (const [name, value] of Object.entries(measure)) {
-            if (!timings.measures[name]) timings.measures[name] = [];
-            if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
-            timings.measures[name].push(value);
+            return timings.measures;
+          }));
+          // aggregate timings
+          for (const measure of results) {
+            for (const [name, value] of Object.entries(measure)) {
+              if (!timings.measures[name]) timings.measures[name] = [];
+              if (!Array.isArray(timings.measures[name])) timings.measures[name] = [timings.measures[name]];
+              timings.measures[name].push(value);
+            }
           }
-        }
-      } catch (e) {
-        logger.error('Error parsing skus', e);
-        await stateLib.delete(key);
+        } catch (e) {
+          logger.error('Error parsing skus', e);
+          // await stateLib.delete(key);
         }
       });
     }
+    await adminApi.stopProcessing();
   } catch (e) {
     logger.error(e);
     // wait for queues to finish, even in error case

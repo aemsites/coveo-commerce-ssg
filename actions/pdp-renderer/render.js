@@ -94,8 +94,8 @@ function parseJson(jsonString) {
   }
 }
 
-async function generateProductHtml(product) {
-
+async function generateProductHtml(product, ctx) {
+  const { logger } = ctx;
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");

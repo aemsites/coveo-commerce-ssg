@@ -228,7 +228,8 @@ async function getConfig(context) {
  *
  * @returns {Promise<object>} Coveo response as object.
  */
-async function requestCOVEO(url, skus, ctx) {
+async function requestCOVEO(coveoUrl, skus, ctx) {
+  const { logger } = ctx;
   const body = {
     context: { productid: skus },
     pipeline: ctx.config.coveoPipeline,
@@ -245,11 +246,11 @@ async function requestCOVEO(url, skus, ctx) {
     },
   };
 
-  const response = await fetch(url, options);
+  const response = await fetch(coveoUrl, options);
   logger.debug({
     url: coveoUrl.href,
-    status: resp.status,
-    statusText: resp.statusText,
+    status: response.status,
+    statusText: response.statusText,
   });
 
   if (!response.ok) {
