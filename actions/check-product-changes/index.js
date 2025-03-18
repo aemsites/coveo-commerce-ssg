@@ -30,7 +30,7 @@ async function main(params) {
     await stateLib.put('running', 'true', { ttl: 3600 });
     return await fetcher(params, { stateLib, filesLib });
   } finally {
-    await stateLib.put('running', 'false');
+    await stateLib.delete('running');
   }
 }
 

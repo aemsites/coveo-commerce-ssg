@@ -242,11 +242,15 @@ async function enrichProductWithMetadata(product, state, context) {
       } catch (e) {
         logger.error(`Error saving HTML for product ${sku}:`, e);
       }
+    } else {
+      logger.debug(`Skipping product ${sku} because it should not be processed`);
+      context.counts.ignored++;
     }
     
     return enrichedProduct;
   } catch (e) {
     logger.error(`Error generating product HTML for SKU ${sku}:`, e);
+    context.counts.failed++;
     // Return product with metadata even if HTML generation fails
     return {
       ...product,
@@ -254,7 +258,7 @@ async function enrichProductWithMetadata(product, state, context) {
       urlKey,
       lastPreviewDate,
       currentHash: state.skus[sku]?.hash || null,
-      newHash: null,
+      newHash: state.skus[sku]?.hash || null,
       productHtml: null
     };
   }
@@ -418,7 +422,6 @@ async function fetcher(params, aioLibs) {
             path: getProductUrl(product, context, false)
           }));
 
-          counts.ignored += products.length - filteredPaths.length;
           logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
           
           if (filteredPaths.length > 0) {
@@ -429,9 +432,13 @@ async function fetcher(params, aioLibs) {
         }
         
         // After processing, delete the key
-        await stateLib.delete(firstKey);
-        logger.info(`Deleted processed key: ${firstKey}`);
-        
+        if (counts.failed > 0) {
+          logger.info(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
+        } else {
+          await stateLib.delete(firstKey);
+          logger.info(`Deleted processed key: ${firstKey}`);
+        }
+
       } catch (e) {
         logger.error(`Error processing key ${firstKey}:`, e);
       }
