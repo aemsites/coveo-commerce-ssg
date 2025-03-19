@@ -2,7 +2,7 @@ application:
   actions: actions
   runtimeManifest:
     packages:
-      aem-commerce-ssg:
+      coveo-commerce-ssg:
         license: Apache-2.0
         inputs:
           LOG_LEVEL: debug
@@ -56,7 +56,12 @@ application:
             runtime: nodejs:22
             annotations:
               final: true
-
+          get-files-directory:
+            function: actions/get-files-directory/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            annotations:
+              final: true
         # parameters:
         #   COMMERCE_STORE_CODE: "<your_store_code>"
         #   COMMERCE_STORE_URL: "<your_store_url>"
