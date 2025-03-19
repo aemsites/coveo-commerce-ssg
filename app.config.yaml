@@ -56,8 +56,8 @@ application:
             runtime: nodejs:22
             annotations:
               final: true
-          get-files-directory:
-            function: actions/get-files-directory/index.js
+          get-overlay-url:
+            function: actions/get-overlay-url/index.js
             web: 'yes'
             runtime: nodejs:22
             annotations:

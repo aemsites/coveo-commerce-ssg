@@ -35,6 +35,13 @@ async function main(params) {
     // Get properties of the test file
     logger.info(`Retrieving properties for "${testFileName}"`);
     const fileProperties = await filesLib.getProperties(testFileName);
+    
+    // Extract the ID from the URL
+    const url = fileProperties.url;
+    // Extract just the base URL without the file path
+    const baseUrl = url.match(/(https:\/\/[^"'\s]+?)\/[^\/]+$/)?.[1] || null;
+    logger.info(`Extracted base URL: ${baseUrl}`);
+    
     // Delete the test file
     logger.info(`Deleting test file "${testFileName}"`);
     await filesLib.delete(testFileName);
@@ -43,10 +50,7 @@ async function main(params) {
     logger.info('Operation completed successfully');
     return {
       statusCode: 200,
-      body: {
-        message: 'Test file operation completed',
-        fileProperties
-      }
+      body: { overlayUrl: `${baseUrl}-public/public/pdps` }
     };
   } catch (error) {
     logger.error(`Error during file operations: ${error.message}`);
