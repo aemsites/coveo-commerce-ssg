@@ -373,7 +373,7 @@ async function fetcher(params, aioLibs) {
     site: siteName,
   }, sharedContext, { authToken });
   const locale = 'en-us';
-  logger.info(`Polling for locale ${locale}`);
+  logger.info(`Fetching for locale ${locale}`);
   // load state
   const state = await loadState(locale, aioLibs);
   timings.sample('loadedState');
@@ -425,7 +425,7 @@ async function fetcher(params, aioLibs) {
           logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
           
           if (filteredPaths.length > 0) {
-            const promiseBatches = previewAndPublish(createBatches(filteredPaths), 'en-us', adminApi);
+            const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
             await processPublishBatches(promiseBatches, state, counts, products, aioLibs);
             timings.sample('publishedPaths');
           }
@@ -465,7 +465,7 @@ async function fetcher(params, aioLibs) {
   }
   
   const elapsed = new Date() - timings.now;
-  logger.info(`Finished polling, elapsed: ${elapsed}ms`);
+  logger.info(`Finished fetching, elapsed: ${elapsed}ms`);
 
   // Return the result after all operations are complete
   return {
