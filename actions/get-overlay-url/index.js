@@ -36,6 +36,7 @@ async function main(params) {
     logger.info(`Retrieving properties for "${testFileName}"`);
     const fileProperties = await filesLib.getProperties(testFileName);
     
+    logger.debug(fileProperties);
     // Extract the ID from the URL
     const url = fileProperties.url;
     // Extract just the base URL without the file path

@@ -1,9 +1,7 @@
 <div>
-  {{> product-header-block class="left-column"}}
-  {{> product-overview-block class="left-column"}}
-  {{> product-buybox-block class="right-column"}}
-  {{> product-downloads-block class="right-column"}}
-  {{> section-metadata-block style='two-col-content'}}
+  {{> product-header-block class="reduced-width"}}
+  {{> product-overview-block class="reduced-width"}}
+  {{> product-keyfacts-block class="reduced-width"}}
 </div>
 <div>
   {{> product-alternate-block class="reduced-width"}}
@@ -12,10 +10,13 @@
   {{> product-publications-block class="reduced-width"}}
 </div>
 <div>
-  {{> product-target-block class="reduced-width"}}
+  {{> product-reactivity-block class="reduced-width"}}
 </div>
 <div>
-  {{> product-reactivity-block class="reduced-width"}}
+  {{> product-sequenceinfo-block class="reduced-width"}}
+</div>
+<div>
+  {{> product-target-block class="reduced-width"}}
 </div>
 <div>
   {{> product-storage-block class="reduced-width"}}
@@ -33,14 +34,19 @@
   {{> product-promise-block class="reduced-width"}}
 </div>
 <div>
-  <div class="cutomer-reviews reduced-width">
+  <div class="customer-reviews reduced-width">
     <div>
       <div></div>
     </div>
   </div>
 </div>
 <div>
-  {{> associated-products-block class='associatedproducts reduced-width'}}
+  {{> product-buybox-block }}
+  {{> product-downloads-block }}
+  {{> section-metadata-block style='right-column'}}
+</div>
+<div>
+  {{> associated-products-block class='associatedproducts'}}
 </div>
 <div>
   <div class="recommended-products">

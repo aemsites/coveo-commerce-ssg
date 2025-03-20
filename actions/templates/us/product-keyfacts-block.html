@@ -1,0 +1,125 @@
+<div class="product-keyfacts {{class}}">
+    <div>
+        <div><h3>Key Facts</h3></div>
+    </div>
+    <div>
+        {{#if raw.adisotype}}
+        <div>
+        <h6>Isotype</h6>
+        <p>{{raw.adisotype}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adclonality}}
+        <div>
+        <h6>Clonality</h6>
+        <p>{{raw.adclonality}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adpurificationtechnique}}
+        <div>
+        <h6>Purification technique</h6>
+        <p>{{raw.adpurificationtechnique}} {{raw.adpurificationtechniquereagent}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adform}}
+        <div>
+        <h6>Form</h6>
+        <p>{{raw.adform}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adimmunogensensitivity}}
+        <div>
+        <h6>Immunogen</h6>
+        <p>{{raw.adimmunogensensitivity}}</p>
+        </div>
+        {{/if}}
+
+        {{#if antibodyattributes.specificity}}
+        <div>
+        <h6>Specificity</h6>
+        {{{antibodyattributes.specificity}}}
+        </div>
+        {{/if}}
+
+        {{#if raw.adkitdetectionmethod}}
+        <div>
+        <h6>Detection method</h6>
+        <p>{{raw.adkitdetectionmethod}}</p>
+        </div>
+        {{/if}}
+
+        {{#if sampletypes}}
+        <div>
+        <h6>Sample types</h6>
+        <p>
+        {{#each sampletypes}}
+        {{#if @last}} {{this.name}}
+        {{else}}{{this.name}},
+        {{/if}}
+        {{/each}}
+        </p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adkitassaytype}}
+        <div>
+        <h6>Assay type</h6>
+        <p>{{raw.adkitassaytype}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adkitassaytime}}
+        <div>
+        <h6>Assay time</h6>
+        <p>{{raw.adkitassaytime}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adkitrange}}
+        <div>
+        <h6>Range</h6>
+        <p>{{raw.adkitrange}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adspecies}}
+        <div>
+        <h6>Reactive species</h6>
+        <p>{{raw.adspecies}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adkitsensitivity}}
+        <div>
+        <h6>Sensitivity</h6>
+        <p>{{raw.adkitsensitivity}}</p>
+        </div>
+        {{/if}}
+
+        {{#if raw.adhostspecies}}
+        <div>
+        <h6>Host species</h6>
+        <p>{{raw.adhostspecies}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if raw.adformulation}}
+        <div>
+        <h6>Storage buffer</h6>
+        <p>{{raw.adformulation}}</p>
+        </div>
+        {{/if}}    
+
+        {{#if raw.adimmunogencommercialsensitivity}}
+        <div>
+        <h6>Immunogen</h6>
+        <p>{{raw.adimmunogencommercialsensitivity}}</p>
+        </div>
+        {{/if}}
+
+    </div>
+</div>

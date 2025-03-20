@@ -48,6 +48,10 @@ Handlebars.registerHelper('replaceSlash', function(text) {
   return text.replace(/[^a-zA-Z0-9]/g, "");
 });
 
+Handlebars.registerHelper('stripTags', function(text) {
+  return text.replace(/(<([^>]+)>)/gi, "");
+});
+
 Handlebars.registerHelper('toLowerCase', function(str) {
   return str.toLowerCase();
 });
@@ -104,7 +108,7 @@ async function generateProductHtml(product, ctx) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
-    product.alternativenames = product.target?.adPrimaryTargetAlternatenames?.split('|');
+    product.alternativenames = parseJson(product.raw.adprimarytargetnames);
     product.notes =  parseJson(product.raw.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
@@ -129,7 +133,8 @@ async function generateProductHtml(product, ctx) {
       publication.publicationYear = new Date(publication.publicationDate).getFullYear();
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
-
+    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+    
     // load the templates
     const templateNames = [
       "page",
@@ -139,6 +144,7 @@ async function generateProductHtml(product, ctx) {
       "product-header-block",
       "product-overview-block",
       "product-buybox-block",
+      "product-keyfacts-block",
       "product-alternate-block",
       "product-publications-block",
       "product-target-block",
@@ -151,6 +157,7 @@ async function generateProductHtml(product, ctx) {
       "product-promise-block",
       "associated-products-block",
       "product-downloads-block",
+      "product-sequenceinfo-block",
       "section-metadata-block",
       "meta-jsonld",
       "product-reactivity-jsonld"
@@ -173,7 +180,6 @@ async function generateProductHtml(product, ctx) {
 
     // render the main template with the content
     const html = template(product);
-    logger.debug('HTML :', html);
     const response = {
       statusCode: 200,
       body: html,
