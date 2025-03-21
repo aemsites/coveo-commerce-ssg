@@ -267,7 +267,7 @@ async function enrichProductWithMetadata(product, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs) {
+async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedPaths) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
@@ -281,9 +281,9 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
       });
     } else {
       counts.failed += records.length;
+      failedPaths.push(records);
     }
     await saveState(state, aioLibs);
-    logger.info("Failed records: ", records);
   }
 }
 
@@ -382,6 +382,7 @@ async function fetcher(params, aioLibs) {
     ...wskContext,
     ...sharedContext,
   }
+  const failedPaths = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
     // start processing preview and publish queues
@@ -425,7 +426,7 @@ async function fetcher(params, aioLibs) {
           
           if (filteredPaths.length > 0) {
             const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, products, aioLibs);
+            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedPaths);
             timings.sample('publishedPaths');
           }
         }
@@ -470,6 +471,7 @@ async function fetcher(params, aioLibs) {
   return {
     state: 'completed',
     elapsed,
+    failedPaths,
     status: { ...counts },
     timings: timings.measures,
   };
