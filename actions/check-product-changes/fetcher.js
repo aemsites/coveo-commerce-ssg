@@ -267,7 +267,7 @@ async function enrichProductWithMetadata(product, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs) {
+async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedPaths) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
@@ -281,8 +281,12 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
       });
     } else {
       counts.failed += records.length;
+      for (const record of records) {
+        failedPaths.push(record.path)
+      }
     }
     await saveState(state, aioLibs);
+    logger.info("Failed records: ", records);
   }
 }
 
@@ -395,7 +399,7 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
-    
+    const failedPaths = [];
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const skusState = await stateLib.get(firstKey);
@@ -426,7 +430,7 @@ async function fetcher(params, aioLibs) {
           
           if (filteredPaths.length > 0) {
             const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, products, aioLibs);
+            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedPaths);
             timings.sample('publishedPaths');
           }
         }
@@ -472,6 +476,7 @@ async function fetcher(params, aioLibs) {
     state: 'completed',
     elapsed,
     status: { ...counts },
+    failedPaths,
     timings: timings.measures,
   };
 }
