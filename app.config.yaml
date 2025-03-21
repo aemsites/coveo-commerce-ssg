@@ -67,12 +67,12 @@ application:
         #   COMMERCE_STORE_URL: "<your_store_url>"
         #   COMMERCE_CONFIG_NAME: "<your_config_name>"
         triggers:
-          every5Trigger:
+          everyMinTrigger:
             feed: /whisk.system/alarms/interval
             inputs:
-              minutes: 5
+              minutes: 1
         rules:
-          every5Trigger:
+          everyMinRule:
           # When the action is invoked, it first checks
           # that no instances of the same action are already
           # running. If an instance is running, business logic
@@ -80,5 +80,5 @@ application:
           # it scans the Catalog to check for product changes.
           # The above means that the actual logic is not
           # necessarily executed every minute.
-            trigger: every5Trigger
+            trigger: everyMinTrigger
             action: check-product-changes
