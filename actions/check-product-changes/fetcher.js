@@ -385,7 +385,7 @@ async function fetcher(params, aioLibs) {
     ...wskContext,
     ...sharedContext,
   }
-
+  const failedPaths = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
     // start processing preview and publish queues
@@ -399,7 +399,6 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
-    const failedPaths = [];
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const skusState = await stateLib.get(firstKey);
