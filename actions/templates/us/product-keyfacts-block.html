@@ -668,74 +668,11 @@
             {{/if}}
         {{/if}}
 
-        {{#if (eq raw.adseoclasslevelone "antibody-array")}}
-            {{#if raw.adkitassaytime}}
+        {{#if (isOneOf raw.adseoclasslevelone values="antibody-arrays,antibody-panels")}}
+            {{#if raw.adkitassaytype}}
             <div>
-                <h6>Assay time</h6>
-                <p>{{raw.adkitassaytime}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adspecies}}
-            <div>
-                <h6>Reacts with</h6>
-                <p>{{raw.adspecies}}</p>
-            </div>
-            {{/if}}
-
-            {{#if target}}
-            <div>
-                <h6>Target</h6>
-                <p>{{target.adPrimaryTargetName}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adapplications}}
-            <div>
-                <h6>Application</h6>
-                <p>
-                    {{#each raw.adapplications}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
-                    {{/if}}
-                    {{/each}}
-                </p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adkitdetectionmethod}}
-            <div>
-                <h6>Detection method</h6>
-                <p>{{raw.adkitdetectionmethod}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adkitassayplatform}}
-            <div>
-                <h6>Assay platform</h6>
-                <p>{{raw.adkitassayplatform}}</p>
-            </div>
-            {{/if}}
-
-            {{#if sampletypes}}
-            <div>
-                <h6>Sample types</h6>
-                <p>
-                    {{#each sampletypes}}
-                    {{#if @last}} {{this.name}}
-                    {{else}}{{this.name}},
-                    {{/if}}
-                    {{/each}}
-                </p>
-            </div>
-            {{/if}}
-        {{/if}}
-
-        {{#if (eq raw.adseoclasslevelone "antibody-panels")}}
-            {{#if raw.adkitassaytime}}
-            <div>
-                <h6>Assay time</h6>
-                <p>{{raw.adkitassaytime}}</p>
+                <h6>Assay type</h6>
+                <p>{{raw.adkitassaytype}}</p>
             </div>
             {{/if}}
 
