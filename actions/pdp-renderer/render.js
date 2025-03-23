@@ -56,6 +56,11 @@ Handlebars.registerHelper('toLowerCase', function(str) {
   return str.toLowerCase();
 });
 
+Handlebars.registerHelper('isOneOf', function(value, options) {
+  const validValues = options.hash.values.split(',');
+  return validValues.includes(value) ? true : false;
+});
+
 Handlebars.registerHelper("object", function () {
     let obj = {};
     for (let i = 0; i < arguments.length - 1; i += 2) {
@@ -108,6 +113,11 @@ async function generateProductHtml(product, ctx) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
+    product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
+    product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
+    product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
+    product.cellattr = parseJson(product.raw.adcelllineattributesjson);
+    product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.alternativenames = parseJson(product.raw.adprimarytargetnames);
     product.notes =  parseJson(product.raw.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
