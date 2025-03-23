@@ -144,6 +144,7 @@ async function generateProductHtml(product, ctx) {
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
     product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+    product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     
     // load the templates
     const templateNames = [
@@ -169,6 +170,7 @@ async function generateProductHtml(product, ctx) {
       "product-downloads-block",
       "product-sequenceinfo-block",
       "section-metadata-block",
+      "product-kitcomponent-block",
       "meta-jsonld",
       "product-reactivity-jsonld"
   ];
