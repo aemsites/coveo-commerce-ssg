@@ -118,7 +118,7 @@ async function generateProductHtml(product, ctx) {
     product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
     product.cellattr = parseJson(product.raw.adcelllineattributesjson);
     product.conjugations = parseJson(product.raw.adconjugationsjson);
-    product.alternativenames = parseJson(product.raw.adprimarytargetnames);
+    product.alternativenames = product.raw.adprimarytargetnames;
     product.notes =  parseJson(product.raw.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
