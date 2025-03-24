@@ -143,7 +143,7 @@ async function generateProductHtml(product, ctx) {
       publication.publicationYear = new Date(publication.publicationDate).getFullYear();
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
-    product.sequenceinfo = JSON.stringify(product.raw.adproteinaminoacidsequencesjson);
+    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     
     // load the templates
