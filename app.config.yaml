@@ -44,6 +44,7 @@ application:
             runtime: nodejs:22
             limits:
               timeout: 3600000
+              memory: 4096
             inputs:
               authToken: ${AEM_TOKEN}
             annotations:

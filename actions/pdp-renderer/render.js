@@ -109,7 +109,7 @@ async function generateProductHtml(product, ctx) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
 
-    product.categorytype = product.raw.adcategorytype?.toLowerCase()?.replace(/ /g, '-');
+    product.categorytype = product.raw.adcategorytype;
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
@@ -143,7 +143,7 @@ async function generateProductHtml(product, ctx) {
       publication.publicationYear = new Date(publication.publicationDate).getFullYear();
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
-    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+    product.sequenceinfo = JSON.stringify(product.raw.adproteinaminoacidsequencesjson);
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     
     // load the templates
