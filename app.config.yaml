@@ -2,7 +2,7 @@ application:
   actions: actions
   runtimeManifest:
     packages:
-      aem-commerce-ssg:
+      coveo-commerce-ssg:
         license: Apache-2.0
         inputs:
           LOG_LEVEL: debug
@@ -28,33 +28,10 @@ application:
             inputs:
               OVERLAY_PATHS:
                 - /en-us/products
-              TEMPLATES:
-                - page
-                - overview-section
-                - datasheet-section
-                - support-section
-                - product-header-block
-                - product-overview-block
-                - product-buybox-block
-                - product-alternate-block
-                - product-publications-block
-                - product-target-block
-                - product-reactivity-block
-                - product-datasheet-block
-                - product-protocols-block
-                - product-storage-block
-                - product-notes-block
-                - product-summarynotes-block
-                - product-promise-block
-                - associated-products-block
-                - product-downloads-block
-                - section-metadata-block
-                - meta-jsonld
-                - product-reactivity-jsonld
             annotations:
               final: true
             include:
-              - ["actions/pdp-renderer/templates/*.html", "templates/us"]
+              - ["actions/templates/us/*.html", "templates/us/"]
           webhook-product-updates:
             function: actions/webhook-product-updates/index.js
             web: 'yes'
@@ -67,28 +44,36 @@ application:
             runtime: nodejs:22
             limits:
               timeout: 3600000
+              memory: 4096
             inputs:
               authToken: ${AEM_TOKEN}
             annotations:
               final: true
+            include:
+              - ["actions/templates/us/*.html", "templates/us/"]
           fetch-all-products:
             function: actions/fetch-all-products/index.js
             web: 'yes'
             runtime: nodejs:22
             annotations:
               final: true
-
+          get-overlay-url:
+            function: actions/get-overlay-url/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            annotations:
+              final: true
         # parameters:
         #   COMMERCE_STORE_CODE: "<your_store_code>"
         #   COMMERCE_STORE_URL: "<your_store_url>"
         #   COMMERCE_CONFIG_NAME: "<your_config_name>"
         # triggers:
-        #   everyMinTrigger:
+        #   every15MinsTrigger:
         #     feed: /whisk.system/alarms/interval
         #     inputs:
-        #       minutes: 1
+        #       minutes: 15
         # rules:
-        #   everyMinRule:
+        #   every15MinsRule:
         #   # When the action is invoked, it first checks
         #   # that no instances of the same action are already
         #   # running. If an instance is running, business logic
@@ -96,5 +81,5 @@ application:
         #   # it scans the Catalog to check for product changes.
         #   # The above means that the actual logic is not
         #   # necessarily executed every minute.
-        #     trigger: everyMinTrigger
+        #     trigger: every15MinsTrigger
         #     action: check-product-changes

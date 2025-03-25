@@ -48,8 +48,17 @@ Handlebars.registerHelper('replaceSlash', function(text) {
   return text.replace(/[^a-zA-Z0-9]/g, "");
 });
 
+Handlebars.registerHelper('stripTags', function(text) {
+  return text.replace(/(<([^>]+)>)/gi, "");
+});
+
 Handlebars.registerHelper('toLowerCase', function(str) {
   return str.toLowerCase();
+});
+
+Handlebars.registerHelper('isOneOf', function(value, options) {
+  const validValues = options.hash.values.split(',');
+  return validValues.includes(value) ? true : false;
 });
 
 Handlebars.registerHelper("object", function () {
@@ -100,11 +109,16 @@ async function generateProductHtml(product, ctx) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
 
-    product.categorytype = product.raw.adcategorytype?.toLowerCase()?.replace(/ /g, '-');
+    product.categorytype = product.raw.adcategorytype;
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
-    product.alternativenames = product.target?.adPrimaryTargetAlternatenames?.split('|');
+    product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
+    product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
+    product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
+    product.cellattr = parseJson(product.raw.adcelllineattributesjson);
+    product.conjugations = parseJson(product.raw.adconjugationsjson);
+    product.alternativenames = product.raw.adprimarytargetnames;
     product.notes =  parseJson(product.raw.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
@@ -129,9 +143,37 @@ async function generateProductHtml(product, ctx) {
       publication.publicationYear = new Date(publication.publicationDate).getFullYear();
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
-
+    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+    product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
+    
     // load the templates
-    const templateNames = ctx.config.templates || [];
+    const templateNames = [
+      "page",
+      "overview-section",
+      "datasheet-section",
+      "support-section",
+      "product-header-block",
+      "product-overview-block",
+      "product-buybox-block",
+      "product-keyfacts-block",
+      "product-alternate-block",
+      "product-publications-block",
+      "product-target-block",
+      "product-reactivity-block",
+      "product-datasheet-block",
+      "product-protocols-block",
+      "product-storage-block",
+      "product-notes-block",
+      "product-summarynotes-block",
+      "product-promise-block",
+      "associated-products-block",
+      "product-downloads-block",
+      "product-sequenceinfo-block",
+      "section-metadata-block",
+      "product-kitcomponent-block",
+      "meta-jsonld",
+      "product-reactivity-jsonld"
+  ];
     let template = '';
     templateNames.forEach((templateName) => {
       const templateContent = fs.readFileSync(
@@ -150,7 +192,6 @@ async function generateProductHtml(product, ctx) {
 
     // render the main template with the content
     const html = template(product);
-    logger.debug('HTML :', html);
     const response = {
       statusCode: 200,
       body: html,

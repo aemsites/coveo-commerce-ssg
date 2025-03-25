@@ -1,0 +1,19 @@
+<div class="product-overview {{class}}">
+  <div>
+    <div><span>{{len images 0}} Images</span></div>
+  </div>
+  {{#each images}}
+  {{#isValidImageUrl this}}
+  <div>
+    <div>
+      <img src=https://content.abcam.com/{{ this.imgSeoUrl }}>
+    </div>
+    <div>
+      <div><dd>{{this.imgApplication}}</dd></div>
+      <h6>{{this.imgTitle}}</h6>
+      <p>{{{this.imgLegend}}}</p>
+    </div>
+  </div>
+  {{/isValidImageUrl}}
+  {{/each}}
+</div>

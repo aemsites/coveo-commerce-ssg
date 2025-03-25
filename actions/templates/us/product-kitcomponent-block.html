@@ -1,0 +1,71 @@
+<div class="product-kit-component {{class}}">
+    {{#if kitcomponent}}    
+    <div>
+        <div><h3>What's included?</h3></div>
+    </div>
+    <div>
+        <div>
+        <p>
+        {
+        "filters": {
+            "stats": ["Components", "Unit & Qty"]
+        },
+        "values": {
+        {{#each kitcomponent.byAsset}}        
+        {{#if @last}}
+        "{{this.sellingSize}}": {
+            "publicAssetCode":"{{this.publicAssetCode}}",
+            "assetComponentDetails": [
+            {{#if assetComponentDetails}}
+            {{#each assetComponentDetails}}
+                {{#if @last}}
+                {
+                "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
+                }
+                {{else}}
+                {
+                "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
+                },
+                {{/if}}
+            {{/each}}
+            {{/if}}
+            ]
+        }
+        {{else}}            
+        "{{this.sellingSize}}": {
+            "publicAssetCode":"{{this.publicAssetCode}}",
+            "assetComponentDetails": [
+            {{#if assetComponentDetails}}
+            {{#each assetComponentDetails}}
+                {{#if @last}}
+                {
+                "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                }
+                {{else}}
+                {
+                "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                },
+                {{/if}}
+            {{/each}}
+            {{/if}}
+            ]
+            },            
+        {{/if}}
+        {{/each}}
+        }
+        }
+        </p>
+        </div>
+    </div>
+    {{/if}}    
+</div>

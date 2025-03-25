@@ -10,7 +10,7 @@
         <div>
             <div>
                 <h5>{{this.noteType}}</h5>
-                <p>{{this.statement}}</p>
+                <p>{{#stripTags this.statement}}{{this.statement}}{{/stripTags}}</p>
             </div>
         </div>
         {{/each}}

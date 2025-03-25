@@ -8,8 +8,14 @@
         <div>
             <h6>{{this.relationship}}</h6>
             <h5>{{this.associatedProduct.categoryType}}</h5>
+            <div>{{this.associatedProduct.productCode}}</div>
             <h4>{{this.associatedProduct.name}}</h4>
-            <div>{{this.associatedProduct.productCode}}</div>        
+            {{#if this.associatedProduct.seoClass}}
+            <div>{{this.associatedProduct.seoClass.levelOne}}</div>
+            {{/if}}            
+            {{#if this.associatedProduct.productSlug}}
+            <div>{{this.associatedProduct.productSlug}}</div>
+            {{/if}}            
             {{#if this.associatedProduct.reviewsSummary}}
             <div>{{this.associatedProduct.reviewsSummary.aggregatedRating}}</div>
             <div>({{this.associatedProduct.reviewsSummary.numberOfReviews}} reviews)</div>

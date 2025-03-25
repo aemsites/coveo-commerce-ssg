@@ -12,10 +12,10 @@
                 "filters": {
                     "stats": ["", "Species", "Dilution Info", "Notes"],
                     "tabs": {
-                        "all-applications": "all-applications",
+                        "all-applications": {"fullnme" : "All Applications", "shortname": "All Applications"},
                         {{#each applications}}
-                        {{#if @last}} "{{this.fullName}}" : "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}"
-                        {{else}} "{{this.fullName}}" : "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}",
+                        {{#if @last}} "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}" : {"fullname" : "{{this.fullName}}", "shortname":"{{this.name}}"}
+                        {{else}} "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}" : {"fullname" : "{{this.fullName}}", "shortname":"{{this.name}}"},
                         {{/if}}
                         {{/each}}
                     },
@@ -25,7 +25,9 @@
                         "NO_EXPERIMENTAL_DATA_EXPECTED_TO_REACT": "expected",
                         "EXPECTED_TO_REACT": "predicted",
                         "REACTS": "expected",
-                        "NOT_RECOMMENDED": "not-recommended"
+                        "NOT_RECOMMENDED": "not-recommended",
+                        "DOES_NOT_REACT": "not-recommended",
+                        "NO_EXPERIMENTAL_DATA_NOT_EXPECTED_TO_REACT": "not-recommended"
                     }
                 },
                 "values": {
