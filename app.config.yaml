@@ -7,7 +7,7 @@ application:
         inputs:
           LOG_LEVEL: debug
           HLX_ORG_NAME: "abcam-ltd"
-          HLX_SITE_NAME: "aem-dev"
+          HLX_SITE_NAME: "aem-stage"
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
           COVEO_HOST: stage.lifesciences.danaher.com
           COVEO_ORG: danahernonproduction1892f3fhz
