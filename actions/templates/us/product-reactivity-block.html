@@ -12,7 +12,7 @@
                 "filters": {
                     "stats": ["", "Species", "Dilution Info", "Notes"],
                     "tabs": {
-                        "all-applications": {"fullnme" : "All Applications", "shortname": "All Applications"},
+                        "all-applications": {"fullname" : "All Applications", "shortname": "All Applications"},
                         {{#each applications}}
                         {{#if @last}} "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}" : {"fullname" : "{{this.fullName}}", "shortname":"{{this.name}}"}
                         {{else}} "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}" : {"fullname" : "{{this.fullName}}", "shortname":"{{this.name}}"},
