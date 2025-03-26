@@ -95,6 +95,14 @@ Handlebars.registerHelper("filter", function (array, key) {
   return array.filter(item => item[key] !== undefined && item[key] !== null && item[key] !== "");
 });
 
+Handlebars.registerHelper("or", function (a, b) {
+  return a || b;
+});
+
+Handlebars.registerHelper("and", function (a, b) {
+  return a && b;
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -145,6 +153,9 @@ async function generateProductHtml(product, ctx) {
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
     product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
+    product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
+    product.immunogendesc = product.raw.adimmunogendescription;
+    
     
     // load the templates
     const templateNames = [

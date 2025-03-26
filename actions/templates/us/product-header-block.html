@@ -11,12 +11,12 @@
             {{/each}}
             <li><a href="#">What is this?</a></li>
             </ul>
-            {{#if raw.adreviewsaggregaterating}}
+            {{#if raw.adreviewscount}}
             <em>{{raw.adreviewsaggregaterating}}</em>
             <em>({{raw.adreviewscount}} Reviews)</em>
             {{else}}
             <p>Be the first to review this product! <a
-                href="https://www.abcam.com/reviews/submit-review-2?productCode={{raw.productcode}}">Submit a
+                href="https://www.abcam.com/reviews/submit-review-2?productCode=">Submit a
                 review</a></p>
             {{/if}}
             | <em>({{raw.adpublicationscount}} Publications)</em>
