@@ -77,7 +77,6 @@
             <div>
                 <h6>Immunogen</h6>
                 <p>{{raw.adimmunogencommercialsensitivity}}</p>
-
             </div>
             {{/if}}
         {{/if}}
@@ -280,6 +279,13 @@
             <div>
                 <h6>PubChem identifier</h6>
                 <p>{{biochemicalattr.pubChemId}}</p>
+            </div>
+            {{/if}}
+
+            {{#if biochemicalattr.nature}}
+            <div>
+                <h6>Nature</h6>
+                <p>{{biochemicalattr.nature}}</p>
             </div>
             {{/if}}
 
