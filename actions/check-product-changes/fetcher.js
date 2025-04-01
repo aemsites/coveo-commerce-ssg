@@ -55,12 +55,12 @@ async function loadState(locale, aioLibs) {
       const lines = stateData.split('\n');
       stateObj.skus = lines.reduce((acc, line) => {
         // the format of the state object is:
-        // <sku1>,<timestamp>,<hash>
-        // <sku2>,<timestamp>,<hash>
+        // <sku1>,<timestamp>,<hash>,<path>
+        // <sku2>,<timestamp>,<hash>,<path>
         // ...
         // each row is a set of SKUs, last previewed timestamp and hash
-        const [sku, time, hash] = line.split(',');
-        acc[sku] = { lastPreviewedAt: new Date(parseInt(time)), hash };
+        const [sku, time, hash, path] = line.split(',');
+        acc[sku] = { lastPreviewedAt: new Date(parseInt(time)), hash, path };
         return acc;
       }, {});
     } else {
@@ -89,8 +89,8 @@ async function saveState(state, aioLibs) {
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
     ...Object.entries(state.skus)
-      .map(([sku, { lastPreviewedAt, hash }]) => {
-        return `${sku},${lastPreviewedAt.getTime()},${hash || ''}`;
+      .map(([sku, { lastPreviewedAt, hash, path }]) => {
+        return `${sku},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
       }),
   ].join('\n');
   return await filesLib.write(fileLocation, csvData);
@@ -275,7 +275,8 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
         const product = products.find(p => p.sku === record.sku);
         state.skus[record.sku] = {
           lastPreviewedAt: previewedAt,
-          hash: product?.newHash
+          hash: product?.newHash,
+          path: record.path
         };
         counts.published++;
       });

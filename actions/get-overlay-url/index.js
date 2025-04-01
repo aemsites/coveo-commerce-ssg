@@ -43,6 +43,8 @@ async function main(params) {
     const baseUrl = url.match(/(https:\/\/[^"'\s]+?)\/[^\/]+$/)?.[1] || null;
     logger.info(`Extracted base URL: ${baseUrl}`);
     
+    const presignUrl = await filesLib.generatePresignURL('check-product-changes/en-us.csv', { expiryInSeconds: 3600 })
+
     // Delete the test file
     logger.info(`Deleting test file "${testFileName}"`);
     await filesLib.delete(testFileName);
@@ -51,7 +53,7 @@ async function main(params) {
     logger.info('Operation completed successfully');
     return {
       statusCode: 200,
-      body: { overlayUrl: `${baseUrl}-public/public/pdps` }
+      body: { overlayUrl: `${baseUrl}-public/public/pdps`, parseCSVUrl: `${presignUrl}` }
     };
   } catch (error) {
     logger.error(`Error during file operations: ${error.message}`);
