@@ -111,7 +111,8 @@ function parseJson(jsonString) {
   }
 }
 
-async function generateProductHtml(product, ctx) {
+async function generateProductHtml(product, state, ctx) {
+  // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
   try {
     // const product = JSON.parse(data?.toString());
