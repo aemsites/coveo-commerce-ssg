@@ -17,7 +17,7 @@ Handlebars.registerHelper("len", function(a, b) {
 });
 
 Handlebars.registerHelper('getReactType', function(context, field) {
-  return context[field]?.reactivityType || '';
+  return context[field]?.suitability || '';
 });
 
 Handlebars.registerHelper('getReactNotes', function(context, field) {
