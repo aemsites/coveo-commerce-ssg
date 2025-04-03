@@ -111,7 +111,7 @@ function parseJson(jsonString) {
   }
 }
 
-async function generateProductHtml(product, state, ctx) {
+async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
   try {
@@ -122,6 +122,7 @@ async function generateProductHtml(product, state, ctx) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
+    product.targetfunction = parseJson(product?.target?.adPrimaryTargetRelevanceJSON)?.function?.join('. ');
     product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
     product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
     product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);

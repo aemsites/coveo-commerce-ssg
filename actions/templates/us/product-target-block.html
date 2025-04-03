@@ -2,7 +2,11 @@
     <div>
         <div><h3>Target Data</h3></div>
     </div>
-    {{#if raw.adstandardproteinfunction}}
+    {{#if targetfunction}}
+    <div>
+        <div>{{targetfunction}}</div>
+    </div>
+    {{else if raw.adstandardproteinfunction}}
     <div>
         <div>{{raw.adstandardproteinfunction}}</div>
     </div>
