@@ -122,11 +122,20 @@ async function generateProductHtml(product, ctx, state) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
-    product.targetfunction = parseJson(product?.target?.adPrimaryTargetRelevanceJSON)?.function?.join('. ');
+    product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
+    product.targetfunction = product.targetrelevance?.function?.join('. ');
+    product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
+    product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
     product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
     product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
     product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
+    if (product.celltargetattr) {
+      product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
+      product.celltargetattr.strlocus = product.celltargetattr?.strLocus?.join(', ');
+      product.celltargetattr.cultureproperties = product.celltargetattr?.cultureProperties?.join(', ');
+    }
     product.cellattr = parseJson(product.raw.adcelllineattributesjson);
+    if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
     product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.alternativenames = product.raw.adprimarytargetnames;
     product.notes =  parseJson(product.raw.adnotesjson);
@@ -157,7 +166,14 @@ async function generateProductHtml(product, ctx, state) {
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
-    
+    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson)?.at(0)?.statement;
+    product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
+    product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
+    product.purificationtechnique = product?.raw?.adpurificationtechniquereagent || '' + product?.raw?.adpurificationtechnique || '';
+    product.kitassayprecisionjson = JSON.stringify(parseJson(product.raw.adkitassayprecisionjson)?.at(0));
+    product.kitrecoveryjson = JSON.stringify(parseJson(product.raw.adkitrecoveryjson)?.at(0));
+    product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
+    console.log(product.conjugatevariations);
     
     // load the templates
     const templateNames = [
@@ -182,6 +198,14 @@ async function generateProductHtml(product, ctx, state) {
       "associated-products-block",
       "product-downloads-block",
       "product-sequenceinfo-block",
+      "product-specifications-block",
+      "product-general-info-block",
+      "product-properties-block",
+      "product-quality-control-block",
+      "product-cell-culture-block",
+      "product-handling-procedures-block",
+      "product-precision-block",
+      "product-recovery-block",
       "section-metadata-block",
       "product-kitcomponent-block",
       "meta-jsonld",

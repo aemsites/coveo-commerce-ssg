@@ -28,6 +28,48 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
+{{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
+<div>
+  {{> product-specifications-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
+<div>
+  {{> product-general-info-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates,secondary-antibodies")}}
+<div>
+  {{> product-properties-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
+<div>
+  {{> product-quality-control-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  {{> product-cell-culture-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  {{> product-handling-procedures-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if (isOneOf raw.adseoclasslevelone values="elisa-kits,matched-antibody-pair-kits,elispot-kits,lateral-flow,assay-kits")}}
+<div>
+  {{> product-precision-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  {{> product-recovery-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 <div>
   {{> product-target-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}

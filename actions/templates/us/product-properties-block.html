@@ -1,0 +1,66 @@
+<div class="product-properties {{class}}">
+    <div>
+        <div>
+            <h3>Properties</h3>
+        </div>
+    </div>
+    {{#if (eq raw.adseoclasslevelone "secondary-antibodies")}}
+        {{#if raw.adform}}
+        <div>
+            <h6>Form</h6>
+            <p>{{raw.adform}}</p>
+        </div>
+        {{/if}}
+        {{#if raw.adformulation}}
+        <div>
+            <h6>Storage buffer</h6>
+            <p>{{raw.adformulation}}</p>
+        </div>
+        {{/if}}
+        {{#if purificationtechnique}}
+        <div>
+            <h6>Purification technique</h6>
+            <p>{{purificationtechnique}}</p>
+        </div>
+        {{/if}}
+        {{#if purificationnotes}}
+        <div>
+            <h6>Purification notes</h6>
+            <p>{{purificationnotes}}</p>
+        </div>
+        {{/if}}
+    {{/if}}
+
+    {{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
+        {{#if celltargetattr.gene}}
+        <div>
+            <h6>Gene name</h6>
+            <p>{{celltargetattr.gene}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.geneEditingType}}
+        <div>
+            <h6>Gene editing type</h6>
+            <p>{{celltargetattr.geneEditingType}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.geneEditingMethod}}
+        <div>
+            <h6>Gene editing method</h6>
+            <p>{{celltargetattr.geneEditingMethod}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.knockoutvalidation}}
+        <div>
+            <h6>Knockout validation</h6>
+            <p>{{celltargetattr.knockoutvalidation}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.zygosity}}
+        <div>
+            <h6>Zygosity</h6>
+            <p>{{celltargetattr.zygosity}}</p>
+        </div>
+        {{/if}}
+    {{/if}}
+</div> 

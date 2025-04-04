@@ -1,0 +1,31 @@
+<div class="product-handling-procedures {{class}}">
+    <div>
+        <div>
+            <h3>Handling procedures</h3>
+        </div>
+    </div>
+    {{#if cellattr.initialHandlingGuidelines}}
+    <div>
+        <h6>Initial handling guidelines</h6>
+        <p>{{{cellattr.initialHandlingGuidelines}}}</p>
+    </div>
+    {{/if}}
+    {{#if cellattr.subcultureguidelines}}
+    <div>
+        <h6>Subculture guidelines</h6>
+        <p>{{{cellattr.subcultureguidelines}}}</p>
+    </div>
+    {{/if}}
+    {{#if cellattr.cultureMedium}}
+    <div>
+        <h6>Culture medium</h6>
+        <p>{{cellattr.cultureMedium}}</p>
+    </div>
+    {{/if}}
+    {{#if cellattr.cryopreservationMedium}}
+    <div>
+        <h6>Cryopreservation medium</h6>
+        <p>{{cellattr.cryopreservationMedium}}</p>
+    </div>
+    {{/if}}
+</div>

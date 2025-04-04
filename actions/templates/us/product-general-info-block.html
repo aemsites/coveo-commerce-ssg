@@ -1,0 +1,31 @@
+<div class="product-general-info {{class}}">
+    <div>
+        <div>
+            <h3>General info</h3>
+        </div>
+    </div>
+    {{#if targetfunction}}
+    <div>
+        <h6>Function</h6>
+        <p>{{targetfunction}}</p>
+    </div>
+    {{/if}}
+    {{#if targetsequencesimilarities}}
+    <div>
+        <h6>Sequence similarities</h6>
+        <p>{{targetsequencesimilarities}}</p>
+    </div>
+    {{/if}}
+    {{#if targetposttranslationalmodifications}}
+    <div>
+        <h6>Post-translational modifications</h6>
+        <p>{{targetposttranslationalmodifications}}</p>
+    </div>
+    {{/if}}
+    {{#if subcellularlocalisations}}
+    <div>
+        <h6>Subcellular localisation</h6>
+        <p>{{subcellularlocalisations.localisation}}</p>
+    </div>
+    {{/if}}
+</div> 
