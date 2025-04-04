@@ -173,7 +173,6 @@ async function generateProductHtml(product, ctx, state) {
     product.kitassayprecisionjson = JSON.stringify(parseJson(product.raw.adkitassayprecisionjson)?.at(0));
     product.kitrecoveryjson = JSON.stringify(parseJson(product.raw.adkitrecoveryjson)?.at(0));
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
-    console.log(product.conjugatevariations);
     
     // load the templates
     const templateNames = [

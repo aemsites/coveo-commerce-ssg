@@ -7,58 +7,57 @@
         <div>
         <p>
         {
-        "filters": {
-            "stats": ["Components", "Unit & Qty"]
-        },
         "values": {
         {{#each kitcomponent.byAsset}}        
         {{#if @last}}
-        "{{this.sellingSize}}": {
-            "publicAssetCode":"{{this.publicAssetCode}}",
-            "assetComponentDetails": [
-            {{#if assetComponentDetails}}
-            {{#each assetComponentDetails}}
-                {{#if @last}}
-                {
-                "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
-                "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
-                }
-                {{else}}
-                {
-                "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
-                "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
-                },
+            "{{#replaceSlash this.sellingSize }} {{ this.sellingSize }} {{/replaceSlash}}": {
+                "sellingSize": "{{ this.sellingSize }}",
+                "publicAssetCode":"{{this.publicAssetCode}}",
+                "assetComponentDetails": [
+                {{#if assetComponentDetails}}
+                {{#each assetComponentDetails}}
+                    {{#if @last}}
+                    {
+                    "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                    "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                    "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                    "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
+                    }
+                    {{else}}
+                    {
+                    "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                    "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                    "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                    "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
+                    },
+                    {{/if}}
+                {{/each}}
                 {{/if}}
-            {{/each}}
-            {{/if}}
-            ]
-        }
+                ]
+            }
         {{else}}            
-        "{{this.sellingSize}}": {
-            "publicAssetCode":"{{this.publicAssetCode}}",
-            "assetComponentDetails": [
-            {{#if assetComponentDetails}}
-            {{#each assetComponentDetails}}
-                {{#if @last}}
-                {
-                "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
-                }
-                {{else}}
-                {
-                "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
-                },
+            "{{#replaceSlash this.sellingSize }} {{ this.sellingSize }} {{/replaceSlash}}": {
+                "sellingSize": "{{ this.sellingSize }}",
+                "publicAssetCode":"{{this.publicAssetCode}}",
+                "assetComponentDetails": [
+                {{#if assetComponentDetails}}
+                    {{#each assetComponentDetails}}
+                        {{#if @last}}
+                        {
+                        "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                        "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                        "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                        }
+                        {{else}}
+                        {
+                        "size":"{{#if this.size}}{{this.size}}{{/if}}",
+                        "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                        "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                        },
+                        {{/if}}
+                    {{/each}}
                 {{/if}}
-            {{/each}}
-            {{/if}}
-            ]
+                ]
             },            
         {{/if}}
         {{/each}}
