@@ -18,7 +18,7 @@ const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
 const crypto = require('crypto');
 const { FILE_PREFIX, FILE_EXT, requestCOVEO } = require('../utils');
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 75;
 
 function getStateFileLocation(stateKey) {
   return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
