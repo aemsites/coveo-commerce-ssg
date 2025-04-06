@@ -79,6 +79,20 @@
                 <p>{{raw.adimmunogencommercialsensitivity}}</p>
             </div>
             {{/if}}
+
+            {{#if raw.adantibodyspecificity}}
+            <div>
+                <h6>Specificity</h6>
+                <p>{{{raw.adantibodyspecificity}}}</p>
+            </div>
+            {{/if}}
+
+            {{#if purificationtechnique}}
+            <div>
+                <h6>Purification technique</h6>
+                <p>{{purificationtechnique}}</p>
+            </div>
+            {{/if}}
         {{/if}}
 
         {{#if (eq raw.adseoclasslevelone "secondary-antibodies")}}
