@@ -19,15 +19,15 @@
                     {{#if @last}}
                     {
                     "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                    "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                    "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                    "name":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                    "number":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
                     "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
                     }
                     {{else}}
                     {
                     "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                    "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                    "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
+                    "name":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                    "number":"{{#if this.component.number}}{{this.component.number}}{{/if}}",
                     "productcode":"{{#if this.component.product.productCode}}{{this.component.product.productCode}}{{/if}}"
                     },
                     {{/if}}
@@ -45,14 +45,14 @@
                         {{#if @last}}
                         {
                         "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                        "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                        "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                        "name":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                        "number":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
                         }
                         {{else}}
                         {
                         "size":"{{#if this.size}}{{this.size}}{{/if}}",
-                        "componentname":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
-                        "componentnumber":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
+                        "name":"{{#if this.component.name}}{{this.component.name}}{{/if}}",
+                        "number":"{{#if this.component.number}}{{this.component.number}}{{/if}}"
                         },
                         {{/if}}
                     {{/each}}
