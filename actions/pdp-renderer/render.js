@@ -138,7 +138,10 @@ async function generateProductHtml(product, ctx, state) {
     if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
     product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.alternativenames = product.raw.adprimarytargetnames;
-    product.notes =  parseJson(product.raw.adnotesjson);
+    product.notes = parseJson(product.raw?.adnotesjson);
+    product.notes.forEach((note) => {
+      note.statement = note.statement?.replace(/<br\s*\/?>/gi, '');
+    });
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
@@ -171,8 +174,6 @@ async function generateProductHtml(product, ctx, state) {
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
     product.purificationtechnique = product?.raw?.adpurificationtechniquereagent || '' + product?.raw?.adpurificationtechnique || '';
-    product.kitassayprecisionjson = JSON.stringify(parseJson(product.raw.adkitassayprecisionjson));
-    product.kitrecoveryjson = JSON.stringify(parseJson(product.raw.adkitrecoveryjson));
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
     
     // load the templates
