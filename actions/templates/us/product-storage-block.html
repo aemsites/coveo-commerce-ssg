@@ -2,6 +2,12 @@
   <div>
     <div><h3>Storage information</h3></div>
   </div>
+  {{#if raw.adstorageshippedatconditions}}
+  <div>
+    <div><h5>Shipped at Conditions</h5></div>
+    <div><p>{{raw.adstorageshippedatconditions}}</p></div>
+  </div>
+  {{/if}}
   {{#if raw.adstorageinformation}}
   <div>
     <div><h5>Storage information</h5></div>
