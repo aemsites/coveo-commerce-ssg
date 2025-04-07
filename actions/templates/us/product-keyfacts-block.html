@@ -531,6 +531,18 @@
             </div>
             {{/if}} 
 
+            {{#if sequenceinfotag}}
+            <div>
+                <h6>Tags</h6>
+                <p>{{sequenceinfotag.tag}} tag {{sequenceinfotag.terminus}}</p>
+            </div>
+            {{ else }}
+            <div>
+                <h6>Tags</h6>
+                <p>Tag free</p>
+            </div>
+            {{/if}}
+
             {{#if raw.adapplications}}
             <div>
                 <h6>Application</h6>
