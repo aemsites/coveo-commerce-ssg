@@ -28,11 +28,13 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
+{{#if (and raw.adform purificationnotes)}}
 <div>
   {{> product-specifications-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{/if}}
+{{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
 <div>
   {{> product-general-info-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
@@ -44,25 +46,31 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
+{{#if celltargetattr.strlocus}}
 <div>
   {{> product-quality-control-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{/if}}
+{{#if celltargetattr}}
 <div>
   {{> product-cell-culture-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{/if}}
+{{#if cellattr}}
 <div>
   {{> product-handling-procedures-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if (isOneOf raw.adseoclasslevelone values="elisa-kits,matched-antibody-pair-kits,elispot-kits,lateral-flow,assay-kits")}}
+{{#if kitassayprecisionjson}}
 <div>
   {{> product-precision-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{/if}}
+{{#if kitrecoveryjson}}
 <div>
   {{> product-recovery-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}

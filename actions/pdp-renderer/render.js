@@ -170,8 +170,8 @@ async function generateProductHtml(product, ctx, state) {
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
     product.purificationtechnique = product?.raw?.adpurificationtechniquereagent || '' + product?.raw?.adpurificationtechnique || '';
-    product.kitassayprecisionjson = JSON.stringify(parseJson(product.raw.adkitassayprecisionjson)?.at(0));
-    product.kitrecoveryjson = JSON.stringify(parseJson(product.raw.adkitrecoveryjson)?.at(0));
+    product.kitassayprecisionjson = JSON.stringify(parseJson(product.raw.adkitassayprecisionjson));
+    product.kitrecoveryjson = JSON.stringify(parseJson(product.raw.adkitrecoveryjson));
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
     
     // load the templates
