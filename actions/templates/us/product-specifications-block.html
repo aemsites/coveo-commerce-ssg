@@ -4,16 +4,18 @@
             <h3>Specifications</h3>
         </div>
     </div>
-    {{#if raw.adform}}
     <div>
-        <h6>Form</h6>
-        <p>{{raw.adform}}</p>
+        {{#if raw.adform}}
+        <div>
+            <h6>Form</h6>
+            <p>{{raw.adform}}</p>
+        </div>
+        {{/if}}
+        {{#if purificationnotes}}
+        <div>
+            <h6>Additional notes</h6>
+            <p>{{purificationnotes}}</p>
+        </div>
+        {{/if}}
     </div>
-    {{/if}}
-    {{#if purificationnotes}}
-    <div>
-        <h6>Additional notes</h6>
-        <p>{{purificationnotes}}</p>
-    </div>
-    {{/if}}
 </div> 

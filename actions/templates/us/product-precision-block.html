@@ -1,12 +1,14 @@
-<div class="product-precision {{class}}">
+<div class="product-keyfacts {{class}}">
     <div>
         <div>
             <h3>Precision</h3>
         </div>
     </div>
-    {{#if kitassayprecisionjson}}
     <div>
-        <p>{{kitassayprecisionjson}}</p>
+        {{#if kitassayprecisionjson}}
+        <div>
+            <p>{{kitassayprecisionjson}}</p>
+        </div>
+        {{/if}}
     </div>
-    {{/if}}
 </div>

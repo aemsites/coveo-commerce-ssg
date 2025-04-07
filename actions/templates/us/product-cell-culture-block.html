@@ -1,25 +1,27 @@
-<div class="product-cell-culture {{class}}">
+<div class="product-keyfacts {{class}}">
     <div>
         <div>
             <h3>Cell culture</h3>
         </div>
     </div>
-    {{#if (and celltargetattr.biosafetyLevelEurope celltargetattr.biosafetyLevelUnitedStates)}}
     <div>
-        <h6>Biosafety level</h6>
-        <p>EU: {{celltargetattr.biosafetyLevelEurope}} US: {{celltargetattr.biosafetyLevelUnitedStates}}</p>
+        {{#if (and celltargetattr.biosafetyLevelEurope celltargetattr.biosafetyLevelUnitedStates)}}
+        <div>
+            <h6>Biosafety level</h6>
+            <p>EU: {{celltargetattr.biosafetyLevelEurope}} US: {{celltargetattr.biosafetyLevelUnitedStates}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.cultureproperties}}
+        <div>
+            <h6>Adherent/suspension</h6>
+            <p>{{celltargetattr.cultureproperties}}</p>
+        </div>
+        {{/if}}
+        {{#if celltargetattr.sex}}
+        <div>
+            <h6>Gender</h6>
+            <p>{{celltargetattr.sex}}</p>
+        </div>
+        {{/if}}
     </div>
-    {{/if}}
-    {{#if celltargetattr.cultureproperties}}
-    <div>
-        <h6>Adherent/suspension</h6>
-        <p>{{celltargetattr.cultureproperties}}</p>
-    </div>
-    {{/if}}
-    {{#if celltargetattr.sex}}
-    <div>
-        <h6>Gender</h6>
-        <p>{{celltargetattr.sex}}</p>
-    </div>
-    {{/if}}
 </div>

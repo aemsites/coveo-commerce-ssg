@@ -1,12 +1,14 @@
-<div class="product-recovery {{class}}">
+<div class="product-keyfacts {{class}}">
     <div>
         <div>
             <h3>Recovery</h3>
         </div>
     </div>
-    {{#if kitrecoveryjson}}
     <div>
-        <p>{{kitrecoveryjson}}</p>
+        {{#if kitrecoveryjson}}
+        <div>
+            <p>{{kitrecoveryjson}}</p>
+        </div>
+        {{/if}}
     </div>
-    {{/if}}
 </div>
