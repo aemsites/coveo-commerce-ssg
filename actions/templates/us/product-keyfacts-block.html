@@ -71,7 +71,7 @@
             {{#if (and immunogenlinkjson immunogendesc)}}
             <div>
                 <h6>Immunogen</h6>
-                <p>{{immunogendesc}}</p> <a href="{{immunogenlinkjson.value}}">{{immunogenlinkjson.label}}</a>
+                <p>{{immunogendesc}} {{raw.adimmunogencommercialsensitivity}}</p> <a href="{{immunogenlinkjson.value}}">{{immunogenlinkjson.label}}</a>
             </div>
             {{else if raw.adimmunogencommercialsensitivity}}
             <div>
