@@ -139,7 +139,7 @@ async function generateProductHtml(product, ctx, state) {
     product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.alternativenames = product.raw.adprimarytargetnames;
     product.notes = parseJson(product.raw?.adnotesjson);
-    product.notes.forEach((note) => {
+    product.notes?.forEach((note) => {
       note.statement = note.statement?.replace(/<br\s*\/?>/gi, '');
     });
     product.images = parseJson(product.raw.imagesjson);
