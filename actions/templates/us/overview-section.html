@@ -6,8 +6,32 @@
   {{> product-keyfacts-block class="reduced-width expand-block"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if (or tabledata applications)}}
+<div>
+  {{> product-reactivity-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 <div>
   {{> product-alternate-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  {{> product-notes-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  {{> product-storage-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{#if cellattr}}
+<div>
+  {{> product-handling-procedures-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+<div>
+  {{> product-summarynotes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{#if raw.adpublicationscount}}
@@ -16,21 +40,15 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if (or tabledata applications)}}
+{{#if (and raw.adform purificationnotes)}}
 <div>
-  {{> product-reactivity-block class="reduced-width"}}
+  {{> product-specifications-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
 {{#if sequenceinfo}}
 <div>
   {{> product-sequenceinfo-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-{{#if (and raw.adform purificationnotes)}}
-<div>
-  {{> product-specifications-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
@@ -58,12 +76,20 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if cellattr}}
 <div>
-  {{> product-handling-procedures-block class="reduced-width"}}
+  {{> product-target-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{#if kitcomponent.byAsset.length}} 
+<div>
+  {{> product-kitcomponent-block class='reduced-width'}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
+<div>
+  {{> product-protocols-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
 {{#if raw.adkitassayprecisionjson}}
 <div>
   {{> product-precision-block class="reduced-width"}}
@@ -76,32 +102,6 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-<div>
-  {{> product-target-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{#if kitcomponent.byAsset.length}} 
-<div>
-  {{> product-kitcomponent-block class='reduced-width'}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-<div>
-  {{> product-storage-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-<div>
-  {{> product-notes-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-<div>
-  {{> product-summarynotes-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-<div>
-  {{> product-protocols-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
 <div>
   {{> product-promise-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
