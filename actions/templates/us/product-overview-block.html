@@ -10,8 +10,10 @@
     </div>
     <div>
       <div><dd>{{this.imgApplication}}</dd></div>
+      {{#if this.imgSourceName}} <strong>{{this.imgSourceName}}</strong> {{/if}}
       <h6>{{this.imgTitle}}</h6>
       <p>{{{this.imgLegend}}}</p>
+      {{#if this.imgCopyrightCredit}} <p><strong>{{this.imgCopyrightCredit}}</strong></p> {{/if}}
     </div>
   </div>
   {{/isValidImageUrl}}

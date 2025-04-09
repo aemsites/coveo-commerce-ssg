@@ -299,7 +299,11 @@
             {{#if raw.adsecondaryantibodyattributespreadsorbed}}
             <div>
                 <h6>Pre-adsorbed</h6>
-                <p>{{raw.adsecondaryantibodyattributespreadsorbed}}</p>
+                {{#if (eq raw.adsecondaryantibodyattributespreadsorbed "False")}}
+                <p>No</p>
+                {{else}}
+                <p>Yes</p>
+                {{/if}}
             </div>
             {{/if}}
 
@@ -337,7 +341,7 @@
             {{/if}} 
         {{/if}}
 
-        {{#if (eq raw.adseoclasslevelone "reagents")}}
+        {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels")}}
             {{#if raw.adapplications}}
             <div>
                 <h6>Application</h6>
