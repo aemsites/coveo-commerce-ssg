@@ -115,6 +115,8 @@ function parseJson(jsonString) {
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
+  logger.debug(`state: ${state}`)
+
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
@@ -232,7 +234,7 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
-    const linkifiedProduct = linkifyAbids(product, state);
+    const linkifiedProduct = linkifyAbids(product, state, logger);
     const html = template(linkifiedProduct);
     const response = {
       statusCode: 200,

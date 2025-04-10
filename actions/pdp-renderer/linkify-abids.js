@@ -37,7 +37,7 @@ const validAbIdRegex = new RegExp(regex, 'gi')
  * @param {Skus} skus
  * @returns {string}
  */
-const linkifyContent = (content, currentProductCode, skus) => {
+const linkifyContent = (content, currentProductCode, skus, logger) => {
   return findAndReplaceContent(content, validAbIdRegex, (productCode) => {
     if (!productCode) {
       return content
@@ -50,6 +50,8 @@ const linkifyContent = (content, currentProductCode, skus) => {
     }
 
     const href = skus?.[abId]?.path
+    logger.debug(`skus abid: ${abId} href: ${skus?.[abId]}`)
+
     if (!href) {
       return abId
     }
@@ -64,11 +66,13 @@ const linkifyContent = (content, currentProductCode, skus) => {
  * @param {Skus} skus
  * @returns {object}
  */
-const linkifyAbids = (product, skus) => {
+const linkifyAbids = (product, skus, logger) => {
+  logger.debug(`skus exist: ${!!skus}`)
+
   if (!skus) return product
   const currentProductCode = product.raw?.ec_product_id?.toLowerCase() || ''
 
-  const linkifyHandler = (content) => linkifyContent(content, currentProductCode, skus)
+  const linkifyHandler = (content) => linkifyContent(content, currentProductCode, skus, logger)
 
   const updatedProduct = { ...product }
   updatedProduct.notes = product.notes?.map((note) => ({
