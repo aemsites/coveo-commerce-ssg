@@ -2,6 +2,7 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
+const { linkifyAbids } = require('./linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a === b;
@@ -231,7 +232,8 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
-    const html = template(product);
+    const linkifiedProduct = linkifyAbids(product, state);
+    const html = template(linkifiedProduct);
     const response = {
       statusCode: 200,
       body: html,
