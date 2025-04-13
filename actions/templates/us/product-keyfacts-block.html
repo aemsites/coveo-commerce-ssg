@@ -171,10 +171,10 @@
             </div>
             {{/if}}
 
-            {{#if raw.adsecondaryantibodyattributestargetisotypes}}
+            {{#if secondaryantibodytargetisotypes}}
             <div>
                 <h6>Target isotype</h6>
-                <p>{{raw.adsecondaryantibodyattributestargetisotypes}}</p>
+                <p>{{secondaryantibodytargetisotypes}}</p>
             </div>
             {{/if}}
 
@@ -229,7 +229,7 @@
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -313,10 +313,10 @@
             {{/if}} 
         {{/if}}
 
-        {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels")}}
+        {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels,dyes,buffers")}}
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -728,7 +728,7 @@
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -936,7 +936,7 @@
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
