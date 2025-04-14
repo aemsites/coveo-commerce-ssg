@@ -2,6 +2,7 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
+const { linkifyAbids } = require('./linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a === b;
@@ -114,6 +115,8 @@ function parseJson(jsonString) {
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
+  logger.debug(`state: ${state}`)
+
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
@@ -232,7 +235,8 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
-    const html = template(product);
+    const linkifiedProduct = linkifyAbids(product, state.skus, logger);
+    const html = template(linkifiedProduct);
     const response = {
       statusCode: 200,
       body: html,
