@@ -93,6 +93,15 @@ const linkifyAbids = (product, skus, logger) => {
       notes: linkifyHandler(species.notes || ''),
     })),
   }))
+  updatedProduct.tabledata = product.tabledata?.map((table) => {
+    const updatedTable = { ...table }
+    for (const key in updatedTable) {
+      if (updatedTable[key]?.notes) {
+        updatedTable[key].notes = linkifyHandler(updatedTable[key].notes)
+      }
+    }
+    return updatedTable
+  })
 
   return updatedProduct
 }
