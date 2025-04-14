@@ -45,12 +45,11 @@ const linkifyContent = (content, currentProductCode, skus, logger) => {
 
     const abId = productCode.toLowerCase()
 
-    if (currentProductCode.toLowerCase() === abId) {
+    if (currentProductCode.toLowerCase().trim() === abId.trim()) {
       return abId
     }
 
     const href = skus?.[abId]?.path
-    logger.debug(`skus abid: ${abId} href: ${skus?.[abId]}`)
 
     if (!href) {
       return abId
@@ -67,8 +66,6 @@ const linkifyContent = (content, currentProductCode, skus, logger) => {
  * @returns {object}
  */
 const linkifyAbids = (product, skus, logger) => {
-  logger.debug(`skus exist: ${!!skus}`)
-
   if (!skus) return product
   const currentProductCode = product.raw?.ec_product_id?.toLowerCase() || ''
 
