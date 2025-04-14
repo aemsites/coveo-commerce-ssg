@@ -35,11 +35,11 @@
                         {{#if @last}}
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
-                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}"
+                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{getReactNotes ../this this.name}}"
                         {{else}}             
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
-                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}",                
+                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{getReactNotes ../this this.name}}",                
                         {{/if}}
                         {{/each}}
                     }
@@ -49,11 +49,11 @@
                         {{#if @last}}
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
-                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}"             
+                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{getReactNotes ../this this.name}}"             
                         {{else}}
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-checked": "{{getReactType ../this this.name}}",
                             "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-dilution-info": "{{getReactDilution ../this this.name}}",
-                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{{getReactNotes ../this this.name}}}",                
+                            "{{#replaceSlash this.name}} {{this.name}} {{/replaceSlash}}-species-notes": "{{getReactNotes ../this this.name}}",                
                         {{/if}}
                         {{/each}}
                     },
