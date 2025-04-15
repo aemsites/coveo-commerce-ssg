@@ -104,6 +104,17 @@ Handlebars.registerHelper("and", function (a, b) {
   return a && b;
 });
 
+Handlebars.registerHelper("replaceTagTitle", function (value) {
+  switch (value) {
+    case 'RABMAB':
+      return 'RabMAb®';
+    case 'RECOMBINANT':
+      return 'Recombinant';
+    default:
+      return value;
+  }
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -177,6 +188,7 @@ async function generateProductHtml(product, ctx, state) {
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+    product.variations = parseJson(product.raw?.advariationsjson);
 
     // load the templates
     const templateNames = [
@@ -188,6 +200,7 @@ async function generateProductHtml(product, ctx, state) {
       "product-overview-block",
       "product-buybox-block",
       "product-keyfacts-block",
+      "product-variations-block",
       "product-alternate-block",
       "product-publications-block",
       "product-target-block",
