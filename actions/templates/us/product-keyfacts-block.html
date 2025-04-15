@@ -20,13 +20,13 @@
             </div>
             {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each raw.conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -123,7 +123,7 @@
             {{#if dissociationconstant}}
             <div>
                 <h6>Dissociation constant</h6>
-                <p>{{dissociationconstant.value}} x 10 <sup>{{dissociationconstant.exponent}}</sup></p>
+                <p>{{dissociationconstant.value}} x 10 <sup>{{dissociationconstant.exponent}}</sup> M</p>
             </div>
             {{/if}}
             
@@ -200,13 +200,13 @@
             </div>
             {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each raw.conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -355,13 +355,13 @@
             </div>
             {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each raw.conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -757,13 +757,13 @@
             </div>
             {{/if}} 
             
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each raw.conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
