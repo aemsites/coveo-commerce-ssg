@@ -5,7 +5,7 @@ const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
-  return a === b;
+  return a?.toLowerCase() === b?.toLowerCase();
 });
 
 Handlebars.registerHelper("lt", function(a, b) {
