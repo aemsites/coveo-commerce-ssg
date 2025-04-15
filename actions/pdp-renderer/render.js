@@ -124,7 +124,7 @@ async function generateProductHtml(product, ctx, state) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
-    product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || '';
+    product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
     product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
     product.targetfunction = product.targetrelevance?.function?.join('. ');
     product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
@@ -141,9 +141,6 @@ async function generateProductHtml(product, ctx, state) {
     if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
     product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.notes = parseJson(product.raw?.adnotesjson);
-    product.notes?.forEach((note) => {
-      note.statement = note.statement?.replace(/<br\s*\/?>/gi, '');
-    });
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
