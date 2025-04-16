@@ -102,6 +102,13 @@ const linkifyAbids = (product, skus, logger) => {
     }
     return updatedTable
   })
+  updatedProduct.applications = product.applications?.map((application) => ({
+    ...application,
+    species: application.species?.map((species) => ({
+      ...species,
+      notes: linkifyHandler(species.notes || ''),
+    })),
+  }))
 
   return updatedProduct
 }
