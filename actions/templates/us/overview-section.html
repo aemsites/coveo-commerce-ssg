@@ -3,10 +3,10 @@
   {{#if (len images 0)}}
     {{> product-overview-block class="reduced-width"}}
   {{/if}}
+  {{> product-variations-block class="reduced-width"}}
   {{> product-keyfacts-block class="reduced-width expand-block"}}
   {{> section-metadata-block style='left-column'}}
 </div>
-{{> product-variations-block class="reduced-width"}}
 {{#if (or tabledata applications)}}
 <div>
   {{> product-reactivity-block class="reduced-width"}}
