@@ -172,7 +172,7 @@ async function generateProductHtml(product, ctx, state) {
     product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson)?.at(0)?.statement || '';
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-    product.purificationtechnique = product?.raw?.adpurificationtechniquereagent || '' + product?.raw?.adpurificationtechnique || '';
+    product.purificationtechnique = (product?.raw?.adpurificationtechniquereagent || '')?.concat(' ', product?.raw?.adpurificationtechnique || '');
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
@@ -231,8 +231,8 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
-    const linkifiedProduct = linkifyAbids(product, state.skus, logger);
-    const html = template(linkifiedProduct);
+    // const linkifiedProduct = linkifyAbids(product, state.skus, logger);
+    const html = template(product);
     const response = {
       statusCode: 200,
       body: html,
