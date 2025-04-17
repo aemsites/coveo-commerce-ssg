@@ -1,22 +1,22 @@
-{{#if variations}}
+{{#if conjugatevariations}}
 <div class="product-variations {{class}}">
   <div>
     <div>
-      <h3>Related conjugates and formulations</h3>
+      <h3>Related conjugates and formulations ({{conjugatevariations.length}})</h3>
     </div>
   </div>
   <ul>
-    {{#each variations}}
+    {{#each conjugatevariations}}
     <li>
       <div>
-        <a href="/{{this.product.seoClass.levelOne}}/{{this.product.productSlug}}"
-          >{{toLowerCase this.product.productCode}}</a
-        >
+        <span>{{toLowerCase this.product.productCode}}</span>
         <div>
           {{#if this.product.conjugations.[0].emission}}
           <span data-emission="{{this.product.conjugations.[0].emission}}"></span>
           {{/if}}
-          <span>{{this.product.name}}</span>
+          <a href="/{{this.product.seoClass.levelOne}}/{{this.product.productSlug}}"
+            >{{this.product.name}}</a
+          >
         </div>
       </div>
       <div>{{replaceTagTitle this.relationship}}</div>
