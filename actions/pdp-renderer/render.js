@@ -104,6 +104,17 @@ Handlebars.registerHelper("and", function (a, b) {
   return a && b;
 });
 
+Handlebars.registerHelper("replaceTagTitle", function (value) {
+  switch (value) {
+    case 'RABMAB':
+      return 'RabMAb®';
+    case 'RECOMBINANT':
+      return 'Recombinant';
+    default:
+      return value;
+  }
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -187,6 +198,7 @@ async function generateProductHtml(product, ctx, state) {
       "product-header-block",
       "product-overview-block",
       "product-buybox-block",
+      "product-variations-block",
       "product-keyfacts-block",
       "product-alternate-block",
       "product-publications-block",
