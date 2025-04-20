@@ -355,7 +355,7 @@ function makeContext(params) {
 }
 
 async function fetcher(params, aioLibs) {
-  const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
+  const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'error' });
   const { stateLib } = aioLibs;
   const wskContext = makeContext(params, logger);
   const {
