@@ -412,10 +412,11 @@ async function fetcher(params, aioLibs) {
           const resp = await requestCOVEO(coveoUrl, batch, context);
           timings.sample('fetchedData');
           logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
-          
+          logger.debug('COVEO response:', JSON.stringify(resp, null, 2));
+          const results = Array.isArray(resp?.results) ? resp.results : [];
           // Enrich products with metadata
           const products = await Promise.all(
-            resp?.results?.map(product => enrichProductWithMetadata(product, state, context))
+            results?.map(product => enrichProductWithMetadata(product, state, context))
           );
           
           const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
