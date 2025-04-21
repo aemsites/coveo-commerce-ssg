@@ -2,9 +2,10 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
+const { linkifyAbids } = require('./linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
-  return a === b;
+  return a?.toLowerCase() === b?.toLowerCase();
 });
 
 Handlebars.registerHelper("lt", function(a, b) {
@@ -103,6 +104,17 @@ Handlebars.registerHelper("and", function (a, b) {
   return a && b;
 });
 
+Handlebars.registerHelper("replaceTagTitle", function (value) {
+  switch (value) {
+    case 'RABMAB':
+      return 'RabMAb®';
+    case 'RECOMBINANT':
+      return 'Recombinant';
+    default:
+      return value;
+  }
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -114,6 +126,7 @@ function parseJson(jsonString) {
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
+
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
@@ -122,6 +135,7 @@ async function generateProductHtml(product, ctx, state) {
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
     product.target = parseJson(product.raw.adprimarytargetjson);
+    product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
     product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
     product.targetfunction = product.targetrelevance?.function?.join('. ');
     product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
@@ -137,11 +151,7 @@ async function generateProductHtml(product, ctx, state) {
     product.cellattr = parseJson(product.raw.adcelllineattributesjson);
     if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
     product.conjugations = parseJson(product.raw.adconjugationsjson);
-    product.alternativenames = product.raw.adprimarytargetnames;
     product.notes = parseJson(product.raw?.adnotesjson);
-    product.notes.forEach((note) => {
-      note.statement = note.statement?.replace(/<br\s*\/?>/gi, '');
-    });
     product.images = parseJson(product.raw.imagesjson);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
@@ -170,12 +180,15 @@ async function generateProductHtml(product, ctx, state) {
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
-    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson)?.at(0)?.statement;
+    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson)?.at(0)?.statement || '';
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-    product.purificationtechnique = product?.raw?.adpurificationtechniquereagent || '' + product?.raw?.adpurificationtechnique || '';
+    product.purificationtechnique = (product?.raw?.adpurificationtechniquereagent || '')?.concat(' ', product?.raw?.adpurificationtechnique || '');
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
-    
+    product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
+    product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
+    product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+
     // load the templates
     const templateNames = [
       "page",
@@ -185,6 +198,7 @@ async function generateProductHtml(product, ctx, state) {
       "product-header-block",
       "product-overview-block",
       "product-buybox-block",
+      "product-variations-block",
       "product-keyfacts-block",
       "product-alternate-block",
       "product-publications-block",
@@ -229,6 +243,7 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
+    // const linkifiedProduct = linkifyAbids(product, state.skus, logger);
     const html = template(product);
     const response = {
       statusCode: 200,

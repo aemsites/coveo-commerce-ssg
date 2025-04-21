@@ -25,11 +25,7 @@
         <div>
             <p>View alternative names</p>
             <div>
-            {{#each alternativenames}}
-                {{#if @last}} {{ this }}
-                {{else}} {{ this }}, 
-                {{/if}}
-            {{/each}}
+                {{alternativenames}}
             </div>
         </div>
     </div>

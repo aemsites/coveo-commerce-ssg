@@ -20,13 +20,13 @@
             </div>
             {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -34,14 +34,16 @@
             {{/if}}
 
             {{#if conjugations }}
-                {{#if conjugations.emission }}
-                    {{#if conjugations.excitation}}
-                    <div>
-                        <h6>Excitation/Emission</h6>
-                        <p>{{conjugations.excitation}} / {{conjugations.emission}}</p>
-                    </div>
+            <div>
+                <h6>Excitation/Emission</h6>
+                {{#each conjugations}}
+                {{#if this.emission }}
+                    {{#if this.excitation}}
+                        <p>Ex: {{this.excitation}}nm, Em: {{this.emission}}nm</p>
                     {{/if}}
                 {{/if}}
+                {{/each}}
+            </div>
             {{/if}}
 
             {{#if raw.adformulation}}
@@ -89,6 +91,13 @@
             </div>
             {{/if}} 
 
+            {{#if raw.adclonenumber}}
+            <div>
+                <h6>Clone number</h6>
+                <p>{{raw.adclonenumber}}</p>
+            </div>
+            {{/if}}
+
             {{#if purificationtechnique}}
             <div>
                 <h6>Purification technique</h6>
@@ -103,6 +112,27 @@
                 <p>{{{raw.adantibodyspecificity}}}</p>
             </div>
             {{/if}}
+            
+            {{#if raw.adantibodyepitope}}
+            <div>
+                <h6>Epitope</h6>
+                <p>{{raw.adantibodyepitope}}</p>
+            </div>
+            {{/if}}
+
+            {{#if dissociationconstant}}
+            <div>
+                <h6>Dissociation constant</h6>
+                <p>{{dissociationconstant.value}} x 10 <sup>{{dissociationconstant.exponent}}</sup> M</p>
+            </div>
+            {{/if}}
+            
+            {{#if raw.adantibodylightchaintype}}
+            <div>
+                <h6>Light chain type</h6>
+                <p>{{raw.adantibodylightchaintype}}</p>
+            </div>
+            {{/if}}
 
             {{#if raw.adreconstitution}}
             <div>
@@ -115,33 +145,6 @@
             <div>
                 <h6>Purification notes</h6>
                 <p>{{purificationnotes}}</p>
-            </div>
-            {{/if}}
-
-            {{#if target}}
-            <div>
-                <h6>Target</h6>
-                <p>{{target.adPrimaryTargetName}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adspecies}}
-            <div>
-                <h6>Reacts with</h6>
-                <p>{{raw.adspecies}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adapplications}}
-            <div>
-                <h6>Application</h6>
-                <p>
-                    {{#each raw.adapplications}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
-                    {{/if}}
-                    {{/each}}
-                </p>
             </div>
             {{/if}}
         {{/if}}
@@ -168,10 +171,10 @@
             </div>
             {{/if}}
 
-            {{#if raw.adsecondaryantibodyattributestargetisotypes}}
+            {{#if secondaryantibodytargetisotypes}}
             <div>
                 <h6>Target isotype</h6>
-                <p>{{raw.adsecondaryantibodyattributestargetisotypes}}</p>
+                <p>{{secondaryantibodytargetisotypes}}</p>
             </div>
             {{/if}}
 
@@ -182,14 +185,28 @@
             </div>
             {{/if}}
 
+            {{#if speciesreactivity}}
+            <div>
+                <h6>Minimal cross-reactivity</h6>
+                <p>
+                {{#each speciesreactivity}}
+                {{#if (eq this.reactivityType "DOES_NOT_REACT")}}
+                    {{#if @last}} {{this.species}}
+                    {{else}}{{this.species}}, 
+                    {{/if}}
+                {{/if}}
+                {{/each}}
+                </p>    
+            </div>
+            {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -198,19 +215,21 @@
 
 
             {{#if conjugations }}
-                {{#if conjugations.emission }}
-                    {{#if conjugations.excitation}}
-                    <div>
-                        <h6>Excitation/Emission</h6>
-                        <p>{{conjugations.excitation}} / {{conjugations.emission}}</p>
-                    </div>
+            <div>
+                <h6>Excitation/Emission</h6>
+                {{#each conjugations}}
+                {{#if this.emission }}
+                    {{#if this.excitation}}
+                        <p>Ex: {{this.excitation}}nm, Em: {{this.emission}}nm</p>
                     {{/if}}
                 {{/if}}
+                {{/each}}
+            </div>
             {{/if}}
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -228,10 +247,28 @@
             </div>
             {{/if}}
 
+            {{#if raw.adclonenumber}}
+            <div>
+                <h6>Clone number</h6>
+                <p>{{raw.adclonenumber}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adantibodyformat}}
+            <div>
+                <h6>Format</h6>
+                <p>{{raw.adantibodyformat}}</p>
+            </div>
+            {{/if}}
+
             {{#if raw.adsecondaryantibodyattributespreadsorbed}}
             <div>
                 <h6>Pre-adsorbed</h6>
-                <p>{{raw.adsecondaryantibodyattributespreadsorbed}}</p>
+                {{#if (eq raw.adsecondaryantibodyattributespreadsorbed "False")}}
+                <p>No</p>
+                {{else}}
+                <p>Yes</p>
+                {{/if}}
             </div>
             {{/if}}
 
@@ -254,10 +291,17 @@
             </div>
             {{/if}}
 
-            {{#if raw.adisotype}}
+            {{#if raw.adantibodyepitope}}
             <div>
-                <h6>Isotype</h6>
-                <p>{{raw.adisotype}}</p>
+                <h6>Epitope</h6>
+                <p>{{raw.adantibodyepitope}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adantibodylightchaintype}}
+            <div>
+                <h6>Light chain type</h6>
+                <p>{{raw.adantibodylightchaintype}}</p>
             </div>
             {{/if}}
 
@@ -269,10 +313,10 @@
             {{/if}} 
         {{/if}}
 
-        {{#if (eq raw.adseoclasslevelone "reagents")}}
+        {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels,dyes,buffers")}}
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -290,6 +334,13 @@
             </div>
             {{/if}}            
 
+            {{#if raw.adkitassaytype}}
+            <div>
+                <h6>Assay type</h6>
+                <p>{{raw.adkitassaytype}}</p>
+            </div>
+            {{/if}}
+            
             {{#if raw.adspecies}}
             <div>
                 <h6>Reacts with</h6>
@@ -304,13 +355,13 @@
             </div>
             {{/if}}
 
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
@@ -318,14 +369,16 @@
             {{/if}}
 
             {{#if conjugations }}
-                {{#if conjugations.emission }}
-                    {{#if conjugations.excitation}}
-                    <div>
-                        <h6>Excitation/Emission</h6>
-                        <p>{{conjugations.excitation}} / {{conjugations.emission}}</p>
-                    </div>
+            <div>
+                <h6>Excitation/Emission</h6>
+                {{#each conjugations}}
+                {{#if this.emission }}
+                    {{#if this.excitation}}
+                        <p>Ex: {{this.excitation}}nm, Em: {{this.emission}}nm</p>
                     {{/if}}
                 {{/if}}
+                {{/each}}
+            </div>
             {{/if}}
 
             {{#if raw.adpurity }}
@@ -486,7 +539,7 @@
                     {{#if biochemicalattr.excitation}}
                     <div>
                         <h6>Excitation/Emission</h6>
-                        <p>{{biochemicalattr.excitation}} / {{biochemicalattr.emission}}</p>
+                        <p>Ex: {{biochemicalattr.excitation}}nm, Em: {{biochemicalattr.emission}}nm</p>
                     </div>
                     {{/if}}
                 {{/if}}
@@ -556,10 +609,11 @@
             </div>
             {{/if}}
 
-            {{#if target}}
+            
+            {{#if raw.adkitgeneralrecovery}}
             <div>
-                <h6>Target</h6>
-                <p>{{target.adPrimaryTargetName}}</p>
+                <h6>General recovery</h6>
+                <p>{{raw.adkitgeneralrecovery}}</p>
             </div>
             {{/if}}
         {{/if}}
@@ -627,6 +681,13 @@
                 <p>{{raw.adkitsensitivity}}</p>
             </div>
             {{/if}}
+
+            {{#if raw.adkitgeneralrecovery}}
+            <div>
+                <h6>General recovery</h6>
+                <p>{{raw.adkitgeneralrecovery}}</p>
+            </div>
+            {{/if}}
         {{/if}}
 
         {{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
@@ -667,7 +728,7 @@
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
@@ -678,6 +739,17 @@
             </div>
             {{/if}}
 
+            {{#if raw.adproteinactive}}
+            <div>
+                <h6>Biologically active</h6>
+                {{#if (eq raw.adproteinactive "False")}}
+                <p>No</p>
+                {{else}}
+                <p>Yes</p>
+                {{/if}}
+            </div>
+            {{/if}} 
+
             {{#if raw.adproteinbiologicalactivity}}
             <div>
                 <h6>Biological activity</h6>
@@ -685,20 +757,39 @@
             </div>
             {{/if}} 
             
-            {{#if raw.adconjugationsnames}}
+            {{#if conjugations}}
             <div>
                 <h6>Conjugation</h6>
                 <p>
-                    {{#each raw.adconjugationsnames}}
-                    {{#if @last}} {{this}}
-                    {{else}}{{this}},
+                    {{#each conjugations}}
+                    {{#if @last}} {{this.label}}
+                    {{else}}{{this.label}},
                     {{/if}}
                     {{/each}}
                 </p>
             </div>
             {{/if}}
-
             
+            {{#if raw.adproteinmassspectrometry}}
+            <div>
+                <h6>Mass Spectrometry</h6>
+                <p>{{{raw.adproteinmassspectrometry}}}</p>
+            </div>
+            {{/if}} 
+
+            {{#if conjugations }}
+            <div>
+                <h6>Excitation/Emission</h6>
+                {{#each conjugations}}
+                {{#if this.emission }}
+                    {{#if this.excitation}}
+                        <p>Ex: {{this.excitation}}nm, Em: {{this.emission}}nm</p>
+                    {{/if}}
+                {{/if}}
+                {{/each}}
+            </div>
+            {{/if}}
+
             {{#if raw.adstandardproteinaccession}}
             <div>
                 <h6>Accession</h6>
@@ -845,7 +936,7 @@
 
             {{#if raw.adapplications}}
             <div>
-                <h6>Application</h6>
+                <h6>Applications</h6>
                 <p>
                     {{#each raw.adapplications}}
                     {{#if @last}} {{this}}
