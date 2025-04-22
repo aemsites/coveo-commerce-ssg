@@ -27,7 +27,7 @@ function getStateFileLocation(stateKey) {
 /**
  * @typedef {Object} PollerState
  * @property {string} locale - The locale (or store code).
- * @property {Array<Object>} skus - The SKUs with last previewed timestamp and hash.
+ * @property {Array<Object>} ids - The ids with last previewed timestamp and hash.
  */
 
 /**
@@ -53,22 +53,22 @@ async function loadState(locale, aioLibs) {
     const stateData = buffer?.toString();
     if (stateData) {
       const lines = stateData.split('\n');
-      stateObj.skus = lines.reduce((acc, line) => {
+      stateObj.ids = lines.reduce((acc, line) => {
         // the format of the state object is:
-        // <sku1>,<timestamp>,<hash>,<path>
-        // <sku2>,<timestamp>,<hash>,<path>
+        // <id1>,<timestamp>,<hash>,<path>
+        // <id2>,<timestamp>,<hash>,<path>
         // ...
-        // each row is a set of SKUs, last previewed timestamp and hash
-        const [sku, time, hash, path] = line.split(',');
-        acc[sku] = { lastPreviewedAt: new Date(parseInt(time)), hash, path };
+        // each row is a set of ids, last previewed timestamp and hash
+        const [id, time, hash, path] = line.split(',');
+        acc[id] = { lastPreviewedAt: new Date(parseInt(time)), hash, path };
         return acc;
       }, {});
     } else {
-      stateObj.skus = {};
+      stateObj.ids = {};
     }
   // eslint-disable-next-line no-unused-vars
   } catch (e) {
-    stateObj.skus = {};
+    stateObj.ids = {};
   }
   return stateObj;
 }
@@ -88,9 +88,9 @@ async function saveState(state, aioLibs) {
   const stateKey = locale || 'default';
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
-    ...Object.entries(state.skus)
-      .map(([sku, { lastPreviewedAt, hash, path }]) => {
-        return `${sku},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
+    ...Object.entries(state.ids)
+      .map(([id, { lastPreviewedAt, hash, path }]) => {
+        return `${id},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
       }),
   ].join('\n');
   return await filesLib.write(fileLocation, csvData);
@@ -145,13 +145,13 @@ function checkParams(params) {
  * @param context
  * @returns {*}
  */
-function createBatches(skus) {
-  return skus.reduce((acc, sku) => {
+function createBatches(ids) {
+  return ids.reduce((acc, id) => {
 
     if (!acc.length || acc[acc.length - 1].length === BATCH_SIZE) {
       acc.push([]);
     }
-    acc[acc.length - 1].push(sku);
+    acc[acc.length - 1].push(id);
 
     return acc;
   }, []);
@@ -208,10 +208,12 @@ function shouldProcessProduct(product) {
  */
 async function enrichProductWithMetadata(product, state, context) {
   const { logger } = context;
-  const { sku: skuOriginal, adproductslug: urlKey } = product?.raw;
-  const sku = skuOriginal.split('-')[0].toLowerCase();
+  // Need to be updated
+  const { id: skuOriginal, adproductslug: urlKey } = product?.raw;
+  const id = skuOriginal.split('-')[0].toLowerCase();
+   // Need to be updated
   logger.info('sku - urlKey', sku, urlKey);
-  const lastPreviewDate = state.skus[sku]?.lastPreviewedAt || new Date(0);
+  const lastPreviewDate = state.ids[id]?.lastPreviewedAt || new Date(0);
   let newHash = null;
   let productHtml = null;
   
@@ -223,10 +225,10 @@ async function enrichProductWithMetadata(product, state, context) {
     // Create enriched product object
     const enrichedProduct = {
       ...product,
-      sku,
+      id,
       urlKey,
       lastPreviewDate,
-      currentHash: state.skus[sku]?.hash || null,
+      currentHash: state.ids[id]?.hash || null,
       newHash,
       productHtml
     };
@@ -238,27 +240,27 @@ async function enrichProductWithMetadata(product, state, context) {
         const productPath = getProductUrl(product, context, false);
         const htmlPath = `/public/pdps${productPath}`;
         await filesLib.write(htmlPath, productHtml);
-        logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
+        logger.debug(`Saved HTML for product ${id} to ${htmlPath}`);
       } catch (e) {
-        logger.error(`Error saving HTML for product ${sku}:`, e);
+        logger.error(`Error saving HTML for product ${id}:`, e);
       }
     } else {
-      logger.debug(`Skipping product ${sku} because it should not be processed`);
+      logger.debug(`Skipping product ${id} because it should not be processed`);
       context.counts.ignored++;
     }
     
     return enrichedProduct;
   } catch (e) {
-    logger.error(`Error generating product HTML for SKU ${sku}:`, e);
+    logger.error(`Error generating product HTML for id ${id}:`, e);
     context.counts.failed++;
     // Return product with metadata even if HTML generation fails
     return {
       ...product,
-      sku,
+      id,
       urlKey,
       lastPreviewDate,
-      currentHash: state.skus[sku]?.hash || null,
-      newHash: state.skus[sku]?.hash || null,
+      currentHash: state.ids[id]?.hash || null,
+      newHash: state.ids[id]?.hash || null,
       productHtml: null
     };
   }
@@ -267,13 +269,13 @@ async function enrichProductWithMetadata(product, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus) {
+async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedIds) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
       records.map((record) => {
-        const product = products.find(p => p.sku === record.sku);
-        state.skus[record.sku] = {
+        const product = products.find(p => p.id === record.id);
+        state.ids[record.id] = {
           lastPreviewedAt: previewedAt,
           hash: product?.newHash,
           path: record.path
@@ -282,8 +284,8 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
       });
     } else {
       counts.failed += records.length;
-      const skus= records.map(item => item.sku);
-      failedSkus.push(...skus);
+      const ids= records.map(item => item.id);
+      failedIds.push(...ids);
     }
     await saveState(state, aioLibs);
   }
@@ -292,13 +294,13 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
 /**
  * Identifies and processes products that need to be deleted
  */
-async function processDeletedProducts(remainingSkus, locale, state, counts, context, adminApi, aioLibs, logger) {
-  if (!remainingSkus.length) return;
+async function processDeletedProducts(remainingIds, locale, state, counts, context, adminApi, aioLibs, logger) {
+  if (!remainingIds.length) return;
 
   try {
     const { filesLib } = aioLibs;
     const publishedProducts = await requestSpreadsheet('published-products-index', null, context);
-    const deletedProducts = publishedProducts.data.filter(({ sku }) => remainingSkus.includes(sku));
+    const deletedProducts = publishedProducts.data.filter(({ id }) => remainingIds.includes(id));
 
     // Process in batches
     if (deletedProducts.length) {
@@ -312,18 +314,18 @@ async function processDeletedProducts(remainingSkus, locale, state, counts, cont
           records.map((record) => {
             // Delete the HTML file from public storage
             try {
-              const product = deletedProducts.find(p => p.sku === record.sku);
+              const product = deletedProducts.find(p => p.id === record.id);
               if (product) {
-                const productUrl = getProductUrl({ urlKey: product.urlKey, sku: product.sku }, context, false).toLowerCase();
+                const productUrl = getProductUrl({ urlKey: product.urlKey, id: product.id }, context, false).toLowerCase();
                 const htmlPath = `/public/pdps${productUrl}`;
                 filesLib.delete(htmlPath);
-                logger.debug(`Deleted HTML file for product ${record.sku} from ${htmlPath}`);
+                logger.debug(`Deleted HTML file for product ${record.id} from ${htmlPath}`);
               }
             } catch (e) {
-              logger.error(`Error deleting HTML file for product ${record.sku}:`, e);
+              logger.error(`Error deleting HTML file for product ${record.id}:`, e);
             }
             
-            delete state.skus[record.sku];
+            delete state.ids[record.id];
             counts.unpublished++;
           });
         } else {
@@ -384,7 +386,7 @@ async function fetcher(params, aioLibs) {
     ...wskContext,
     ...sharedContext,
   }
-  const failedSkus = [];
+  const failedIds = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
     // start processing preview and publish queues
@@ -392,7 +394,7 @@ async function fetcher(params, aioLibs) {
     
     // Get the first key only
     let firstKey = null;
-    for await (const { keys } of stateLib.list({ match: 'webhook-skus-updated.*' })) {
+    for await (const { keys } of stateLib.list({ match: 'webhook-ids-updated.*' })) {
       if (keys.length > 0) {
         firstKey = keys[0];
         break;
@@ -400,18 +402,18 @@ async function fetcher(params, aioLibs) {
     }
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
-      const skusState = await stateLib.get(firstKey);
+      const idsState = await stateLib.get(firstKey);
       
       try {
-        const skus = JSON.parse(skusState.value);
-        const batches = createBatches(skus);
-        logger.info(`Created ${batches.length} batches from ${skus.length} SKUs`);
+        const ids = JSON.parse(idsState.value);
+        const batches = createBatches(ids);
+        logger.info(`Created ${batches.length} batches from ${ids.length} ids`);
         
         // Process each batch sequentially to maintain log order
         for (const batch of batches) {
           const resp = await requestCOVEO(coveoUrl, batch, context);
           timings.sample('fetchedData');
-          logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
+          logger.info(`Fetched data for ${resp?.results?.length} ids`);
           
           // Enrich products with metadata
           const products = await Promise.all(
@@ -420,7 +422,7 @@ async function fetcher(params, aioLibs) {
           
           const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
           const filteredPaths = filteredProducts.map(product => ({ 
-            sku: product.sku, 
+            id: product.id, 
             path: getProductUrl(product, context, false)
           }));
 
@@ -428,7 +430,7 @@ async function fetcher(params, aioLibs) {
           
           if (filteredPaths.length > 0) {
             const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus);
+            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedIds);
             timings.sample('publishedPaths');
           }
         }
@@ -474,7 +476,7 @@ async function fetcher(params, aioLibs) {
     state: 'completed',
     elapsed,
     status: { ...counts },
-    failedSkus,
+    failedIds,
     timings: timings.measures,
   };
 }
