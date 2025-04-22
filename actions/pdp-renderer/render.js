@@ -243,8 +243,8 @@ async function generateProductHtml(product, ctx, state) {
     });
 
     // render the main template with the content
-    // const linkifiedProduct = linkifyAbids(product, state.skus, logger);
-    const html = template(product);
+    const linkifiedProduct = linkifyAbids(product, state.skus, logger);
+    const html = template(linkifiedProduct);
     const response = {
       statusCode: 200,
       body: html,
