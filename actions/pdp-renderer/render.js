@@ -39,7 +39,7 @@ Handlebars.registerHelper("extractNumber", function(value) {
 });
 
 Handlebars.registerHelper("isValidImageUrl", function(image, options) {
-  if(image && image.resourceType === 'Image') {
+  if(image && image.resourceType?.toLowerCase() === 'image') {
     return options.fn(this);
   }
   return options.inverse(this);
