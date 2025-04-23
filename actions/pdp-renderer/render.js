@@ -12,6 +12,11 @@ Handlebars.registerHelper("lt", function(a, b) {
   return a < b;
 });
 
+Handlebars.registerHelper("gt", function(a, b) {
+  return a > b;
+});
+
+
 Handlebars.registerHelper("len", function(a, b) {
   b = b || 0;
   return Array.isArray(a) ? a.length-b : 0;
@@ -153,6 +158,9 @@ async function generateProductHtml(product, ctx, state) {
     product.conjugations = parseJson(product.raw.adconjugationsjson);
     product.notes = parseJson(product.raw?.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
+    product.images?.forEach((image) =>{
+      image.imagesusage = parseJson(image?.imgImageUsageJSON);
+    })
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
@@ -223,6 +231,9 @@ async function generateProductHtml(product, ctx, state) {
       "product-recovery-block",
       "section-metadata-block",
       "product-kitcomponent-block",
+      "product-header-inactive-block",
+      "product-downloads-inactive-block",
+      "alternate-products-inactive-block",
       "meta-jsonld",
       "product-reactivity-jsonld"
   ];

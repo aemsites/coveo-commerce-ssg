@@ -13,14 +13,23 @@
             </ul>
             {{#if raw.adreviewscount}}
             <em>{{raw.adreviewsaggregaterating}}</em>
-            <em>({{raw.adreviewscount}} Reviews)</em>
+                {{#if (gt raw.adreviewscount 1)}}
+                    <em>({{raw.adreviewscount}} Reviews)</em>
+                {{else}}
+                    <em>({{raw.adreviewscount}} Review)</em>
+                {{/if}}
             {{else}}
             <p>Be the first to review this product! <a
                 href="https://www.abcam.com/reviews/submit-review-2?productCode=">Submit a
                 review</a></p>
             {{/if}}
-            | <em>({{raw.adpublicationscount}} Publications)</em>
-            <p>{{{raw.adproductsummary}}}</p>
+            | 
+            {{#if (gt raw.adpublicationscount 1)}}
+                <em>({{raw.adpublicationscount}} Publications)</em>
+            {{else}}
+                <em>({{raw.adpublicationscount}} Publication)</em>
+            {{/if}}
+            <div><p>{{{raw.adproductsummary}}}</p></div>
         </div>
         <div>
             <p>View alternative names</p>

@@ -11,7 +11,7 @@
   <meta name="product-id" content="{{raw.sku}}">
   <meta name="clickableuri" content="{{raw.clickableuri}}">  
   <meta name="template" content="product-detail-page">  
-  {{> meta-jsonld}}
+  {{#if (eq raw.adstatus "active")}} {{> meta-jsonld}} {{/if}}
 </head>
 
 <body>
