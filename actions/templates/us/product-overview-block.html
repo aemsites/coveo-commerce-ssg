@@ -12,7 +12,57 @@
       <div><dd>{{this.imgApplication}}</dd></div>
       {{#if this.imgSourceName}} <strong>{{this.imgSourceName}}</strong> {{/if}}
       <h6>{{this.imgTitle}}</h6>
-      <p>{{{this.imgLegend}}}</p>
+      <div><p>{{{this.imgLegend}}}</p></div>
+
+      {{#if this.imagesusage}}
+        {{#each this.imagesusage.imageBlocks}}
+          {{#if (isOneOf this.type values="primary,sample")}}
+            {{#each this.lanes}}
+              {{#if this.description}}
+              <p>{{this.bucketName}}:</p>
+              <p>{{this.description}}</p>
+              {{/if}}
+            {{/each}}
+          {{/if}}
+        {{/each}}
+
+        {{#each this.imagesusage.imageBlocks}}
+          {{#if (eq this.type "secondary")}}
+            {{#each this.lanes}}
+              {{#if this.description}}
+              {{#if @first}} <p><strong>Secondary</strong></p> {{/if}}
+              <p>{{this.bucketName}}:</p>
+              <p>{{this.description}}</p>
+              {{/if}}
+            {{/each}}
+          {{/if}}
+        {{/each}}
+
+        {{#if (gt (len this.imagesusage.bands.predicted 0) 0)}}
+          <p>Predicted band size:
+          {{#each this.imagesusage.bands.predicted}}
+          {{#if @last}} {{this}}
+          {{else}}{{this}},
+          {{/if}}
+          {{/each}}
+          </p>
+        {{/if}}
+
+        {{#if (gt (len this.imagesusage.bands.observed 0) 0)}}
+          <p>Observed band size:
+          {{#each this.imagesusage.bands.observed}}
+          {{#if @last}} {{this}}
+          {{else}}{{this}},
+          {{/if}}
+          {{/each}}
+          </p>
+        {{/if}}
+      {{/if}}
+
+      {{#if this.imgExposureTime}}
+        <p>Exposure time: {{this.imgExposureTime}}</p>
+      {{/if}}
+
       {{#if this.imgCopyrightCredit}} <p><strong><em>{{this.imgCopyrightCredit}}</em></strong></p> {{/if}}
     </div>
   </div>

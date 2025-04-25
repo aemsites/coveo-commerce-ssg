@@ -10,18 +10,12 @@
       <ul>
         {{#each conjugatevariations}}
         <li>
-          <div>
-            <span>{{toLowerCase this.product.productCode}}</span>
-            <div>
-              {{#if this.product.conjugations.[0].emission}}
-              <span data-emission="{{this.product.conjugations.[0].emission}}"></span>
-              {{/if}}
-              <a href="/{{this.product.seoClass.levelOne}}/{{this.product.productSlug}}"
-                >{{this.product.name}}</a
-              >
-            </div>
-          </div>
-          <div>{{replaceTagTitle this.relationship}}</div>
+          <p>{{toLowerCase this.product.productCode}}</p>
+          {{#if this.product.conjugations.[0].emission}}
+          <em>{{this.product.conjugations.[0].emission}}</em>
+          {{/if}}
+          <a href="/{{this.product.seoClass.levelOne}}/{{this.product.productSlug}}">{{this.product.name}}</a>
+          <p>{{replaceTagTitle this.relationship}}</p>
         </li>
         {{/each}}
       </ul>
