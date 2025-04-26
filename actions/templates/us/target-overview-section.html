@@ -1,0 +1,29 @@
+<div>
+  <div> 
+    <h1>{{raw.tgtname}}</h1>
+    <h2>Function</h2>
+    <P>{{ function }}</P> 
+    <h2>Involvement in disease</h2>
+    <P>{{ involvementindisease }}</P>
+    <h2>Post-translational modifications</h2>
+    <P>{{ posttranslationalmodifications }}</P>
+    <h2>Sequence similarities</h2>
+    <P>{{ sequencesimilarities }}</P>
+    <h2>Cellular localization</h2>
+    <P>{{ cellularlocalization }}</P>
+    <h2>Alternative names</h2>
+    <P>{{ raw.tgtalternativenames }}</P>
+    <h2>Database links</h2>
+    <p>
+      {{#each tgtlinkeddatasource}}
+        <a href="{{this.value}}">{{this.type}}:{{this.label}}</a>
+      {{/each}}
+    </p>
+    <h2>Target type</h2>
+    <P>{{ raw.tgttype }}</P>
+    <h2>Primary research area</h2>
+    <P>{{ raw.tgtresearchareas }}</P>
+    <h2>Molecular weight</h2>
+    <P>{{ raw.tgtmolecularweight }}</P>
+  </div>
+</div>

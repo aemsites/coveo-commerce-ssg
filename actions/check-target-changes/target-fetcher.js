@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { requestSaaS, requestSpreadsheet, isValidUrl, getTargetUrl, mapLocale } = require('../utils');
+const { requestSpreadsheet, isValidUrl, getTargetUrl } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateTargetHtml } = require('../target-renderer/render');

@@ -136,10 +136,16 @@ async function generateTargetHtml(target, ctx, state) {
     target.title = `${target.raw.tgtname} | Abcam`;
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);
     target.function = target?.relevancejson?.function;
-
+    target.involvementindisease = target?.relevancejson?.involvementInDisease;
+    target.posttranslationalmodifications = target?.relevancejson?.postTranslationalModifications;
+    target.sequencesimilarities = target?.relevancejson?.sequenceSimilarities;
+    target.cellularlocalization = target?.relevancejson?.cellularLocalization;
+    target.tgtlinkeddatasource = parseJson(target?.raw?.tgtlinkeddatasourcejson);
+    
     // load the templates
     const templateNames = [
-      "target-page"
+      "target-page",
+      "target-overview-section"
     ];
     let template = '';
     templateNames.forEach((templateName) => {
