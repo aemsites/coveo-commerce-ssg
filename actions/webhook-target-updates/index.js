@@ -72,7 +72,7 @@ async function main(params) {
     return {
       statusCode: 200,
       body: {
-        message: 'Product update request received',
+        message: 'Target update request received',
         ids_count: ids.length,
         timestamp: now.toISOString()
       }

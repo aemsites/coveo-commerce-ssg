@@ -2,7 +2,6 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
-const { linkifyAbids } = require('./linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();

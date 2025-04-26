@@ -11,9 +11,8 @@ governing permissions and limitations under the License.
 */
 
 const { Core } = require('@adobe/aio-sdk')
-const { errorResponse, stringParameters, mapLocale } = require('../utils');
-const { extractPathDetails } = require('./lib');
-const { generateProductHtml } = require('./render');
+const { errorResponse, stringParameters } = require('../utils');
+const { generateTargetHtml } = require('./render');
 
 /**
  * Parameters
@@ -35,53 +34,13 @@ async function main (params) {
 
   try {
     logger.debug(stringParameters(params))
-    const {
-      __ow_path,
-      pathFormat : pathFormatQuery,
-      configName : configNameQuery,
-      contentUrl : contentUrlQuery,
-      storeUrl : storeUrlQuery,
-      productsTemplate : productsTemplateQuery,
-      HLX_STORE_URL,
-      HLX_CONTENT_URL,
-      HLX_CONFIG_NAME,
-      HLX_PRODUCTS_TEMPLATE,
-      HLX_PATH_FORMAT,
-      HLX_LOCALES,
-    } = params;
-
-    const pathFormat = pathFormatQuery || HLX_PATH_FORMAT || '/products/{urlKey}/{sku}';
-    const configName = configNameQuery || HLX_CONFIG_NAME;
-    const contentUrl = contentUrlQuery || HLX_CONTENT_URL;
-    const storeUrl = storeUrlQuery || HLX_STORE_URL || contentUrl;
-    const allowedLocales = HLX_LOCALES ? HLX_LOCALES.split(',').map(a => a.trim()) : [];
-    let context = { contentUrl, storeUrl, configName, logger, pathFormat, allowedLocales };
-    context.productsTemplate = productsTemplateQuery || HLX_PRODUCTS_TEMPLATE;
-
-    const result = extractPathDetails(__ow_path, pathFormat);
-    logger.debug('Path parse results', JSON.stringify(result, null, 4));
-    const { sku, urlKey, locale } = result;
-
-    if ((!sku && !urlKey) || !contentUrl) {
-      return errorResponse(400, 'Invalid path', logger);
-    }
-
-    // Map locale to context
-    if (locale) {
-      try {
-      context = { ...context, ...mapLocale(locale, context) };
-      // eslint-disable-next-line no-unused-vars
-      } catch(e) {
-        return errorResponse(400, 'Invalid locale', logger);
-      }
-    }
-
+    
     // Retrieve base product
-    const productHtml = await generateProductHtml(sku, urlKey, context);
+    const targetHtml = await generateTargetHtml(sku, urlKey, context);
 
     const response = {
       statusCode: 200,
-      body: productHtml,
+      body: targetHtml,
     }
     logger.info(`${response.statusCode}: successful request`)
     return response;

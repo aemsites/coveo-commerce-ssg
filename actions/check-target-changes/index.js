@@ -18,7 +18,7 @@ async function main(params) {
   const stateLib = await State.init(params.libInit || {});
   const filesLib = await Files.init(params.libInit || {});
 
-  const running = await stateLib.get('running');
+  const running = await stateLib.get('target-running');
   if (running?.value === 'true') {
     return { state: 'skipped' };
   }
@@ -27,10 +27,10 @@ async function main(params) {
     // if there is any failure preventing a reset of the 'running' state key to 'false',
     // this might not be updated and action execution could be permanently skipped
     // a ttl == function timeout is a mitigation for this risk
-    await stateLib.put('running', 'true', { ttl: 3600 });
+    await stateLib.put('target-running', 'true', { ttl: 3600 });
     return await fetcher(params, { stateLib, filesLib });
   } finally {
-    await stateLib.delete('running');
+    await stateLib.delete('target-running');
   }
 }
 
