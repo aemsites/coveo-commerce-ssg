@@ -148,7 +148,7 @@ async function generateTargetHtml(target, ctx, state) {
         'utf-8'
       );
       if (templateContent) {
-        if (templateName === 'page') {
+        if (templateName === 'target-page') {
           template = Handlebars.compile(templateContent);
         }
         {

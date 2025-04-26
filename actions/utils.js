@@ -279,11 +279,13 @@ async function requestCOVEO(coveoUrl, skus, ctx) {
 async function requestTargetCOVEO(coveoUrl, ids, ctx) {
   const { logger } = ctx;
   const body = {
-    context: { type: "target", numver: ids },
+    context: { type: "target", number: ids },
     pipeline: ctx.config.coveoPipeline,
     searchHub: ctx.config.coveoSearchHub,
     numberOfResults: ids.length,
   };
+
+  logger.debug(body);
 
   const options = {
     body: JSON.stringify(body),
@@ -426,7 +428,8 @@ function getProductUrl(product, context, addStore = true) {
  * @param {Object} product Product with sku and urlKey properties.
  */
 function getTargetUrl(target) {
-  const path = `/en-us/targets/${target?.raw?.sku}/${target?.raw?.tgtnumber}`;
+  const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
+  const path = `/en-us/targets/${target?.raw?.sku}/${targetnumber}`;
   return path;
 }
 
@@ -469,4 +472,5 @@ module.exports = {
   mapLocale,
   FILE_PREFIX,
   FILE_EXT,
+  FILE_TARGET_PREFIX,
 }

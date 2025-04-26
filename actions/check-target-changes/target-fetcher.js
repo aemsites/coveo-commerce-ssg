@@ -18,7 +18,7 @@ const { Core } = require('@adobe/aio-sdk');
 const { generateTargetHtml } = require('../target-renderer/render');
 const crypto = require('crypto');
 const { FILE_TARGET_PREFIX, FILE_EXT, requestTargetCOVEO } = require('../utils');
-const BATCH_SIZE = 75;
+const BATCH_SIZE = 150;
 
 function getStateFileLocation(stateKey) {
   return `${FILE_TARGET_PREFIX}/${stateKey}.${FILE_EXT}`;
@@ -140,8 +140,8 @@ function checkParams(params) {
 }
 
 /**
- * Creates batches of products for processing
- * @param products
+ * Creates batches of targets for processing
+ * @param targets
  * @param context
  * @returns {*}
  */
@@ -209,10 +209,10 @@ function shouldProcessTarget(target) {
 async function enrichTargetWithMetadata(target, state, context) {
   const { logger } = context;
   // Need to be updated
-  const { id: skuOriginal, adproductslug: urlKey } = target?.raw;
-  const id = skuOriginal.split('-')[0].toLowerCase();
-   // Need to be updated
-  logger.info('sku - urlKey', sku, urlKey);
+  const { tgtnumber: skuOriginal } = target?.raw;
+  // Need to be updated
+  logger.info('tgtnumber - ', skuOriginal);
+  const id = skuOriginal;
   const lastPreviewDate = state.ids[id]?.lastPreviewedAt || new Date(0);
   let newHash = null;
   let targettHtml = null;
@@ -226,7 +226,6 @@ async function enrichTargetWithMetadata(target, state, context) {
     const enrichedTarget = {
       ...target,
       id,
-      urlKey,
       lastPreviewDate,
       currentHash: state.ids[id]?.hash || null,
       newHash,
@@ -234,7 +233,7 @@ async function enrichTargetWithMetadata(target, state, context) {
     };
     
     // Save HTML immediately if product should be processed
-    if (shouldProcessTarget(enrichedProduct) && productHtml) {
+    if (shouldProcessTarget(enrichedTarget) && targettHtml) {
       try {
         const { filesLib } = context.aioLibs;
         const targetPath = getTargetUrl(target, context, false);
@@ -257,7 +256,6 @@ async function enrichTargetWithMetadata(target, state, context) {
     return {
       ...target,
       id,
-      urlKey,
       lastPreviewDate,
       currentHash: state.ids[id]?.hash || null,
       newHash: state.ids[id]?.hash || null,
@@ -269,12 +267,12 @@ async function enrichTargetWithMetadata(target, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedIds) {
+async function processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
       records.map((record) => {
-        const product = products.find(p => p.id === record.id);
+        const product = targets.find(p => p.id === record.id);
         state.ids[record.id] = {
           lastPreviewedAt: previewedAt,
           hash: product?.newHash,
@@ -292,20 +290,20 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
 }
 
 /**
- * Identifies and processes products that need to be deleted
+ * Identifies and processes targets that need to be deleted
  */
-async function processDeletedProducts(remainingIds, locale, state, counts, context, adminApi, aioLibs, logger) {
+async function processDeletedTargets(remainingIds, locale, state, counts, context, adminApi, aioLibs, logger) {
   if (!remainingIds.length) return;
 
   try {
     const { filesLib } = aioLibs;
-    const publishedProducts = await requestSpreadsheet('published-products-index', null, context);
-    const deletedProducts = publishedProducts.data.filter(({ id }) => remainingIds.includes(id));
+    const publishedTargets = await requestSpreadsheet('published-targets-index', null, context);
+    const deletedTargets = publishedTargets.data.filter(({ id }) => remainingIds.includes(id));
 
     // Process in batches
-    if (deletedProducts.length) {
+    if (deletedTargets.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
-      const batches = createBatches(deletedProducts, context);
+      const batches = createBatches(deletedTargets, context);
       const promiseBatches = unpublishAndDelete(batches, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
@@ -314,7 +312,7 @@ async function processDeletedProducts(remainingIds, locale, state, counts, conte
           records.map((record) => {
             // Delete the HTML file from public storage
             try {
-              const product = deletedProducts.find(p => p.id === record.id);
+              const product = deletedTargets.find(p => p.id === record.id);
               if (product) {
                 const productUrl = getTargetUrl({ urlKey: product.urlKey, id: product.id }, context, false).toLowerCase();
                 const htmlPath = `/public/pdps${productUrl}`;
@@ -335,7 +333,7 @@ async function processDeletedProducts(remainingIds, locale, state, counts, conte
       }
     }
   } catch (e) {
-    logger.error('Error processing deleted products:', e);
+    logger.error('Error processing deleted targets:', e);
   }
 }
 
@@ -351,7 +349,7 @@ function makeContext(params) {
     coveoOrg: params.COVEO_ORG,
     coveoPipeline: params.COVEO_GENERAL_PIPELINE,
     coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
-    coveoAuth: params.COVEO_AUTH,
+    coveoAuth: params.COVEO_TARGET_AUTH,
   }
 	return ctx;
 }
@@ -414,10 +412,10 @@ async function fetcher(params, aioLibs) {
           const resp = await requestTargetCOVEO(coveoUrl, batch, context);
           timings.sample('fetchedData');
           logger.info(`Fetched data for ${resp?.results?.length} ids`);
-          
-          // Enrich products with metadata
+          const results = Array.isArray(resp?.results) ? resp.results : [];
+          // Enrich targets with metadata
           const targets = await Promise.all(
-            resp?.results?.map(product => enrichTargetWithMetadata(product, state, context))
+            results?.map(target => enrichTargetWithMetadata(target, state, context))
           );
           
           const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
@@ -426,18 +424,18 @@ async function fetcher(params, aioLibs) {
             path: getTargetUrl(target, context, false)
           }));
 
-          logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
+          logger.info(`Filtered down to ${filteredPaths.length} targets that need updating`);
           
           if (filteredPaths.length > 0) {
             const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedIds);
+            await processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds);
             timings.sample('publishedPaths');
           }
         }
         
         // After processing, delete the key
         if (counts.failed > 0) {
-          logger.info(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
+          logger.info(`Failed to process ${counts.failed} targets, not deleting key: ${firstKey}`);
         } else {
           await stateLib.delete(firstKey);
           logger.info(`Deleted processed key: ${firstKey}`);
