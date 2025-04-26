@@ -12,16 +12,16 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { requestSaaS, requestSpreadsheet, isValidUrl, getProductUrl, mapLocale } = require('../utils');
+const { requestSaaS, requestSpreadsheet, isValidUrl, getTargetUrl, mapLocale } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
-const { generateProductHtml } = require('../pdp-renderer/render');
+const { generateTargetHtml } = require('../target-renderer/render');
 const crypto = require('crypto');
-const { FILE_PREFIX, FILE_EXT, requestCOVEO } = require('../utils');
+const { FILE_TARGET_PREFIX, FILE_EXT, requestTargetCOVEO } = require('../utils');
 const BATCH_SIZE = 75;
 
 function getStateFileLocation(stateKey) {
-  return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
+  return `${FILE_TARGET_PREFIX}/${stateKey}.${FILE_EXT}`;
 }
 
 /**
@@ -194,8 +194,8 @@ function unpublishAndDelete(batches, locale, adminApi) {
  * @param product
  * @returns {boolean}
  */
-function shouldProcessProduct(product) {
-  const { currentHash, newHash } = product;
+function shouldProcessTarget(target) {
+  const { currentHash, newHash } = target;
   return currentHash !== newHash;
 }
 
@@ -206,40 +206,40 @@ function shouldProcessProduct(product) {
  * @param {Object} context - The context object with logger and other utilities
  * @returns {Object} Enhanced product with additional metadata
  */
-async function enrichProductWithMetadata(product, state, context) {
+async function enrichTargetWithMetadata(target, state, context) {
   const { logger } = context;
   // Need to be updated
-  const { id: skuOriginal, adproductslug: urlKey } = product?.raw;
+  const { id: skuOriginal, adproductslug: urlKey } = target?.raw;
   const id = skuOriginal.split('-')[0].toLowerCase();
    // Need to be updated
   logger.info('sku - urlKey', sku, urlKey);
   const lastPreviewDate = state.ids[id]?.lastPreviewedAt || new Date(0);
   let newHash = null;
-  let productHtml = null;
+  let targettHtml = null;
   
   try {
-    productResponse = await generateProductHtml(product, context, state);
-    productHtml = productResponse?.body;
-    newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
+    targetResponse = await generateTargetHtml(target, context, state);
+    targettHtml = targetResponse?.body;
+    newHash = crypto.createHash('sha256').update(targettHtml).digest('hex');
     
     // Create enriched product object
-    const enrichedProduct = {
-      ...product,
+    const enrichedTarget = {
+      ...target,
       id,
       urlKey,
       lastPreviewDate,
       currentHash: state.ids[id]?.hash || null,
       newHash,
-      productHtml
+      targettHtml
     };
     
     // Save HTML immediately if product should be processed
-    if (shouldProcessProduct(enrichedProduct) && productHtml) {
+    if (shouldProcessTarget(enrichedProduct) && productHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const productPath = getProductUrl(product, context, false);
-        const htmlPath = `/public/pdps${productPath}`;
-        await filesLib.write(htmlPath, productHtml);
+        const targetPath = getTargetUrl(target, context, false);
+        const htmlPath = `/public/pdps${targetPath}`;
+        await filesLib.write(htmlPath, targettHtml);
         logger.debug(`Saved HTML for product ${id} to ${htmlPath}`);
       } catch (e) {
         logger.error(`Error saving HTML for product ${id}:`, e);
@@ -249,19 +249,19 @@ async function enrichProductWithMetadata(product, state, context) {
       context.counts.ignored++;
     }
     
-    return enrichedProduct;
+    return enrichedTarget;
   } catch (e) {
     logger.error(`Error generating product HTML for id ${id}:`, e);
     context.counts.failed++;
     // Return product with metadata even if HTML generation fails
     return {
-      ...product,
+      ...target,
       id,
       urlKey,
       lastPreviewDate,
       currentHash: state.ids[id]?.hash || null,
       newHash: state.ids[id]?.hash || null,
-      productHtml: null
+      targettHtml: null
     };
   }
 }
@@ -316,7 +316,7 @@ async function processDeletedProducts(remainingIds, locale, state, counts, conte
             try {
               const product = deletedProducts.find(p => p.id === record.id);
               if (product) {
-                const productUrl = getProductUrl({ urlKey: product.urlKey, id: product.id }, context, false).toLowerCase();
+                const productUrl = getTargetUrl({ urlKey: product.urlKey, id: product.id }, context, false).toLowerCase();
                 const htmlPath = `/public/pdps${productUrl}`;
                 filesLib.delete(htmlPath);
                 logger.debug(`Deleted HTML file for product ${record.id} from ${htmlPath}`);
@@ -349,8 +349,8 @@ function makeContext(params) {
     apitoken: params.AEM_TOKEN,
     coveoHost: params.COVEO_HOST,
     coveoOrg: params.COVEO_ORG,
-    coveoPipeline: params.COVEO_PIPELINE,
-    coveoSearchHub: params.COVEO_SEARCHHUB,
+    coveoPipeline: params.COVEO_GENERAL_PIPELINE,
+    coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
     coveoAuth: params.COVEO_AUTH,
   }
 	return ctx;
@@ -411,19 +411,19 @@ async function fetcher(params, aioLibs) {
         
         // Process each batch sequentially to maintain log order
         for (const batch of batches) {
-          const resp = await requestCOVEO(coveoUrl, batch, context);
+          const resp = await requestTargetCOVEO(coveoUrl, batch, context);
           timings.sample('fetchedData');
           logger.info(`Fetched data for ${resp?.results?.length} ids`);
           
           // Enrich products with metadata
-          const products = await Promise.all(
-            resp?.results?.map(product => enrichProductWithMetadata(product, state, context))
+          const targets = await Promise.all(
+            resp?.results?.map(product => enrichTargetWithMetadata(product, state, context))
           );
           
-          const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-          const filteredPaths = filteredProducts.map(product => ({ 
-            id: product.id, 
-            path: getProductUrl(product, context, false)
+          const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
+          const filteredPaths = filteredTargets.map(target => ({ 
+            id: target.id, 
+            path: getTargetUrl(target, context, false)
           }));
 
           logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
