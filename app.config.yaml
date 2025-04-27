@@ -95,6 +95,10 @@ application:
             feed: /whisk.system/alarms/interval
             inputs:
               minutes: 10
+          every15MinsTrigger:
+            feed: /whisk.system/alarms/interval
+            inputs:
+              minutes: 15
         rules:
           every10MinsRule:
           # When the action is invoked, it first checks
@@ -106,3 +110,6 @@ application:
           # necessarily executed every minute.
             trigger: every10MinsTrigger
             action: check-product-changes
+          every15MinsRule:
+            trigger: every15MinsTrigger
+            action: check-target-changes
