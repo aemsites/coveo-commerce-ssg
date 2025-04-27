@@ -5,7 +5,7 @@ application:
       coveo-commerce-ssg:
         license: Apache-2.0
         inputs:
-          LOG_LEVEL: debug
+          LOG_LEVEL: error
           HLX_ORG_NAME: "abcam-ltd"
           HLX_SITE_NAME: $AEM_ENVIRONMENT
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
