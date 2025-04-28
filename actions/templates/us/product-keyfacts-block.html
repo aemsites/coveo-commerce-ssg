@@ -105,6 +105,12 @@
             </div>
             {{/if}}
 
+            {{#if purificationnotes}}
+            <div>
+                <h6>Purification notes</h6>
+                <div><p>{{{purificationnotes}}}</p></div>
+            </div>
+            {{/if}}
             
             {{#if raw.adantibodyspecificity}}
             <div>
@@ -140,13 +146,6 @@
                 <p>{{raw.adreconstitution}}</p>
             </div>
             {{/if}} 
-
-            {{#if purificationnotes}}
-            <div>
-                <h6>Purification notes</h6>
-                <div><p>{{{purificationnotes}}}</p></div>
-            </div>
-            {{/if}}
         {{/if}}
 
         {{#if (eq raw.adseoclasslevelone "secondary-antibodies")}}
