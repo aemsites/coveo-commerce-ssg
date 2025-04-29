@@ -141,7 +141,13 @@ async function generateTargetHtml(target, ctx, state) {
     target.sequencesimilarities = target?.relevancejson?.sequenceSimilarities;
     target.cellularlocalization = target?.relevancejson?.cellularLocalization;
     target.tgtlinkeddatasource = parseJson(target?.raw?.tgtlinkeddatasourcejson);
-    
+    target.developmentalstage = target?.relevancejson?.developmentalStage;
+    target.domain = target?.relevancejson?.domain;
+    target.pathway = target?.relevancejson?.pathway;
+    target.sequencesimilarities = target?.relevancejson?.sequenceSimilarities;
+    target.tissuepecificity = target?.relevancejson?.tissueSpecificity;
+    target.alternativenames = target?.raw?.tgtalternativenames?.split('|')?.join(', ') || '';
+
     // load the templates
     const templateNames = [
       "target-page",
