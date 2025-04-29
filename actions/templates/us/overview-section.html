@@ -1,10 +1,10 @@
 {{#if (eq raw.adstatus "active")}}
   <div>
     {{> product-header-block class="reduced-width"}}
-    {{> product-variations-block class="reduced-width"}}
     {{#if (len images 0)}}
       {{> product-overview-block class="reduced-width"}}
     {{/if}}
+    {{> product-variations-block class="reduced-width"}}
     {{> product-keyfacts-block class="reduced-width expand-block"}}
     {{> section-metadata-block style='left-column'}}
   </div>
