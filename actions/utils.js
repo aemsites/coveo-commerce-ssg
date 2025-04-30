@@ -429,7 +429,7 @@ function getProductUrl(product, context, addStore = true) {
  */
 function getTargetUrl(target) {
   const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
-  const path = `/en-us/targets/${target?.raw?.sku}/${targetnumber}`;
+  const path = `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}`;
   return path;
 }
 

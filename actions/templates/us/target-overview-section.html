@@ -3,57 +3,75 @@
     <h1>{{raw.tgtname}}</h1>
     {{#if developmentalstage}}
     <h2>Developmental stage</h2>
-    {{#each developmentalstage}}
-    <P>{{this}}</P>
-    {{/each}}
+    <div>
+      {{#each developmentalstage}}
+        <P>{{this}}</P>
+      {{/each}}
+    </div>
     {{/if}}
     {{#if domain}}
     <h2>Domain</h2>
-    {{#each domain}}
-    <P>{{this}}</P>
-    {{/each}}
+    <div>
+      {{#each domain}}
+        <P>{{this}}</P>
+      {{/each}}
+    </div>
     {{/if}}
     {{#if function}}
     <h2>Function</h2>
-    {{#each function}}
-    <P>{{this}}</P>
-    {{/each}}
+    <div>
+      {{#each function}}
+        <P>{{this}}</P>
+      {{/each}}
+    </div>
     {{/if}}  
     {{#if involvementindisease}}
     <h2>Involvement in disease</h2>
-    {{#each involvementindisease}}
-    <P>{{this}}</P>
-    {{/each}}
+    <div>
+      {{#each involvementindisease}}
+        <P>{{this}}</P>
+      {{/each}}
+    </div>
     {{/if}}
     {{#if pathway}}
       <h2>Pathway</h2>
-      {{#each pathway}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div>
+        {{#each pathway}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
     {{/if}}    
     {{#if posttranslationalmodifications}}
     <h2>Post-translational modifications</h2>
-    {{#each posttranslationalmodifications}}
-    <P>{{this}}</P>
-    {{/each}}
+    <div>
+      {{#each posttranslationalmodifications}}
+      <P>{{this}}</P>
+      {{/each}}
+    </div>
     {{/if}}
     {{#if sequencesimilarities}}
       <h2>Sequence Similarities</h2>
-      {{#each sequencesimilarities}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div>
+        {{#each sequencesimilarities}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
     {{/if}}   
-    {{#if tissuepecificity}}
+    {{#if tissuespecificity}}
       <h2>Tissue Specificity</h2>
-      {{#each tissuespecificity}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div>
+        {{#each tissuespecificity}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
     {{/if}}     
     {{#if cellularlocalization}}
     <h2>Cellular localization</h2>
+    <div>
     {{#each cellularlocalization}}
     <P>{{this}}</P>
     {{/each}}
+    </div>
     {{/if}}
     {{#if alternativenames}}
     <h2>Alternative names</h2>

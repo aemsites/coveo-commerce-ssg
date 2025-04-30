@@ -145,7 +145,7 @@ async function generateTargetHtml(target, ctx, state) {
     target.domain = target?.relevancejson?.domain;
     target.pathway = target?.relevancejson?.pathway;
     target.sequencesimilarities = target?.relevancejson?.sequenceSimilarities;
-    target.tissuepecificity = target?.relevancejson?.tissueSpecificity;
+    target.tissuespecificity = target?.relevancejson?.tissueSpecificity;
     target.alternativenames = target?.raw?.tgtalternativenames?.split('|')?.join(', ') || '';
 
     // load the templates
