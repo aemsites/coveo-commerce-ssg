@@ -85,7 +85,13 @@
     </p>
     {{#if researchareasother}}
     <h2>Other research areas</h2>
-    <P>{{researchareasother}}</P>
+    <div>
+      <ul>
+      {{#each researchareasother}}
+      <li>{{this}}</li>
+      {{/each}}
+      </ul>
+    </div>
     {{/if}}    
   </div>
 </div>
