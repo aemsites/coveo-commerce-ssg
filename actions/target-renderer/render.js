@@ -148,6 +148,17 @@ async function generateTargetHtml(target, ctx, state) {
     target.tissuespecificity = target?.relevancejson?.tissueSpecificity;
     target.alternativenames = target?.raw?.tgtalternativenames?.split('|')?.join(', ') || '';
 
+    target.researchareasprimary = '';
+    target.researchareasother = [];
+    target.researchareas = target?.raw?.tgtresearchareas?.split('|') || '';
+    target.researchareas.forEach((item, index) => {
+      if(index === 0) {
+        target.researchareasprimary = item?.trim();
+      } else {      
+        target.researchareasother.push(item?.trim());
+      }
+    });
+
     // load the templates
     const templateNames = [
       "target-page",
