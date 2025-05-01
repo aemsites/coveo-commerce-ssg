@@ -67,11 +67,11 @@
     {{/if}}
     {{#if cellularlocalization}}
     <h2>Cellular localization</h2>
-    <div>
+    <ul>
       {{#each cellularlocalization}}
-      <P>{{this}}</P>
+      {{#if this}}<li>{{this}}</li>{{/if}}
       {{/each}}
-    </div>
+    </ul>
     {{/if}}
     {{#if alternativenames}}
     <h2>Alternative names</h2>
