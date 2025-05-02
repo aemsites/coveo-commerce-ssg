@@ -1,14 +1,24 @@
 <div>
   <div>
     <h1>{{raw.tgtname}}</h1>
-    {{#if developmentalstage}}
-    <h2>Developmental stage</h2>
+  </div>
+  
+  {{#if developmentalstage}}
+  <div class="target-detail developmental-stage"></div>
     <div>
-      {{#each developmentalstage}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div><h2>Developmental stage</h2></div>
     </div>
-    {{/if}}
+    <div>
+      <div>
+        {{#each developmentalstage}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+ 
+  <div>
     {{#if domain}}
     <h2>Domain</h2>
     <div>
