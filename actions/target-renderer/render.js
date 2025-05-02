@@ -140,7 +140,7 @@ async function generateTargetHtml(target, ctx, state) {
     target.posttranslationalmodifications = target?.relevancejson?.postTranslationalModifications;
     target.sequencesimilarities = target?.relevancejson?.sequenceSimilarities;
     target.cellularlocalization = target?.relevancejson?.cellularLocalization;
-    target.tgtlinkeddatasource = parseJson(target?.raw?.tgtlinkeddatasourcejson);
+    target.linkeddatasource = parseJson(target?.raw?.tgtlinkeddatasourcejson);
     target.developmentalstage = target?.relevancejson?.developmentalStage;
     target.domain = target?.relevancejson?.domain;
     target.pathway = target?.relevancejson?.pathway;

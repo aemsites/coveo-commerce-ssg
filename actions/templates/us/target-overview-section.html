@@ -4,9 +4,11 @@
   </div>
   
   {{#if developmentalstage}}
-  <div class="target-detail developmental-stage"></div>
+  <div class="target-detail developmental-stage">
     <div>
-      <div><h2>Developmental stage</h2></div>
+      <div>
+        <h2>Developmental stage</h2>
+      </div>
     </div>
     <div>
       <div>
@@ -17,91 +19,184 @@
     </div>
   </div>
   {{/if}}
- 
-  <div>
-    {{#if domain}}
-    <h2>Domain</h2>
+  {{#if domain}}
+  <div class="target-detail domain">
     <div>
-      {{#each domain}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div>
+        <h2>Domain</h2>
+      </div>
     </div>
-    {{/if}}
-    {{#if function}}
-    <h2>Function</h2>
     <div>
-      {{#each function}}
-      <P>{{this}}</P>
-      {{/each}}
+      <div>
+        {{#each domain}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
     </div>
-    {{/if}}
-    {{#if involvementindisease}}
-    <h2>Involvement in disease</h2>
-    <div>
-      {{#each involvementindisease}}
-      <P>{{this}}</P>
-      {{/each}}
-    </div>
-    {{/if}}
-    {{#if pathway}}
-    <h2>Pathway</h2>
-    <div>
-      {{#each pathway}}
-      <P>{{this}}</P>
-      {{/each}}
-    </div>
-    {{/if}}
-    {{#if posttranslationalmodifications}}
-    <h2>Post-translational modifications</h2>
-    <div>
-      {{#each posttranslationalmodifications}}
-      <P>{{this}}</P>
-      {{/each}}
-    </div>
-    {{/if}}
-    {{#if sequencesimilarities}}
-    <h2>Sequence Similarities</h2>
-    <div>
-      {{#each sequencesimilarities}}
-      <P>{{this}}</P>
-      {{/each}}
-    </div>
-    {{/if}}
-    {{#if tissuespecificity}}
-    <h2>Tissue Specificity</h2>
-    <div>
-      {{#each tissuespecificity}}
-      <P>{{this}}</P>
-      {{/each}}
-    </div>
-    {{/if}}
-    {{#if cellularlocalization}}
-    <h2>Cellular localization</h2>
-    <ul>
-      {{#each cellularlocalization}}
-      {{#if this}}<li>{{this}}</li>{{/if}}
-      {{/each}}
-    </ul>
-    {{/if}}
-    {{#if alternativenames}}
-    <h2>Alternative names</h2>
-    <P>{{alternativenames}}</P>
-    {{/if}}
-    <h2>Database links</h2>
-    <p>
-      {{#each tgtlinkeddatasource}}
-      <a href="{{this.value}}">{{this.type}}:{{this.label}}</a>
-      {{/each}}
-    </p>
-    {{#if researchareasother}}
-    <h2>Other research areas</h2>
-    <div>
-      <ul>
-      {{#each researchareasother}}
-      <li>{{this}}</li>
-      {{/each}}
-      </ul>
-    </div>
-    {{/if}}    
   </div>
+  {{/if}}
+  {{#if function}}
+  <div class="target-detail function">
+    <div>
+      <div>
+        <h2>Function</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each function}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if involvementindisease}}
+  <div class="target-detail involvement-in-disease">
+    <div>
+      <div>
+        <h2>Involvement in disease</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each involvementindisease}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if pathway}}
+  <div class="target-detail pathway">
+    <div>
+      <div>
+        <h2>Pathway</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each pathway}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if posttranslationalmodifications}}
+  <div class="target-detail post-translational-modifications">
+    <div>
+      <div>
+        <h2>Post-translational modifications</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each posttranslationalmodifications}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if sequencesimilarities}}
+  <div class="target-detail sequence-similarities">
+    <div>
+      <div>
+        <h2>Sequence Similarities</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each sequencesimilarities}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if tissuespecificity}}
+  <div class="target-detail tissue-specificity">
+    <div>
+      <div>
+        <h2>Tissue Specificity</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        {{#each tissuespecificity}}
+        <P>{{this}}</P>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if cellularlocalization}}
+  <div class="target-detail cellular-localization">
+    <div>
+      <div>
+        <h2>Cellular localization</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        <ul>
+          {{#each cellularlocalization}}
+          {{#if this}}<li>{{this}}</li>{{/if}}
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if alternativenames}}
+  <div class="target-detail alternative-names">
+    <div>
+      <div>
+        <h2>Alternative names</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        <P>{{alternativenames}}</P>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if linkeddatasource}}
+  <div class="target-detail linked-datasource">
+    <div>
+      <div>
+        <h2>Database links</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        <p>
+          {{#each linkeddatasource}}
+          <a href="{{this.value}}">{{this.type}}:{{this.label}}</a>
+          {{/each}}
+        </p>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  {{#if researchareasother}}
+  <div class="target-detail research-areas-other">
+    <div>
+      <div>
+        <h2>Other research areas</h2>
+      </div>
+    </div>
+    <div>
+      <div>
+        <ul>
+          {{#each researchareasother}}
+          {{#if this}}<li>{{this}}</li>{{/if}}
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {{/if}}
 </div>
