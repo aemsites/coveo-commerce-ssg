@@ -473,7 +473,9 @@
             {{#if biochemicalattr.solubility}}
             <div>
                 <h6>Solubility</h6>
-                <p>{{biochemicalattr.solubility}}</p>
+                {{#each biochemicalattr.solubility}}
+                    <p>{{this}}</p>
+                {{/each}}
             </div>
             {{/if}}
 
