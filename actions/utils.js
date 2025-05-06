@@ -13,6 +13,7 @@ governing permissions and limitations under the License.
 /* This file exposes some common utilities for your actions */
 
 const FILE_PREFIX = 'check-product-changes';
+const FILE_TARGET_PREFIX = 'check-target-changes';
 const FILE_EXT = 'csv';
 
 /**
@@ -267,6 +268,55 @@ async function requestCOVEO(coveoUrl, skus, ctx) {
 }
 
 /**
+ * Requests product from Coveo Service API.
+ *
+ * @param {string} url to be requested.
+ * @param {[string]} id list of product ids.
+  * @param {object} ctx the context object.
+ *
+ * @returns {Promise<object>} Coveo response as object.
+ */
+async function requestTargetCOVEO(coveoUrl, ids, ctx) {
+  const { logger } = ctx;
+  const body = {
+    context: { type: "target", number: ids },
+    pipeline: ctx.config.coveoPipeline,
+    searchHub: ctx.config.coveoSearchHub,
+    numberOfResults: ids.length,
+  };
+
+  logger.debug(body);
+
+  const options = {
+    body: JSON.stringify(body),
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+      authorization: `Bearer ${ctx.config.coveoAuth}`,
+    },
+  };
+
+  const response = await fetch(coveoUrl, options);
+  logger.debug({
+    url: coveoUrl.href,
+    status: response.status,
+    statusText: response.statusText,
+  });
+
+  if (!response.ok) {
+    logger.warn('failed to fetch product: ', response.status, response.statusText);
+    try {
+      logger.info('body: ', await response.text());
+    } catch {
+      logger.error('Error in gettting product from coveo:', e);
+    }
+    return;
+  }
+
+  return await response.json();
+}
+
+/**
  * Requests data from Commerce Catalog Service API.
  *
  * @param {string} query GraphQL query.
@@ -373,6 +423,17 @@ function getProductUrl(product, context, addStore = true) {
 }
 
 /**
+ * Constructs the URL of a product.
+ *
+ * @param {Object} product Product with sku and urlKey properties.
+ */
+function getTargetUrl(target) {
+  const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
+  const path = `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}`;
+  return path;
+}
+
+/**
  * Adjust the context according to the given locale.
  * 
  * TODO: Customize this function to match your multi store setup
@@ -401,12 +462,15 @@ module.exports = {
   checkMissingRequestInputs,
   requestSaaS,
   requestCOVEO,
+  requestTargetCOVEO,
   getConfig,
   request,
   requestSpreadsheet,
   isValidUrl,
   getProductUrl,
+  getTargetUrl,
   mapLocale,
   FILE_PREFIX,
   FILE_EXT,
+  FILE_TARGET_PREFIX,
 }
