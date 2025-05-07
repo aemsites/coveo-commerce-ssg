@@ -347,8 +347,8 @@ function makeContext(params) {
     apitoken: params.AEM_TOKEN,
     coveoHost: params.COVEO_HOST,
     coveoOrg: params.COVEO_ORG,
-    coveoPipeline: params.COVEO_PIPELINE,
-    coveoSearchHub: params.COVEO_SEARCHHUB,
+    coveoPipeline: params.COVEO_GENERAL_PIPELINE,
+    coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
     coveoAuth: params.COVEO_AUTH,
   }
 	return ctx;
