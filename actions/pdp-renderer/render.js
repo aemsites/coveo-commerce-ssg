@@ -64,7 +64,7 @@ Handlebars.registerHelper('toLowerCase', function(str) {
 
 Handlebars.registerHelper('isOneOf', function(value, options) {
   const validValues = options.hash.values.split(',');
-  return validValues.includes(value) ? true : false;
+  return validValues.includes(value.toLowerCase()) ? true : false;
 });
 
 Handlebars.registerHelper("object", function () {
