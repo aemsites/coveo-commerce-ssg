@@ -232,7 +232,7 @@ async function getConfig(context) {
 async function requestCOVEO(coveoUrl, skus, ctx) {
   const { logger } = ctx;
   const body = {
-    context: { productid: skus },
+    context: { productid: skus, type: "product" },
     pipeline: ctx.config.coveoPipeline,
     searchHub: ctx.config.coveoSearchHub,
     numberOfResults: skus.length,

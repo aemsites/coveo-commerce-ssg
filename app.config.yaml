@@ -11,8 +11,6 @@ application:
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
           COVEO_HOST: stage.lifesciences.danaher.com
           COVEO_ORG: danahernonproduction1892f3fhz
-          COVEO_PIPELINE: Abcam Product Details
-          COVEO_SEARCHHUB: AbcamProductDetails
           COVEO_GENERAL_PIPELINE: Abcam General
           COVEO_GENERAL_SEARCHHUB: AbcamGeneral
           COVEO_AUTH: $COVEO_AUTH
