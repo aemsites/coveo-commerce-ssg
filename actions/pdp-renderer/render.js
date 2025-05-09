@@ -198,6 +198,8 @@ async function generateProductHtml(product, ctx, state) {
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+    product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
+    product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
     // load the templates
     const templateNames = [
