@@ -136,6 +136,8 @@ async function generateProductHtml(product, ctx, state) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
 
+    product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
+    product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
     product.categorytype = product.raw.adcategorytype;
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
