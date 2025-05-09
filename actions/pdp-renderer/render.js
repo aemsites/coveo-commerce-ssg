@@ -136,6 +136,8 @@ async function generateProductHtml(product, ctx, state) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
 
+    product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
+    product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
     product.categorytype = product.raw.adcategorytype;
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
     product.targetdata = parseJson(product.raw.targetjson);
@@ -196,6 +198,8 @@ async function generateProductHtml(product, ctx, state) {
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+    product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
+    product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
     // load the templates
     const templateNames = [
