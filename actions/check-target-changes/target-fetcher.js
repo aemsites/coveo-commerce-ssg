@@ -59,8 +59,8 @@ async function loadState(locale, aioLibs) {
         // <id2>,<timestamp>,<hash>,<path>
         // ...
         // each row is a set of ids, last previewed timestamp and hash
-        const [id, time, hash, path] = line.split(',');
-        acc[id] = { lastPreviewedAt: new Date(parseInt(time)), hash, path };
+        const [id, time, hash, path, name] = line.split(',');
+        acc[id] = { lastPreviewedAt: new Date(parseInt(time)), hash, path, name };
         return acc;
       }, {});
     } else {
@@ -89,8 +89,8 @@ async function saveState(state, aioLibs) {
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
     ...Object.entries(state.ids)
-      .map(([id, { lastPreviewedAt, hash, path }]) => {
-        return `${id},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
+      .map(([id, { lastPreviewedAt, hash, path, name }]) => {
+        return `${id},${lastPreviewedAt.getTime()},${hash || ''},${path},${name}`;
       }),
   ].join('\n');
   return await filesLib.write(fileLocation, csvData);
@@ -276,7 +276,8 @@ async function processPublishBatches(promiseBatches, state, counts, targets, aio
         state.ids[record.id] = {
           lastPreviewedAt: previewedAt,
           hash: product?.newHash,
-          path: record.path
+          path: record.path,
+          name: record.name
         };
         counts.published++;
       });
@@ -421,7 +422,8 @@ async function fetcher(params, aioLibs) {
           const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
           const filteredPaths = filteredTargets.map(target => ({ 
             id: target.id, 
-            path: getTargetUrl(target, context, false)
+            path: getTargetUrl(target, context, false),
+            name: target.raw.tgtname
           }));
 
           logger.info(`Filtered down to ${filteredPaths.length} targets that need updating`);
