@@ -150,8 +150,8 @@ async function generateTargetHtml(target, ctx, state) {
 
     target.researchareasprimary = '';
     target.researchareasother = [];
-    target.researchareas = target?.raw?.tgtresearchareas?.split('|') || '';
-    target.researchareas.forEach((item, index) => {
+    target.researchareas = target?.raw?.tgtresearchareas?.split('|');
+    target.researchareas?.forEach((item, index) => {
       if(index === 0) {
         target.researchareasprimary = item?.trim();
       } else {      
