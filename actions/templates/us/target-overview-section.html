@@ -77,12 +77,14 @@
     <h2>Alternative names</h2>
     <P>{{alternativenames}}</P>
     {{/if}}
+    {{#if linkeddatasource}}
     <h2>Database links</h2>
     <p>
       {{#each linkeddatasource}}
       <a href="{{this.value}}">{{this.type}}:{{this.label}}</a>
       {{/each}}
     </p>
+    {{/if}}
     {{#if researchareasother}}
     <h2>Other research areas</h2>
     <div>

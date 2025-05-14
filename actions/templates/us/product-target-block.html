@@ -16,4 +16,13 @@
         <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}" target="_blank">See full target information {{target.adPrimaryTargetName}}</a></div>
     </div>
     {{/if}}
+
+    {{#if relatedtargets}}
+    <div>
+        <div><h3>Additional Targets</h3></div>
+    </div>
+    <div>
+        <div>{{relatedtargets}}</div>
+    </div>
+    {{/if}}
 </div>

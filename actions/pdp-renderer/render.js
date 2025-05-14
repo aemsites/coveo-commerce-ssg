@@ -1,8 +1,9 @@
 const { errorResponse } = require('../utils');
-const { Files } = require('@adobe/aio-sdk')
+const { State, Files } = require('@adobe/aio-sdk');
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
+const { loadState } = require('../check-target-changes/target-fetcher');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -128,6 +129,21 @@ function parseJson(jsonString) {
   }
 }
 
+async function getRelatedTargets(relatedTargets, aioLibs, logger){
+  logger.error(relatedTargets);
+  const targets = relatedTargets?.split('|');
+  logger.error(targets);
+  // load target state
+  const state = await loadState('en-us', aioLibs);
+  logger.error(state);
+  let additionalTargets = [];
+  targets?.forEach(target =>{
+    additionalTargets.push(state.ids[target]?.name);
+  })
+  logger.error(additionalTargets);
+  return additionalTargets.join(',');
+}
+
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
@@ -161,8 +177,10 @@ async function generateProductHtml(product, ctx, state) {
     product.notes = parseJson(product.raw?.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.images?.forEach((image) =>{
+      image.legend = image.imgLegend?.replace(/\n/g, '') || '';
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
+    product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
@@ -201,6 +219,13 @@ async function generateProductHtml(product, ctx, state) {
     product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
     product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
+    if(product.raw.adrelatedtargets){
+      logger.error(product.raw.adrelatedtargets);
+      const stateLib = await State.init({});
+      const filesLib = await Files.init({});
+      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+    }
+
     // load the templates
     const templateNames = [
       "page",
@@ -221,7 +246,6 @@ async function generateProductHtml(product, ctx, state) {
       "product-storage-block",
       "product-notes-block",
       "product-summarynotes-block",
-      "product-promise-block",
       "associated-products-block",
       "product-downloads-block",
       "product-sequenceinfo-block",

@@ -34,6 +34,24 @@
   {{> product-notes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if raw.adkitassayprecisionjson}}
+<div>
+  {{> product-precision-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if raw.adkitrecoveryjson}}
+<div>
+  {{> product-recovery-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
+{{#if kitcomponent.byAsset.length}} 
+<div>
+  {{> product-kitcomponent-block class='reduced-width'}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 <div>
   {{> product-storage-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
@@ -48,12 +66,6 @@
   {{> product-summarynotes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
-{{#if raw.adpublicationscount}}
-<div>
-  {{> product-publications-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
 {{#if (and raw.adform purificationnotes)}}
 <div>
   {{> product-specifications-block class="reduced-width"}}
@@ -90,38 +102,32 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-<div>
-  {{> product-target-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
 {{#if kitcomponent.byAsset.length}} 
-<div>
-  {{> product-kitcomponent-block class='reduced-width'}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
 <div>
   {{> product-protocols-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
-{{#if raw.adkitassayprecisionjson}}
+{{/if}}
 <div>
-  {{> product-precision-block class="reduced-width"}}
+  {{> product-target-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{#if raw.adpublicationscount}}
+<div>
+  {{> product-publications-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if raw.adkitrecoveryjson}}
-<div>
-  {{> product-recovery-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-<div>
-  {{> product-promise-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
 <div>
   <div class="customer-reviews reduced-width">
+    <div>
+      <div></div>
+    </div>
+  </div>
+  {{> section-metadata-block style='left-column'}}
+</div>
+<div>
+  <div class="product-promise reduced-width">
     <div>
       <div></div>
     </div>

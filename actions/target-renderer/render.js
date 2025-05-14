@@ -133,7 +133,7 @@ async function generateTargetHtml(target, ctx, state) {
   try {
     logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
 
-    target.title = `${target.raw.tgtname} | Abcam`;
+    target.title = `${target.raw.tgtname} | Abcam `;
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);
     target.function = target?.relevancejson?.function;
     target.involvementindisease = target?.relevancejson?.involvementInDisease;
@@ -150,8 +150,8 @@ async function generateTargetHtml(target, ctx, state) {
 
     target.researchareasprimary = '';
     target.researchareasother = [];
-    target.researchareas = target?.raw?.tgtresearchareas?.split('|') || '';
-    target.researchareas.forEach((item, index) => {
+    target.researchareas = target?.raw?.tgtresearchareas?.split('|');
+    target.researchareas?.forEach((item, index) => {
       if(index === 0) {
         target.researchareasprimary = item?.trim();
       } else {      

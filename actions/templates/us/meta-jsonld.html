@@ -3,7 +3,7 @@
   "@context": "https://schema.org/", 
   "@type": "Product", 
   "name": "{{title}}",
-  "description": "{{raw.description}}",
+  "description": "{{raw.adproductsummary}}",
   "brand": {
     "@type": "Brand",
     "name": "Abcam Limited"
@@ -11,7 +11,7 @@
   "sku": "{{raw.adassetdefinitionnumber}}",
   "offers": {
     "@type": "Offer",
-    "url": "{{raw.clickableuri}}",
+    "url": "{{raw.sysclickableuri}}",
     "priceCurrency": "USD",
     "price": "[price in USD]",
     "availability": "https://schema.org/InStock",
@@ -19,50 +19,13 @@
     "seller": {  
       "@type": "Organization",  
       "name": "Abcam Limited"  
-    },
-    "shippingDetails": {
-      "@type": "OfferShippingDetails",
-      "shippingRate": {
-        "@type": "MonetaryAmount",
-        "currency": "USD",
-        "value": "[Shipping Cost]"
-      },
-      "shippingDestination": {
-        "@type": "DefinedRegion",
-        "addressCountry": "[Shipping Country]"
-      },
-      "deliveryTime": {
-        "@type": "ShippingDeliveryTime",
-        "handlingTime": {
-          "@type": "QuantitativeValue",
-          "minValue": "[Min Handling Days]",
-          "maxValue": "[Max Handling Days]",
-          "unitCode": "DAY"
-        },
-        "transitTime": {
-          "@type": "QuantitativeValue",
-          "minValue": "[Min Transit Days]",
-          "maxValue": "[Max Transit Days]",
-          "unitCode": "DAY"
-        }
-      }
-    },
-    "hasMerchantReturnPolicy": {
-      "@type": "MerchantReturnPolicy",
-      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-      "returnFees": "https://schema.org/FreeReturn",
-      "returnMethod": "https://schema.org/ReturnByMail", 
-      "returnPolicyCountry": "[Return Country]",
-      "applicableCountry": "[Applicable Country]",
-      "merchantReturnDays": "[Return Period in Days]"
     }
   },
   "aggregateRating": {
-    "@type": "AggregateRating",
+  "@type": "AggregateRating",
     "ratingValue": "{{raw.adreviewsaggregaterating}}",
     "bestRating": "5",
     "worstRating": "1",
-    "ratingCount": "[No. of rating count]",
     "reviewCount": "{{raw.adreviewscount}}"
   },
   "image": [
@@ -73,14 +36,14 @@
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
             "name": "{{this.imgTitle}}",
-            "url": "https://content.abcam.com/{{ this.imgSeoUrl }}"
+            "legend": "{{{this.legend}}}"
         }
     {{else}}
         {
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
             "name": "{{this.imgTitle}}",
-            "url": "https://content.abcam.com/{{ this.imgSeoUrl }}"
+            "legend": "{{{this.legend}}}"
         },
     {{/if}}
     {{/isValidImageUrl}}
@@ -92,8 +55,12 @@
         (object "@type" "PropertyValue" "name" "Storage buffer" "value" raw.adformulation)
         (object "@type" "PropertyValue" "name" "Isotype" "value" raw.adisotype)
         (object "@type" "PropertyValue" "name" "Clonality" "value" raw.adclonality)
-        (object "@type" "PropertyValue" "name" "Purification technique" "value" (concat raw.adpurificationtechnique " " raw.adpurificationtechniquereagent))
+        (object "@type" "PropertyValue" "name" "Purification technique" "value" schemapurificationtechnique)
         (object "@type" "PropertyValue" "name" "Form" "value" raw.adform)
+        (object "@type" "PropertyValue" "name" "Reactive species" "value" raw.adspecies)
+        (object "@type" "PropertyValue" "name" "Host species" "value" raw.adhostspecies)
+        (object "@type" "PropertyValue" "name" "Applications" "value" raw.adapplications)
+        (object "@type" "PropertyValue" "name" "MW(kDa)" "value" biochemicalattr.molecularWeight)
         (object "@type" "PropertyValue" "name" "Immunogen" "value" raw.adimmunogensensitivity)
         (object "@type" "PropertyValue" "name" "Specificity" "value" antibodyattributes.specificity)
         (object "@type" "PropertyValue" "name" "Detection method" "value" raw.adkitdetectionmethod)
@@ -101,12 +68,26 @@
         (object "@type" "PropertyValue" "name" "Assay type" "value" raw.adkitassaytype)
         (object "@type" "PropertyValue" "name" "Assay time" "value" raw.adkitassaytime)
         (object "@type" "PropertyValue" "name" "Range" "value" raw.adkitrange)
-        (object "@type" "PropertyValue" "name" "Reactive species" "value" raw.adspecies)
         (object "@type" "PropertyValue" "name" "Sensitivity" "value" raw.adkitsensitivity)
-        (object "@type" "PropertyValue" "name" "Host species" "value" raw.adhostspecies)
+        
       ) "value") as |property|}}
     {{#unless @first}},{{/unless}}
     {{{json property}}}
+    {{/each}}
+  ],
+  "isRelatedTo":[
+    {{#each associatedproducts}}
+    {{#if @last}}
+        {
+            "@type": "Product",
+            "url": "/en-us/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+        }
+    {{else}}
+        {
+            "@type": "Product",
+            "url": "/en-us/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+        },
+    {{/if}}
     {{/each}}
   ]
 }
