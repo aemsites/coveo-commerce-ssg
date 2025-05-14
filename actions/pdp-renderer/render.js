@@ -159,8 +159,10 @@ async function generateProductHtml(product, ctx, state) {
     product.notes = parseJson(product.raw?.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.images?.forEach((image) =>{
+      image.legend = image.imgLegend?.replace(/\n/g, '') || '';
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
+    product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
@@ -217,7 +219,6 @@ async function generateProductHtml(product, ctx, state) {
       "product-storage-block",
       "product-notes-block",
       "product-summarynotes-block",
-      "product-promise-block",
       "associated-products-block",
       "product-downloads-block",
       "product-sequenceinfo-block",
