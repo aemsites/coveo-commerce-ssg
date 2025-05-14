@@ -1,8 +1,9 @@
 const { errorResponse } = require('../utils');
-const { Files } = require('@adobe/aio-sdk')
+const { State, Files } = require('@adobe/aio-sdk');
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
+const { loadState } = require('../check-target-changes/target-fetcher');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -128,6 +129,21 @@ function parseJson(jsonString) {
   }
 }
 
+async function getRelatedTargets(relatedTargets, aioLibs, logger){
+  logger.error(relatedTargets);
+  const targets = relatedTargets?.split('|');
+  logger.error(targets);
+  // load target state
+  const state = await loadState('en-us', aioLibs);
+  logger.error(state);
+  let additionalTargets = [];
+  targets?.forEach(target =>{
+    additionalTargets.push(state.ids[target]?.name);
+  })
+  logger.error(additionalTargets);
+  return additionalTargets.join(',');
+}
+
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
@@ -198,6 +214,13 @@ async function generateProductHtml(product, ctx, state) {
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+
+    if(product.raw.adrelatedtargets){
+      logger.error(product.raw.adrelatedtargets);
+      const stateLib = await State.init({});
+      const filesLib = await Files.init({});
+      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+    }
 
     // load the templates
     const templateNames = [
