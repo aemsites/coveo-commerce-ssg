@@ -129,18 +129,14 @@ function parseJson(jsonString) {
   }
 }
 
-async function getRelatedTargets(relatedTargets, aioLibs, logger){
-  logger.error(relatedTargets);
+async function getRelatedTargets(relatedTargets, aioLibs){
   const targets = relatedTargets?.split('|');
-  logger.error(targets);
   // load target state
   const state = await loadState('en-us', aioLibs);
-  logger.error(state);
   let additionalTargets = [];
   targets?.forEach(target =>{
     additionalTargets.push(state.ids[target]?.name);
   })
-  logger.error(additionalTargets);
   return additionalTargets.join(',');
 }
 
@@ -220,10 +216,9 @@ async function generateProductHtml(product, ctx, state) {
     product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
     if(product.raw.adrelatedtargets){
-      logger.error(product.raw.adrelatedtargets);
       const stateLib = await State.init({});
       const filesLib = await Files.init({});
-      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib });
     }
 
     // load the templates
