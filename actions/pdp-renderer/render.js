@@ -174,6 +174,7 @@ async function generateProductHtml(product, ctx, state) {
     product.images = parseJson(product.raw.imagesjson);
     product.images?.forEach((image) =>{
       image.legend = image.imgLegend?.replace(/\n/g, '') || '';
+      image.legend = image.legend?.replace(/"/g, '\\"');
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
     product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
