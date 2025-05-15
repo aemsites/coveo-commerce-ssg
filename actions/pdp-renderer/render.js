@@ -60,12 +60,12 @@ Handlebars.registerHelper('stripTags', function(text) {
 });
 
 Handlebars.registerHelper('toLowerCase', function(str) {
-  return str.toLowerCase();
+  return str?.toLowerCase();
 });
 
 Handlebars.registerHelper('isOneOf', function(value, options) {
   const validValues = options.hash.values.split(',');
-  return validValues.includes(value.toLowerCase()) ? true : false;
+  return validValues.includes(value?.toLowerCase()) ? true : false;
 });
 
 Handlebars.registerHelper("object", function () {
