@@ -173,7 +173,7 @@ async function generateProductHtml(product, ctx, state) {
     product.notes = parseJson(product.raw?.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.images?.forEach((image) =>{
-      image.legend = image.imgLegend?.replace(/\n/g, '') || '';
+      image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
       image.legend = image.legend?.replace(/"/g, '\\"');
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
