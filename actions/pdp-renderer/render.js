@@ -140,6 +140,16 @@ async function getRelatedTargets(relatedTargets, aioLibs){
   return additionalTargets.join(',');
 }
 
+function getAntibodyPurity(technique, reagent, fraction){
+  if (technique && reagent) {
+    return `${technique} ${reagent}`
+  } else if (technique || reagent) {
+    return technique || reagent
+  }
+
+  return fraction ? fraction : undefined
+}
+
 async function generateProductHtml(product, ctx, state) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
@@ -178,6 +188,7 @@ async function generateProductHtml(product, ctx, state) {
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
     product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
+    product.antibodypurity = getAntibodyPurity(product.raw.adpurificationtechnique, product.raw.adpurificationtechniquereagent, product.raw.adpurificationfraction);
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);

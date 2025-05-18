@@ -46,6 +46,13 @@
             </div>
             {{/if}}
 
+            {{#if antibodypurity }}
+            <div>
+                <h6>Purity</h6>
+                <p>{{antibodypurity}}</p>
+            </div>
+            {{/if}}
+
             {{#if raw.adformulation}}
             <div>
                 <h6>Storage buffer</h6>
@@ -223,6 +230,13 @@
                     {{/if}}
                 {{/if}}
                 {{/each}}
+            </div>
+            {{/if}}
+
+            {{#if antibodypurity }}
+            <div>
+                <h6>Purity</h6>
+                <p>{{antibodypurity}}</p>
             </div>
             {{/if}}
 
