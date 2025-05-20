@@ -10,7 +10,9 @@
     </div>
     <div>
       <div><dd>{{this.imgApplication}}</dd></div>
-      {{#if this.imgSourceName}} <strong>{{this.imgSourceName}}</strong> {{/if}}
+      {{#if this.imgSourceName}}
+      <strong>{{this.imgSourceName}}{{#if this.imgSourceExternalId}}<em>{{this.imgSourceExternalId}}</em>{{/if}}</strong>
+      {{/if}}
       <h6>{{this.imgTitle}}</h6>
       <div><p>{{{this.imgLegend}}}</p></div>
 
