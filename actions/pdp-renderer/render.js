@@ -217,7 +217,7 @@ async function generateProductHtml(product, ctx, state) {
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
     product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
-    purificationnotes?.forEach((notes) => {
+    product.purificationnotes?.forEach((notes) => {
       product.purificationnotesstatement += notes?.statement || '';
     });
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
