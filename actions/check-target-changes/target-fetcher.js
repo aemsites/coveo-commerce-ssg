@@ -58,8 +58,9 @@ async function loadState(locale, aioLibs) {
         // <id1>,<timestamp>,<hash>,<path>
         // <id2>,<timestamp>,<hash>,<path>
         // ...
-        // each row is a set of ids, last previewed timestamp and hash
-        const [id, time, hash, path, name] = line.split(',');
+        // each row is a set of ids, last previewed timestamp, hash and name
+        const items = line.split(',');
+        const [id, time, hash, path, name] = [items[0], items[1], items[2], items[3], items.slice(4).join(',')]
         acc[id] = { lastPreviewedAt: new Date(parseInt(time)), hash, path, name };
         return acc;
       }, {});
