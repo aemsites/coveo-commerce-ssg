@@ -84,12 +84,6 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates,secondary-antibodies")}}
-<div>
-  {{> product-properties-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
 {{#if celltargetattr.strlocus}}
 <div>
   {{> product-quality-control-block class="reduced-width"}}
