@@ -217,9 +217,7 @@ async function generateProductHtml(product, ctx, state) {
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
     product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
-    product.purificationnotes?.forEach((notes) => {
-      product.purificationnotesstatement += notes?.statement || '';
-    });
+    product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
     product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
