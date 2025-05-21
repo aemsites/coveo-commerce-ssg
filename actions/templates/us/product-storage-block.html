@@ -5,68 +5,68 @@
     </div>
   </div>
 
-
-  {{#if raw.adform}}
-  <div>
+  {{#if (isOneOf raw.adseoclasslevelone values="primary-antibodies,secondary-antibodies")}}
+    {{#if raw.adform}}
     <div>
-      <h5>Form</h5>
+      <div>
+        <h5>Form</h5>
+      </div>
+      <div>
+        <p>{{raw.adform}}</p>
+      </div>
     </div>
+    {{/if}}
+    {{#if raw.adreconstitution}}
     <div>
-      <p>{{raw.adform}}</p>
+      <div>
+        <h5>Reconstitution</h5>
+      </div>
+      <div>
+        <p>{{raw.adreconstitution}}</p>
+      </div>
     </div>
-  </div>
+    {{/if}}
+    {{#if purity }}
+    <div>
+      <div>
+        <h5>Purity</h5>
+      </div>
+      <div>
+        <p>{{purity}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if purificationtechnique}}
+    <div>
+      <div>
+        <h5>Purification technique</h5>
+      </div>
+      <div>
+        <p>{{purificationtechnique}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if purificationnotesstatement}}
+    <div>
+      <div>
+        <h5>Purification notes</h5>
+      </div>
+      <div>
+        <p>{{{purificationnotesstatement}}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if raw.adformulation}}
+    <div>
+      <div>
+        <h5>Storage buffer</h5>
+      </div>
+      <div>
+        <p>{{raw.adformulation}}</p>
+      </div>
+    </div>
+    {{/if}}
   {{/if}}
-  {{#if raw.adreconstitution}}
-  <div>
-    <div>
-      <h5>Reconstitution</h5>
-    </div>
-    <div>
-      <p>{{raw.adreconstitution}}</p>
-    </div>
-  </div>
-  {{/if}}
-  {{#if purity }}
-  <div>
-    <div>
-      <h5>Purity</h5>
-    </div>
-    <div>
-      <p>{{purity}}</p>
-    </div>
-  </div>
-  {{/if}}
-  {{#if purificationtechnique}}
-  <div>
-    <div>
-      <h5>Purification technique</h5>
-    </div>
-    <div>
-      <p>{{purificationtechnique}}</p>
-    </div>
-  </div>
-  {{/if}}
-  {{#if purificationnotesstatement}}
-  <div>
-    <div>
-      <h5>Purification notes</h5>
-    </div>
-    <div>
-      <p>{{{purificationnotesstatement}}}</p>
-    </div>
-  </div>
-  {{/if}}
-  {{#if raw.adformulation}}
-  <div>
-    <div>
-      <h5>Storage buffer</h5>
-    </div>
-    <div>
-      <p>{{raw.adformulation}}</p>
-    </div>
-  </div>
-  {{/if}}
-
 
   {{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
     {{#if celltargetattr.gene}}
