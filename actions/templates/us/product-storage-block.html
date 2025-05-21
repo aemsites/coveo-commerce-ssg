@@ -1,47 +1,193 @@
 <div class="product-storage-info {{class}}">
   <div>
-    <div><h3>Storage information</h3></div>
+    <div>
+      <h3>Properties and storage information</h3>
+    </div>
   </div>
+
+
+  {{#if raw.adform}}
+  <div>
+    <div>
+      <h5>Form</h5>
+    </div>
+    <div>
+      <p>{{raw.adform}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if raw.adreconstitution}}
+  <div>
+    <div>
+      <h5>Reconstitution</h5>
+    </div>
+    <div>
+      <p>{{raw.adreconstitution}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if purity }}
+  <div>
+    <div>
+      <h5>Purity</h5>
+    </div>
+    <div>
+      <p>{{purity}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if purificationtechnique}}
+  <div>
+    <div>
+      <h5>Purification technique</h5>
+    </div>
+    <div>
+      <p>{{purificationtechnique}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if purificationnotesstatement}}
+  <div>
+    <div>
+      <h5>Purification notes</h5>
+    </div>
+    <div>
+      <p>{{{purificationnotesstatement}}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if raw.adformulation}}
+  <div>
+    <div>
+      <h5>Storage buffer</h5>
+    </div>
+    <div>
+      <p>{{raw.adformulation}}</p>
+    </div>
+  </div>
+  {{/if}}
+
+
+  {{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
+    {{#if celltargetattr.gene}}
+    <div>
+      <div>
+        <h5>Gene name</h5>
+      </div>
+      <div>
+        <p>{{celltargetattr.gene}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if celltargetattr.geneEditingType}}
+    <div>
+      <div>
+        <h5>Gene editing type</h5>
+      </div>
+      <div>
+        <p>{{celltargetattr.geneEditingType}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if celltargetattr.geneEditingMethod}}
+    <div>
+      <div>
+        <h5>Gene editing method</h5>
+      </div>
+      <div>
+        <p>{{celltargetattr.geneEditingMethod}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if celltargetattr.knockoutvalidation}}
+    <div>
+      <div>
+        <h5>Knockout validation</h5>
+      </div>
+      <div>
+        <p>{{celltargetattr.knockoutvalidation}}</p>
+      </div>
+    </div>
+    {{/if}}
+    {{#if celltargetattr.zygosity}}
+    <div>
+      <div>
+        <h5>Zygosity</h5>
+      </div>
+      <div>
+        <p>{{celltargetattr.zygosity}}</p>
+      </div>
+    </div>
+    {{/if}}
+  {{/if}}
+
   {{#if raw.adstorageshippedatconditions}}
   <div>
-    <div><h5>Shipped at Conditions</h5></div>
-    <div><p>{{raw.adstorageshippedatconditions}}</p></div>
+    <div>
+      <h5>Shipped at Conditions</h5>
+    </div>
+    <div>
+      <p>{{raw.adstorageshippedatconditions}}</p>
+    </div>
   </div>
-  {{/if}}
-  {{#if raw.adstorageinformation}}
+  {{else if raw.adshippedatconditions}}
   <div>
-    <div><h5>Storage information</h5></div>
-    <div><p>{{raw.adstorageinformation}}</p></div>
-  </div>
-  {{/if}}
-  {{#if raw.adshippedatconditions}}
-  <div>
-    <div><h5>Shipped at conditions</h5></div>
-    <div><p>{{raw.adshippedatconditions}}</p></div>
+    <div>
+      <h5>Shipped at conditions</h5>
+    </div>
+    <div>
+      <p>{{raw.adshippedatconditions}}</p>
+    </div>
   </div>
   {{/if}}
   {{#if raw.adappropriateshorttermstorageduration}}
   <div>
-    <div><h5>Appropriate short-term storage duration</h5></div>
-    <div><p>{{raw.adappropriateshorttermstorageduration}}</p></div>
+    <div>
+      <h5>Appropriate short-term storage duration</h5>
+    </div>
+    <div>
+      <p>{{raw.adappropriateshorttermstorageduration}}</p>
+    </div>
   </div>
   {{/if}}
   {{#if raw.adappropriateshorttermstorageconditions}}
   <div>
-    <div><h5>Appropriate short-term storage conditions</h5></div>
-    <div><p>{{raw.adappropriateshorttermstorageconditions}}</p></div>
+    <div>
+      <h5>Appropriate short-term storage conditions</h5>
+    </div>
+    <div>
+      <p>{{raw.adappropriateshorttermstorageconditions}}</p>
+    </div>
   </div>
   {{/if}}
   {{#if raw.adappropriatelongtermstorageconditions}}
   <div>
-    <div><h5>Appropriate long-term storage conditions</h5></div>
-    <div><p>{{raw.adappropriatelongtermstorageconditions}}</p></div>
+    <div>
+      <h5>Appropriate long-term storage conditions</h5>
+    </div>
+    <div>
+      <p>{{raw.adappropriatelongtermstorageconditions}}</p>
+    </div>
   </div>
   {{/if}}
   {{#if raw.adaliquotinginformation}}
   <div>
-    <div><h5>Aliquoting information</h5></div>
-    <div><p>{{raw.adaliquotinginformation}}</p></div>
+    <div>
+      <h5>Aliquoting information</h5>
+    </div>
+    <div>
+      <p>{{raw.adaliquotinginformation}}</p>
+    </div>
+  </div>
+  {{/if}}
+  {{#if raw.adstorageinformation}}
+  <div>
+    <div>
+      <h5>Storage information</h5>
+    </div>
+    <div>
+      <p>{{raw.adstorageinformation}}</p>
+    </div>
   </div>
   {{/if}}
 </div>

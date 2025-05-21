@@ -188,7 +188,7 @@ async function generateProductHtml(product, ctx, state) {
       image.imagesusage = parseJson(image?.imgImageUsageJSON);
     })
     product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
-    product.antibodypurity = getAntibodyPurity(product.raw.adpurificationtechnique, product.raw.adpurificationtechniquereagent, product.raw.adpurificationfraction);
+    product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
@@ -216,10 +216,13 @@ async function generateProductHtml(product, ctx, state) {
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
-    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson)?.at(0)?.statement || '';
+    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
+    product.purificationnotes?.forEach((notes) => {
+      product.purificationnotesstatement += notes?.statement || '';
+    });
     product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
     product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-    product.purificationtechnique = (product?.raw?.adpurificationtechniquereagent || '')?.concat(' ', product?.raw?.adpurificationtechnique || '');
+    product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
     product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
     product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
     product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
@@ -258,7 +261,6 @@ async function generateProductHtml(product, ctx, state) {
       "product-sequenceinfo-block",
       "product-specifications-block",
       "product-general-info-block",
-      "product-properties-block",
       "product-quality-control-block",
       "product-cell-culture-block",
       "product-handling-procedures-block",

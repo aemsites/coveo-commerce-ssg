@@ -6,12 +6,6 @@
     </div>
     <div>
         {{#if (eq raw.adseoclasslevelone "primary-antibodies")}}
-            {{#if raw.adisotype}}
-            <div>
-                <h6>Isotype</h6>
-                <p>{{raw.adisotype}}</p>
-            </div>
-            {{/if}}
 
             {{#if raw.adhostspecies}}
             <div>
@@ -19,6 +13,34 @@
                 <p>{{raw.adhostspecies}}</p>
             </div>
             {{/if}}
+
+            {{#if raw.adclonality}}
+            <div>
+                <h6>Clonality</h6>
+                <p>{{raw.adclonality}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adclonenumber}}
+            <div>
+                <h6>Clone number</h6>
+                <p>{{raw.adclonenumber}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adisotype}}
+            <div>
+                <h6>Isotype</h6>
+                <p>{{raw.adisotype}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adantibodylightchaintype}}
+            <div>
+                <h6>Light chain type</h6>
+                <p>{{raw.adantibodylightchaintype}}</p>
+            </div>
+            {{/if}} 
 
             {{#if conjugations}}
             <div>
@@ -46,31 +68,41 @@
             </div>
             {{/if}}
 
-            {{#if antibodypurity }}
+            {{#if raw.adcarrierfree}}
             <div>
-                <h6>Purity</h6>
-                <p>{{antibodypurity}}</p>
+                <h6>Carrier Free</h6>
+                {{#if (eq raw.adcarrierfree "False")}}
+                <p>No</p>
+                {{else}}
+                <p>Yes</p>
+                {{/if}}
+            </div>
+            {{/if}} 
+
+            {{#if targetattr.targetSpecies}}
+            <div>
+                <h6>Target species</h6>
+                <p>{{targetattr.targetSpecies}}</p>
             </div>
             {{/if}}
 
-            {{#if raw.adformulation}}
+            {{#if raw.adspecies}}
             <div>
-                <h6>Storage buffer</h6>
-                <p>{{raw.adformulation}}</p>
+                <h6>Reacts with</h6>
+                <p>{{raw.adspecies}}</p>
             </div>
             {{/if}}
-
-            {{#if raw.adform}}
+            
+            {{#if raw.adapplications}}
             <div>
-                <h6>Form</h6>
-                <p>{{raw.adform}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adclonality}}
-            <div>
-                <h6>Clonality</h6>
-                <p>{{raw.adclonality}}</p>
+                <h6>Applications</h6>
+                <p>
+                    {{#each raw.adapplications}}
+                    {{#if @last}} {{this}}
+                    {{else}}{{this}},
+                    {{/if}}
+                    {{/each}}
+                </p>
             </div>
             {{/if}}
 
@@ -86,17 +118,35 @@
             </div>
             {{/if}}
 
-            
-            {{#if raw.adcarrierfree}}
+            {{#if raw.adantibodyepitope}}
             <div>
-                <h6>Carrier Free</h6>
-                {{#if (eq raw.adcarrierfree "False")}}
-                <p>No</p>
-                {{else}}
-                <p>Yes</p>
-                {{/if}}
+                <h6>Epitope</h6>
+                <p>{{raw.adantibodyepitope}}</p>
             </div>
-            {{/if}} 
+            {{/if}}            
+
+            {{#if raw.adantibodyspecificity}}
+            <div>
+                <h6>Specificity</h6>
+                <p>{{{raw.adantibodyspecificity}}}</p>
+            </div>
+            {{/if}}
+        {{/if}}
+
+        {{#if (eq raw.adseoclasslevelone "secondary-antibodies")}}
+            {{#if raw.adhostspecies}}
+            <div>
+                <h6>Host species</h6>
+                <p>{{raw.adhostspecies}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adclonality}}
+            <div>
+                <h6>Clonality</h6>
+                <p>{{raw.adclonality}}</p>
+            </div>
+            {{/if}}
 
             {{#if raw.adclonenumber}}
             <div>
@@ -105,104 +155,17 @@
             </div>
             {{/if}}
 
-            {{#if purificationtechnique}}
+            {{#if raw.adisotype}}
             <div>
-                <h6>Purification technique</h6>
-                <p>{{purificationtechnique}}</p>
+                <h6>Isotype</h6>
+                <p>{{raw.adisotype}}</p>
             </div>
             {{/if}}
 
-            {{#if purificationnotes}}
-            <div>
-                <h6>Purification notes</h6>
-                <div><p>{{{purificationnotes}}}</p></div>
-            </div>
-            {{/if}}
-            
-            {{#if raw.adantibodyspecificity}}
-            <div>
-                <h6>Specificity</h6>
-                <p>{{{raw.adantibodyspecificity}}}</p>
-            </div>
-            {{/if}}
-            
-            {{#if raw.adantibodyepitope}}
-            <div>
-                <h6>Epitope</h6>
-                <p>{{raw.adantibodyepitope}}</p>
-            </div>
-            {{/if}}
-
-            {{#if dissociationconstant}}
-            <div>
-                <h6>Dissociation constant</h6>
-                <p>{{dissociationconstant.value}} x 10 <sup>{{dissociationconstant.exponent}}</sup> M</p>
-            </div>
-            {{/if}}
-            
             {{#if raw.adantibodylightchaintype}}
             <div>
                 <h6>Light chain type</h6>
                 <p>{{raw.adantibodylightchaintype}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
-        {{/if}}
-
-        {{#if (eq raw.adseoclasslevelone "secondary-antibodies")}}
-            {{#if raw.title}}
-            <div>
-                <h6>Description</h6>
-                <p>{{raw.title}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adhostspecies}}
-            <div>
-                <h6>Host species</h6>
-                <p>{{raw.adhostspecies}}</p>
-            </div>
-            {{/if}}
-
-            {{#if targetattr.targetSpecies}}
-            <div>
-                <h6>Target species</h6>
-                <p>{{targetattr.targetSpecies}}</p>
-            </div>
-            {{/if}}
-
-            {{#if secondaryantibodytargetisotypes}}
-            <div>
-                <h6>Target isotype</h6>
-                <p>{{secondaryantibodytargetisotypes}}</p>
-            </div>
-            {{/if}}
-
-            {{#if targetattr.targetSpecificity}}
-            <div>
-                <h6>Target specificity</h6>
-                <p>{{targetattr.targetSpecificity}}</p>
-            </div>
-            {{/if}}
-
-            {{#if speciesreactivity}}
-            <div>
-                <h6>Minimal cross-reactivity</h6>
-                <p>
-                {{#each speciesreactivity}}
-                {{#if (eq this.reactivityType "DOES_NOT_REACT")}}
-                    {{#if @last}} {{this.species}}
-                    {{else}}{{this.species}}, 
-                    {{/if}}
-                {{/if}}
-                {{/each}}
-                </p>    
             </div>
             {{/if}}
 
@@ -219,7 +182,6 @@
             </div>
             {{/if}}
 
-
             {{#if conjugations }}
             <div>
                 <h6>Excitation/Emission</h6>
@@ -233,10 +195,28 @@
             </div>
             {{/if}}
 
-            {{#if antibodypurity }}
+            {{#if raw.adcarrierfree}}
             <div>
-                <h6>Purity</h6>
-                <p>{{antibodypurity}}</p>
+                <h6>Carrier Free</h6>
+                {{#if (eq raw.adcarrierfree "False")}}
+                <p>No</p>
+                {{else}}
+                <p>Yes</p>
+                {{/if}}
+            </div>
+            {{/if}} 
+
+            {{#if targetattr.targetSpecies}}
+            <div>
+                <h6>Target species</h6>
+                <p>{{targetattr.targetSpecies}}</p>
+            </div>
+            {{/if}}
+
+            {{#if raw.adspecies}}
+            <div>
+                <h6>Reacts with</h6>
+                <p>{{raw.adspecies}}</p>
             </div>
             {{/if}}
 
@@ -253,38 +233,6 @@
             </div>
             {{/if}}
 
-            {{#if raw.adclonality}}
-            <div>
-                <h6>Clonality</h6>
-                <p>{{raw.adclonality}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adclonenumber}}
-            <div>
-                <h6>Clone number</h6>
-                <p>{{raw.adclonenumber}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adantibodyformat}}
-            <div>
-                <h6>Format</h6>
-                <p>{{raw.adantibodyformat}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adsecondaryantibodyattributespreadsorbed}}
-            <div>
-                <h6>Pre-adsorbed</h6>
-                {{#if (eq raw.adsecondaryantibodyattributespreadsorbed "False")}}
-                <p>No</p>
-                {{else}}
-                <p>Yes</p>
-                {{/if}}
-            </div>
-            {{/if}}
-
             {{#if (and immunogenlinkjson immunogendesc)}}
             <div>
                 <h6>Immunogen</h6>
@@ -297,13 +245,6 @@
             </div>
             {{/if}}
 
-            {{#if raw.adantibodyspecificity}}
-            <div>
-                <h6>Specificity</h6>
-                <p>{{{raw.adantibodyspecificity}}}</p>
-            </div>
-            {{/if}}
-
             {{#if raw.adantibodyepitope}}
             <div>
                 <h6>Epitope</h6>
@@ -311,19 +252,12 @@
             </div>
             {{/if}}
 
-            {{#if raw.adantibodylightchaintype}}
+            {{#if raw.adantibodyspecificity}}
             <div>
-                <h6>Light chain type</h6>
-                <p>{{raw.adantibodylightchaintype}}</p>
+                <h6>Specificity</h6>
+                <p>{{{raw.adantibodyspecificity}}}</p>
             </div>
             {{/if}}
-
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
         {{/if}}
 
         {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels,dyes,buffers")}}
@@ -394,35 +328,6 @@
             </div>
             {{/if}}
 
-            {{#if raw.adpurity }}
-                {{#if raw.adpurityassessment}}
-                <div>
-                    <h6>Purity</h6>
-                    <p>{{raw.adpurity}} {{raw.adpurityassessment}}</p>
-                </div>
-                {{/if}}  
-            {{/if}}
-
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
-
-            {{#if raw.adform}}
-            <div>
-                <h6>Form</h6>
-                <p>{{raw.adform}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adformulation}}
-            <div>
-                <h6>Storage buffer</h6>
-                <p>{{raw.adformulation}}</p>
-            </div>
-            {{/if}}
         {{/if}}
 
         {{#if (eq raw.adseoclasslevelone "biochemicals")}}
@@ -432,22 +337,7 @@
                 <p>{{biochemicalattr.casNumber}}</p>
             </div>
             {{/if}}
-
-            {{#if biochemicalattr.expectedPurity}}
-            <div>
-                <h6>Purity</h6>
-                <p>{{biochemicalattr.expectedPurity}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adform}}
-            <div>
-                <h6>Form</h6>
-                <p>{{raw.adform}}</p>
-            </div>
-            {{/if}}
-
-            
+          
             {{#if biochemicalattr.source}}
             <div>
                 <h6>Source</h6>
@@ -542,13 +432,6 @@
             </div>
             {{/if}}
 
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
-            
             {{#if biochemicalattr}}
                 {{#if biochemicalattr.emission}}
                     {{#if biochemicalattr.excitation}}
@@ -582,6 +465,14 @@
             </div>
             {{/if}}
 
+
+            {{#if raw.adspecies}}
+            <div>
+                <h6>Reacts with</h6>
+                <p>{{raw.adspecies}}</p>
+            </div>
+            {{/if}}
+
             {{#if raw.adkitassaytype}}
             <div>
                 <h6>Assay type</h6>
@@ -589,10 +480,10 @@
             </div>
             {{/if}}
 
-            {{#if raw.adspecies}}
+            {{#if raw.adkitsensitivity}}
             <div>
-                <h6>Reacts with</h6>
-                <p>{{raw.adspecies}}</p>
+                <h6>Sensitivity</h6>
+                <p>{{raw.adkitsensitivity}}</p>
             </div>
             {{/if}}
 
@@ -614,21 +505,6 @@
             <div>
                 <h6>Assay platform</h6>
                 <p>{{raw.adkitassayplatform}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adkitsensitivity}}
-            <div>
-                <h6>Sensitivity</h6>
-                <p>{{raw.adkitsensitivity}}</p>
-            </div>
-            {{/if}}
-
-            
-            {{#if raw.adkitgeneralrecovery}}
-            <div>
-                <h6>General recovery</h6>
-                <p>{{raw.adkitgeneralrecovery}}</p>
             </div>
             {{/if}}
         {{/if}}
@@ -706,15 +582,6 @@
         {{/if}}
 
         {{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
-            {{#if raw.adpurity }}
-                {{#if raw.adpurityassessment}}
-                <div>
-                    <h6>Purity</h6>
-                    <p>{{raw.adpurity}} {{raw.adpurityassessment}}</p>
-                </div>
-                {{/if}}  
-            {{/if}}
-
             {{#if raw.adproteinendotoxinlevel}}
             <div>
                 <h6>Endotoxin level</h6>
@@ -844,20 +711,6 @@
                 <p>{{raw.adstandardproteinspecies}}</p>
             </div>
             {{/if}} 
-            
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
-            
-            {{#if raw.adformulation}}
-            <div>
-                <h6>Storage buffer</h6>
-                <p>{{raw.adformulation}}</p>
-            </div>
-            {{/if}}
         {{/if}}
 
         {{#if (isOneOf raw.adseoclasslevelone values="cell-lines,tissue-lysates,cell-lysates")}}
@@ -881,13 +734,6 @@
             <div>
                 <h6>Tissue</h6>
                 <p>{{celltargetattr.tissueType}}</p>
-            </div>
-            {{/if}}
-
-            {{#if raw.adform}}
-            <div>
-                <h6>Form</h6>
-                <p>{{raw.adform}}</p>
             </div>
             {{/if}}
 
@@ -918,13 +764,6 @@
                 <p>{{celltargetattr.disease}}</p>
             </div>
             {{/if}}
-
-            {{#if raw.adreconstitution}}
-            <div>
-                <h6>Reconstitution</h6>
-                <p>{{raw.adreconstitution}}</p>
-            </div>
-            {{/if}} 
         {{/if}}
 
         {{#if (isOneOf raw.adseoclasslevelone values="antibody-arrays,antibody-panels")}}
