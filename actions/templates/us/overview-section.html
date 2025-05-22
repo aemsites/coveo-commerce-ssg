@@ -66,7 +66,7 @@
   {{> product-summarynotes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
-{{#if (and raw.adform purificationnotes)}}
+{{#if (or raw.adform purificationnotes)}}
 <div>
   {{> product-specifications-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}

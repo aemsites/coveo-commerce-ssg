@@ -14,8 +14,14 @@
         {{#if purificationnotes}}
         <div>
             <h6>Additional notes</h6>
-            <p>{{purificationnotes}}</p>
+            {{#each purificationnotes}}
+            <div>
+                <div>
+                    <p>{{{this.statement}}}</p>
+                </div>
+            </div>
+            {{/each}}
         </div>
         {{/if}}
     </div>
-</div> 
+</div>
