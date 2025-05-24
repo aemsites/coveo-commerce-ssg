@@ -212,7 +212,8 @@ async function generateProductHtml(product, ctx, state) {
     });
     product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
     product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
-    product.sequenceinfotag = parseJson(product.sequenceinfo)?.tags?.at(0);
+    const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
+    product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
     product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
     product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
     product.immunogendesc = product.raw.adimmunogendescription;
