@@ -1,0 +1,34 @@
+{{#if relatedProducts}}
+<div class="related-products {{class}}">
+  {{#if relatedProducts.alternativeProducts}}
+  <div>
+    <div>
+      <h3>Alternative Products</h3>
+    </div>
+    {{#each relatedProducts.alternativeProducts}}
+    <div>
+      <h6>{{this.relationship}}</h6>
+      <h5>{{this.categoryType}}</h5>
+      <p>{{this.productCode}}</p>
+      <a href="{{this.href}}">{{this.productName}}</a>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}} {{#if relatedProducts.complementaryProducts}}
+  <div>
+    <div>
+      <h3>Complementary Products</h3>
+    </div>
+    {{#each relatedProducts.complementaryProducts}}
+    <div>
+      <h6>{{this.relationship}}</h6>
+      <h5>{{this.categoryType}}</h5>
+      <p>{{this.productCode}}</p>
+      <h4>{{this.name}}</h4>
+      <a>{{this.href}}</a>
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>
+{{/if}}

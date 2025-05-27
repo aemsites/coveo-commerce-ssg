@@ -3,6 +3,7 @@ const { State, Files } = require('@adobe/aio-sdk');
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
+const { mapRelatedProducts } = require('./map-related-products');
 const { loadState } = require('../check-target-changes/target-fetcher');
 
 Handlebars.registerHelper("eq", function(a, b) {
@@ -201,9 +202,6 @@ async function generateProductHtml(product, ctx, state) {
         toprecommendedproduct.type = toprecommendedproduct?.categoryType?.toLowerCase()?.replace(/ /g, '-');
       }
     });
-    if (product.alternateproducts) {
-      product.toprecommendedproducts = [];
-    }
     product.publications = parseJson(product.raw.adpublicationsjson)?.items;
     product.sampletypes = parseJson(product.raw.adkitsampletypesjson);
 
@@ -228,6 +226,16 @@ async function generateProductHtml(product, ctx, state) {
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
     product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
     product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+    product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
+    product.relatedProducts = mapRelatedProducts({
+      alternateproducts: [product.alternateproducts],
+      associatedproducts: product.associatedproducts,
+      toprecommendedproducts: product.toprecommendedproducts,
+      crosssell: product.crosssell,
+    });
+    if (product.alternateproducts) {
+      product.toprecommendedproducts = [];
+    }
 
     if(product.raw.adrelatedtargets){
       const stateLib = await State.init({});
@@ -268,6 +276,7 @@ async function generateProductHtml(product, ctx, state) {
       "section-metadata-block",
       "product-kitcomponent-block",
       "product-header-inactive-block",
+      "product-related-products",
       "product-downloads-inactive-block",
       "alternate-products-inactive-block",
       "meta-jsonld",
