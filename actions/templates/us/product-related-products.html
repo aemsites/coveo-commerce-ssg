@@ -1,0 +1,39 @@
+{{#if relatedProducts}}
+<div class="related-products {{class}}">
+  {{#if relatedProducts.alternativeProducts}}
+  <div>
+    <div>
+      <h3>Alternative Products</h3>
+    </div>
+    {{#each relatedProducts.alternativeProducts}}
+    <div>
+      <h6>{{this.relationship}}</h6>
+      <h5>{{this.categoryType}}</h5>
+      <p>{{this.productCode}}</p>
+      <a href="{{this.href}}">{{this.productName}}</a>
+      {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
+      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
+      {{#if this.image}}<img src="{{this.image}}" alt="{{this.productName}}" />{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}} {{#if relatedProducts.complementaryProducts}}
+  <div>
+    <div>
+      <h3>Complementary Products</h3>
+    </div>
+    {{#each relatedProducts.complementaryProducts}}
+    <div>
+      <h6>{{this.relationship}}</h6>
+      <h5>{{this.categoryType}}</h5>
+      <p>{{this.productCode}}</p>
+      <a href="{{this.href}}">{{this.productName}}</a>
+      {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
+      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
+      {{#if this.image}}<img src="{{this.image}}" alt="{{this.productName}}" />{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>
+{{/if}}
