@@ -289,22 +289,36 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
   }
 }
 
+function enrichWithPath(skus, state, logger){
+  logger.debug("enriching record with product path :", skus)
+  const records = [];
+  skus.forEach((sku) => {
+    const record = {};
+    record.sku = sku;
+    record.path = state.skus[sku]?.path;
+    records.push(record);
+  })
+  logger.debug("enriched record with product path :", records)
+  return records;
+}
+
 /**
  * Identifies and processes products that need to be deleted
  */
-async function processDeletedProducts(remainingSkus, locale, state, counts, context, adminApi, aioLibs, logger) {
-  if (!remainingSkus.length) return;
-
+async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
+  if (!skus.length) return;
+  logger.debug("processUnpublishBatches ---", skus);
   try {
     const { filesLib } = aioLibs;
-    const publishedProducts = await requestSpreadsheet('published-products-index', null, context);
-    const deletedProducts = publishedProducts.data.filter(({ sku }) => remainingSkus.includes(sku));
 
     // Process in batches
-    if (deletedProducts.length) {
+    if (skus.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
-      const batches = createBatches(deletedProducts, context);
-      const promiseBatches = unpublishAndDelete(batches, locale, adminApi);
+      const batches = createBatches(skus, context);
+      const products = await Promise.all(
+        batches?.map(skus => enrichWithPath(skus, state, logger))
+      );
+      const promiseBatches = unpublishAndDelete(products, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
       for (const { records, liveUnpublishedAt, previewUnpublishedAt } of response) {
@@ -312,9 +326,9 @@ async function processDeletedProducts(remainingSkus, locale, state, counts, cont
           records.map((record) => {
             // Delete the HTML file from public storage
             try {
-              const product = deletedProducts.find(p => p.sku === record.sku);
+              const product = skus.find(p => p.sku === record.sku);
               if (product) {
-                const productUrl = getProductUrl({ urlKey: product.urlKey, sku: product.sku }, context, false).toLowerCase();
+                const productUrl = state.skus[product]?.path;
                 const htmlPath = `/public/pdps${productUrl}`;
                 filesLib.delete(htmlPath);
                 logger.debug(`Deleted HTML file for product ${record.sku} from ${htmlPath}`);
@@ -392,7 +406,7 @@ async function fetcher(params, aioLibs) {
     
     // Get the first key only
     let firstKey = null;
-    for await (const { keys } of stateLib.list({ match: 'webhook-skus-updated.*' })) {
+    for await (const { keys } of stateLib.list({ match: 'webhook-skus-*' })) {
       if (keys.length > 0) {
         firstKey = keys[0];
         break;
@@ -407,31 +421,35 @@ async function fetcher(params, aioLibs) {
         const batches = createBatches(skus);
         logger.info(`Created ${batches.length} batches from ${skus.length} SKUs`);
         
-        // Process each batch sequentially to maintain log order
-        for (const batch of batches) {
-          const resp = await requestCOVEO(coveoUrl, batch, context);
-          timings.sample('fetchedData');
-          logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
-          logger.debug('COVEO response:', JSON.stringify(resp, null, 2));
-          const results = Array.isArray(resp?.results) ? resp.results : [];
-          // Enrich products with metadata
-          const products = await Promise.all(
-            results?.map(product => enrichProductWithMetadata(product, state, context))
-          );
-          
-          const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-          const filteredPaths = filteredProducts.map(product => ({ 
-            sku: product.sku, 
-            path: getProductUrl(product, context, false)
-          }));
+        if(firstKey.includes('updated')){
+          // Process each batch sequentially to maintain log order
+          for (const batch of batches) {
+            const resp = await requestCOVEO(coveoUrl, batch, context);
+            timings.sample('fetchedData');
+            logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
+            logger.debug('COVEO response:', JSON.stringify(resp, null, 2));
+            const results = Array.isArray(resp?.results) ? resp.results : [];
+            // Enrich products with metadata
+            const products = await Promise.all(
+              results?.map(product => enrichProductWithMetadata(product, state, context))
+            );
+            
+            const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
+            const filteredPaths = filteredProducts.map(product => ({ 
+              sku: product.sku, 
+              path: getProductUrl(product, context, false)
+            }));
 
-          logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
-          
-          if (filteredPaths.length > 0) {
-            const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus);
-            timings.sample('publishedPaths');
+            logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
+            
+            if (filteredPaths.length > 0) {
+              const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
+              await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus);
+              timings.sample('publishedPaths');
+            }
           }
+        } else {
+          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger); 
         }
         
         // After processing, delete the key
