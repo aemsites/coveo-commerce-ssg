@@ -11,7 +11,7 @@ application:
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"
           COVEO_HOST: stage.lifesciences.danaher.com
           COVEO_ORG: danahernonproduction1892f3fhz
-          COVEO_GENERAL_PIPELINE: Abcam General
+          COVEO_GENERAL_PIPE NE: Abcam General
           COVEO_GENERAL_SEARCHHUB: AbcamGeneral
           COVEO_AUTH: $COVEO_AUTH
           COVEO_TARGET_AUTH: $COVEO_TARGET_AUTH
@@ -93,10 +93,10 @@ application:
             feed: /whisk.system/alarms/interval
             inputs:
               minutes: 10
-          every15MinsTrigger:
+          every5MinsTrigger:
             feed: /whisk.system/alarms/interval
             inputs:
-              minutes: 15
+              minutes: 5
         rules:
           every10MinsRule:
           # When the action is invoked, it first checks
@@ -107,7 +107,7 @@ application:
           # The above means that the actual logic is not
           # necessarily executed every minute.
             trigger: every10MinsTrigger
-            action: check-product-changes
-          every15MinsRule:
-            trigger: every15MinsTrigger
             action: check-target-changes
+          every5MinsRule:
+            trigger: every5MinsTrigger
+            action: check-product-changes
