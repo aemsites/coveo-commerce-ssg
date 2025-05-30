@@ -34,6 +34,12 @@
   {{> product-notes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if sequenceinfo}}
+<div>
+  {{> product-sequenceinfo-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 {{#if raw.adkitassayprecisionjson}}
 <div>
   {{> product-precision-block class="reduced-width"}}
@@ -69,12 +75,6 @@
 {{#if (or raw.adform purificationnotes)}}
 <div>
   {{> product-specifications-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-{{#if sequenceinfo}}
-<div>
-  {{> product-sequenceinfo-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
