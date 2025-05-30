@@ -351,7 +351,7 @@ function makeContext(params) {
     coveoOrg: params.COVEO_ORG,
     coveoPipeline: params.COVEO_GENERAL_PIPELINE,
     coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
-    coveoAuth: params.COVEO_TARGET_AUTH,
+    coveoAuth: params.COVEO_AUTH,
   }
 	return ctx;
 }
