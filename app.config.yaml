@@ -49,6 +49,18 @@ application:
             runtime: nodejs:22
             annotations:
               final: true
+          webhook-product-removes:
+            function: actions/webhook-product-removes/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            annotations:
+              final: true
+          webhook-target-removes:
+            function: actions/webhook-target-removes/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            annotations:
+              final: true
           webhook-target-updates:
             function: actions/webhook-target-updates/index.js
             web: 'yes'
