@@ -19,6 +19,7 @@ async function main(params) {
 
     // Parse request body if needed
     let ids = [];
+    const country = params.__ow_path?.replace(/\//g, "-") || '';
     if (params.__ow_body) {
       try {
         // Handle both string JSON and already parsed objects
@@ -62,7 +63,7 @@ async function main(params) {
     // Generate a timestamp-based key using milliseconds since epoch
     const now = new Date();
     const timestampMs = now.getTime(); // Integer value of milliseconds since epoch
-    const stateKey = `webhook-ids-updated.${timestampMs}`;
+    const stateKey = `webhook-ids-updated${country}.${timestampMs}`;
     
     // Store IDs in state with a TTL of 24 hours (86400 seconds)
     await stateLib.put(stateKey, JSON.stringify(ids), { ttl: 86400 });

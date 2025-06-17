@@ -401,9 +401,9 @@ function getProductUrl(product, locale) {
  *
  * @param {Object} product Product with sku and urlKey properties.
  */
-function getTargetUrl(target) {
+function getTargetUrl(target, locale) {
   const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
-  const path = `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}`;
+  const path = (locale === 'en-us') ? `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}` : `/targets/${target?.raw?.tgtslug}/${targetnumber}`;
   return path;
 }
 
