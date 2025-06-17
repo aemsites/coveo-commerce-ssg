@@ -356,15 +356,15 @@ function getCountry(key){
   return countryCode;
 }
 
-function getSiteName(name, key) {
-  const countryCode = getCountry(key);
+// function getSiteName(name, key) {
+//   const countryCode = getCountry(key);
   
-  if (['cn', 'jp'].includes(countryCode)) {
-    return `${name}-${countryCode}`;
-  }
+//   if (['cn', 'jp'].includes(countryCode)) {
+//     return `${name}-${countryCode}`;
+//   }
 
-  return name;
-}
+//   return name;
+// }
 
 
 function makeContext(params) {
@@ -418,7 +418,7 @@ async function fetcher(params, aioLibs) {
       }
     }
     const country = getCountry(firstKey);
-    const siteNameCountry = getSiteName(siteName, firstKey);
+    // const siteNameCountry = getSiteName(siteName, firstKey);
     const locales = {
       cn: 'zh-cn',
       jp: 'ja-jp'
@@ -433,7 +433,7 @@ async function fetcher(params, aioLibs) {
 
     const adminApi = new AdminAPI({
       org: orgName,
-      site: siteNameCountry,
+      site: siteName,
     }, sharedContext, { authToken });
 
     // start processing preview and publish queues
