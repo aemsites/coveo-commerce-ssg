@@ -14,11 +14,14 @@ const mapProducts = (products) => {
       productCode: prd.productCode,
       productName: prd.name,
       href,
-      // TODO: Update the fields below when we have the data
-      tags: ['20ul selling size', 'RabMAb', 'Recombinant', 'KO Validated'].join('|'), // We join just cause it's easier to handle in the template
-      imageCount: 5,
-      image:
-        'https://content.abcam.com/products/images/goat-rabbit-igg-h-l-alexa-fluor-488-ab150077--flow-cytometry-img38158.jpg',
+      tags: prd.productTags?.map((tag) => tag.tagCode).join('|'), // We join just cause it's easier to handle in the template
+      imageCount: prd.imageCount || 0,
+      image: prd.images?.[0]?.seoUrl
+        ? {
+            url: `https://content.abcam.com/${prd.images[0].seoUrl}`,
+            title: prd.images?.[0]?.title || prd.name,
+          }
+        : null,
     }
   })
 }
@@ -32,16 +35,16 @@ const mapRelatedProducts = ({
   const alternativeProducts = [
     ...mapProducts(alternateproducts),
     ...mapProducts(
-      (associatedproducts || []).filter(({ associatedProduct }) =>
-        ['alternativeProduct'].includes(associatedProduct.relationshipType)
+      (associatedproducts || []).filter(({ relationshipType }) =>
+        ['alternativeProduct'].includes(relationshipType)
       )
     ),
   ]
   const complementaryProducts = [
     ...mapProducts(toprecommendedproducts),
     ...mapProducts(
-      ...(associatedproducts || []).filter(({ associatedProduct }) =>
-        ['compatibleSecondaries', 'isotypeControl'].includes(associatedProduct.relationshipType)
+      ...(associatedproducts || []).filter(({ relationshipType }) =>
+        ['compatibleSecondaries', 'isotypeControl'].includes(relationshipType)
       )
     ),
     ...mapProducts(crosssell),

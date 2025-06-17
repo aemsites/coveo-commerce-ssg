@@ -13,7 +13,7 @@
       <a href="{{this.href}}">{{this.productName}}</a>
       {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
       {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
-      {{#if this.image}}<img src="{{this.image}}" alt="{{this.productName}}" />{{/if}}
+      {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
     </div>
     {{/each}}
   </div>
@@ -30,7 +30,7 @@
       <a href="{{this.href}}">{{this.productName}}</a>
       {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
       {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
-      {{#if this.image}}<img src="{{this.image}}" alt="{{this.productName}}" />{{/if}}
+      {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
     </div>
     {{/each}}
   </div>
