@@ -43,7 +43,8 @@ function getStateFileLocation(stateKey) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
  */
-async function loadState(locale, aioLibs) {
+async function loadState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
   const { filesLib } = aioLibs;
   const stateObj = { locale };
   try {
@@ -70,6 +71,7 @@ async function loadState(locale, aioLibs) {
   } catch (e) {
     stateObj.skus = {};
   }
+  logger.debug(`State object for ${locale} is ${stateObj}`);
   return stateObj;
 }
 
@@ -290,6 +292,7 @@ async function processPublishBatches(promiseBatches, locale, state, counts, prod
 
 function enrichWithPath(skus, state, logger){
   logger.debug("enriching record with product path :", skus)
+  logger.debug("State object :", state)
   const records = [];
   skus.forEach((sku) => {
     const record = {};
@@ -306,7 +309,7 @@ function enrichWithPath(skus, state, logger){
  */
 async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
   if (!skus.length) return;
-  logger.debug("processUnpublishBatches ---", skus);
+  logger.debug("processUnpublishBatches --- locale", skus, locale);
   try {
     const { filesLib } = aioLibs;
 
@@ -428,7 +431,7 @@ async function fetcher(params, aioLibs) {
 
     logger.info(`Fetching for locale ${locale}`);
     // load state
-    const state = await loadState(locale, aioLibs);
+    const state = await loadState(locale, aioLibs, logger);
     timings.sample('loadedState');
 
     const adminApi = new AdminAPI({
