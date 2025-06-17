@@ -71,7 +71,6 @@ async function loadState(locale, aioLibs, logger) {
   } catch (e) {
     stateObj.skus = {};
   }
-  logger.debug(`State object for ${locale} is ${stateObj}`);
   return stateObj;
 }
 
@@ -292,7 +291,6 @@ async function processPublishBatches(promiseBatches, locale, state, counts, prod
 
 function enrichWithPath(skus, state, logger){
   logger.debug("enriching record with product path :", skus)
-  logger.debug("State object :", state)
   const records = [];
   skus.forEach((sku) => {
     const record = {};
@@ -354,7 +352,7 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
 }
 
 function getCountry(key){
-  const match = key.match(/webhook-skus-updated-(\w+)\./);
+  const match = key.match(/webhook-skus-(?:updated|removed)-(\w+)\./);
   const countryCode = match?.[1] || '';
   return countryCode;
 }
