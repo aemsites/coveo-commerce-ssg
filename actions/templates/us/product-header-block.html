@@ -6,36 +6,44 @@
         <div>
             <h1>{{title}}</h1>
             <ul>
-            {{#each raw.adtags}}
-            <li>{{ this }}</li>
-            {{/each}}
-            <li><a href="#">What is this?</a></li>
+                {{#each raw.adtags}}
+                <li>{{ this }}</li>
+                {{/each}}
+                <li><a href="#">What is this?</a></li>
             </ul>
             {{#if raw.adreviewscount}}
             <em>{{raw.adreviewsaggregaterating}}</em>
-                {{#if (gt raw.adreviewscount 1)}}
-                    <em>({{raw.adreviewscount}} Reviews)</em>
-                {{else}}
-                    <em>({{raw.adreviewscount}} Review)</em>
-                {{/if}}
+            {{#if (gt raw.adreviewscount 1)}}
+            <em>({{raw.adreviewscount}} Reviews)</em>
+            {{else}}
+            <em>({{raw.adreviewscount}} Review)</em>
+            {{/if}}
             {{else}}
             <p>Be the first to review this product! <a
-                href="https://www.abcam.com/reviews/submit-review-2?productCode=">Submit a
-                review</a></p>
+                    href="https://www.abcam.com/reviews/submit-review-2?productCode=">Submit a
+                    review</a></p>
             {{/if}}
-            | 
+            |
             {{#if (gt raw.adpublicationscount 1)}}
-                <em>({{raw.adpublicationscount}} Publications)</em>
+            <em>({{raw.adpublicationscount}} Publications)</em>
             {{else}}
-                <em>({{raw.adpublicationscount}} Publication)</em>
+            <em>({{raw.adpublicationscount}} Publication)</em>
             {{/if}}
-            <div><p>{{{generalsummary}}}</p></div>
         </div>
         <div>
-            <p>View alternative names</p>
+            {{#if generalsummary}}
             <div>
-                {{alternativenames}}
+                {{{generalsummary}}}
             </div>
+            {{/if}}
+            {{#if alternativenames}}
+            <div>
+                <p>View alternative names</p>
+                <div>
+                    {{alternativenames}}
+                </div>
+            </div>
+            {{/if}}
         </div>
     </div>
 </div>
