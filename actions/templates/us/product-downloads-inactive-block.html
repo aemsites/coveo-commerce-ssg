@@ -1,5 +1,6 @@
+{{#if protocolsdownloads}}
 <div class="product-downloads {{class}}">
-    {{#if protocolsdownloads}}
+    {{#if isLegacyUnpublished}}
         {{#each protocolsdownloads}}        
             {{#if this.url}}
             <div>
@@ -9,5 +10,16 @@
             </div>
             {{/if}}
         {{/each}}
+    {{else}}
+        {{#each protocolsdownloads}}        
+            {{#if this.url}}
+            <div>
+                <div><em>{{this.documentType}}</em></div>
+                <div><span>{{#if this.language}}{{this.language}}{{else}}en{{/if}}</span></div>
+                <div><a href="{{concat '/content/dam/abcam/product' this.url}}" target="_blank"></a></div>
+            </div>
+            {{/if}}
+        {{/each}}
     {{/if}}
-</div>
+    </div>
+{{/if}}

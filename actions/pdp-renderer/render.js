@@ -160,6 +160,7 @@ async function generateProductHtml(product, ctx, state) {
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus.toLowerCase();
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
+    product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     
     product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
     product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
