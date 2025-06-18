@@ -29,13 +29,21 @@
             {{else}}
                 <em>({{raw.adpublicationscount}} Publication)</em>
             {{/if}}
-            <div><p>{{{generalsummary}}}</p></div>
         </div>
         <div>
-            <p>View alternative names</p>
+            {{#if generalsummary}}
             <div>
-                {{alternativenames}}
+                {{{generalsummary}}}
             </div>
+            {{/if}}
+            {{#if alternativenames}}
+            <div>
+                <p>View alternative names</p>
+                <div>
+                    {{alternativenames}}
+                </div>
+            </div>
+            {{/if}}
         </div>
     </div>
 </div>
