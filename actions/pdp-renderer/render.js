@@ -130,10 +130,10 @@ function parseJson(jsonString) {
   }
 }
 
-async function getRelatedTargets(relatedTargets, aioLibs){
+async function getRelatedTargets(relatedTargets, aioLibs, logger){
   const targets = relatedTargets?.split('|');
   // load target state
-  const state = await loadState('en-us', aioLibs);
+  const state = await loadState('en-us', aioLibs, logger);
   let additionalTargets = [];
   targets?.forEach(target =>{
     additionalTargets.push(state.ids[target]?.name);
@@ -237,7 +237,7 @@ async function generateProductHtml(product, ctx, state) {
     if(product.raw.adrelatedtargets){
       const stateLib = await State.init({});
       const filesLib = await Files.init({});
-      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib });
+      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
     }
 
     // load the templates
