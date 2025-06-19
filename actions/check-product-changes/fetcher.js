@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { requestSaaS, requestSpreadsheet, isValidUrl, getProductUrl, mapLocale } = require('../utils');
+const { isValidUrl, getProductUrl } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
@@ -43,7 +43,8 @@ function getStateFileLocation(stateKey) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
  */
-async function loadState(locale, aioLibs) {
+async function loadState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
   const { filesLib } = aioLibs;
   const stateObj = { locale };
   try {
@@ -82,9 +83,8 @@ async function loadState(locale, aioLibs) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<void>} - A promise that resolves when the state is saved.
  */
-async function saveState(state, aioLibs) {
+async function saveState(locale, state, aioLibs) {
   const { filesLib } = aioLibs;
-  let { locale } = state;
   const stateKey = locale || 'default';
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
@@ -267,7 +267,7 @@ async function enrichProductWithMetadata(product, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus) {
+async function processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
@@ -285,7 +285,7 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
       const skus= records.map(item => item.sku);
       failedSkus.push(...skus);
     }
-    await saveState(state, aioLibs);
+    await saveState(locale, state, aioLibs);
   }
 }
 
@@ -307,7 +307,7 @@ function enrichWithPath(skus, state, logger){
  */
 async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
   if (!skus.length) return;
-  logger.debug("processUnpublishBatches ---", skus);
+  logger.debug("processUnpublishBatches --- locale", skus, locale);
   try {
     const { filesLib } = aioLibs;
 
@@ -343,13 +343,30 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
         } else {
           counts.failed += records.length;
         }
-        await saveState(state, aioLibs);
+        await saveState(locale, state, aioLibs);
       }
     }
   } catch (e) {
     logger.error('Error processing deleted products:', e);
   }
 }
+
+function getCountry(key){
+  const match = key.match(/webhook-skus-(?:updated|removed)-(\w+)\./);
+  const countryCode = match?.[1] || '';
+  return countryCode;
+}
+
+// function getSiteName(name, key) {
+//   const countryCode = getCountry(key);
+  
+//   if (['cn', 'jp'].includes(countryCode)) {
+//     return `${name}-${countryCode}`;
+//   }
+
+//   return name;
+// }
+
 
 function makeContext(params) {
 	const ctx = {};
@@ -385,15 +402,7 @@ async function fetcher(params, aioLibs) {
     logger, counts, aioLibs
   };
   const timings = new Timings();
-  const adminApi = new AdminAPI({
-    org: orgName,
-    site: siteName,
-  }, sharedContext, { authToken });
-  const locale = 'en-us';
-  logger.info(`Fetching for locale ${locale}`);
-  // load state
-  const state = await loadState(locale, aioLibs);
-  timings.sample('loadedState');
+
   const context = {
     ...wskContext,
     ...sharedContext,
@@ -401,9 +410,6 @@ async function fetcher(params, aioLibs) {
   const failedSkus = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
-    // start processing preview and publish queues
-    await adminApi.startProcessing();
-    
     // Get the first key only
     let firstKey = null;
     for await (const { keys } of stateLib.list({ match: 'webhook-skus-*' })) {
@@ -412,6 +418,28 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
+    const country = getCountry(firstKey);
+    // const siteNameCountry = getSiteName(siteName, firstKey);
+    const locales = {
+      cn: 'zh-cn',
+      jp: 'ja-jp'
+    };
+
+    const locale = locales[country] || 'en-us';
+
+    logger.info(`Fetching for locale ${locale}`);
+    // load state
+    const state = await loadState(locale, aioLibs, logger);
+    timings.sample('loadedState');
+
+    const adminApi = new AdminAPI({
+      org: orgName,
+      site: siteName,
+    }, sharedContext, { authToken });
+
+    // start processing preview and publish queues
+    await adminApi.startProcessing();
+        
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const skusState = await stateLib.get(firstKey);
@@ -437,14 +465,14 @@ async function fetcher(params, aioLibs) {
             const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
             const filteredPaths = filteredProducts.map(product => ({ 
               sku: product.sku, 
-              path: getProductUrl(product, context, false)
+              path: getProductUrl(product, locale)
             }));
 
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
             
             if (filteredPaths.length > 0) {
-              const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-              await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus);
+              const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
+              await processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus);
               timings.sample('publishedPaths');
             }
           }

@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { requestSpreadsheet, isValidUrl, getTargetUrl } = require('../utils');
+const { isValidUrl, getTargetUrl } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateTargetHtml } = require('../target-renderer/render');
@@ -46,6 +46,7 @@ function getStateFileLocation(stateKey) {
 async function loadState(locale, aioLibs, logger) {
   const { filesLib } = aioLibs;
   const stateObj = { locale };
+  logger.debug(`Locale to load state ${locale}`);
   try {
     const stateKey = locale || 'default';
     const fileLocation = getStateFileLocation(stateKey);
@@ -84,9 +85,8 @@ async function loadState(locale, aioLibs, logger) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<void>} - A promise that resolves when the state is saved.
  */
-async function saveState(state, aioLibs) {
+async function saveState(locale, state, aioLibs) {
   const { filesLib } = aioLibs;
-  let { locale } = state;
   const stateKey = locale || 'default';
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
@@ -269,7 +269,7 @@ async function enrichTargetWithMetadata(target, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds) {
+async function processPublishBatches(promiseBatches, locale, state, counts, targets, aioLibs, failedIds) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
@@ -288,7 +288,7 @@ async function processPublishBatches(promiseBatches, state, counts, targets, aio
       const ids= records.map(item => item.id);
       failedIds.push(...ids);
     }
-    await saveState(state, aioLibs);
+    await saveState(locale, state, aioLibs);
   }
 }
 
@@ -311,7 +311,7 @@ function enrichWithPath(ids, state, logger){
  */
 async function processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger) {
   if (!ids.length) return;
-
+  logger.debug("processDeletedTargets --- locale", ids, locale);
   try {
     const { filesLib } = aioLibs;
 
@@ -347,12 +347,18 @@ async function processDeletedTargets(ids, locale, state, counts, context, adminA
         } else {
           counts.failed += records.length;
         }
-        await saveState(state, aioLibs);
+        await saveState(locale, state, aioLibs);
       }
     }
   } catch (e) {
     logger.error('Error processing deleted targets:', e);
   }
+}
+
+function getCountry(key){
+  const match = key.match(/webhook-ids-(?:updated|removed)-(\w+)\./);
+  const countryCode = match?.[1] || '';
+  return countryCode;
 }
 
 function makeContext(params) {
@@ -389,15 +395,7 @@ async function fetcher(params, aioLibs) {
     logger, counts, aioLibs
   };
   const timings = new Timings();
-  const adminApi = new AdminAPI({
-    org: orgName,
-    site: siteName,
-  }, sharedContext, { authToken });
-  const locale = 'en-us';
-  logger.info(`Fetching for locale ${locale}`);
-  // load state
-  const state = await loadState(locale, aioLibs, logger);
-  timings.sample('loadedState');
+  
   const context = {
     ...wskContext,
     ...sharedContext,
@@ -405,9 +403,6 @@ async function fetcher(params, aioLibs) {
   const failedIds = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
   try {
-    // start processing preview and publish queues
-    await adminApi.startProcessing();
-    
     // Get the first key only
     let firstKey = null;
     for await (const { keys } of stateLib.list({ match: 'webhook-ids-*' })) {
@@ -416,6 +411,28 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
+
+    const country = getCountry(firstKey);
+    const locales = {
+      cn: 'zh-cn',
+      jp: 'ja-jp'
+    };
+
+    const locale = locales[country] || 'en-us';
+    logger.info(`Fetching for locale ${locale}`);
+
+    // load state
+    const state = await loadState(locale, aioLibs, logger);
+    timings.sample('loadedState');
+
+    const adminApi = new AdminAPI({
+      org: orgName,
+      site: siteName,
+    }, sharedContext, { authToken });
+
+    // start processing preview and publish queues
+    await adminApi.startProcessing();
+
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const idsState = await stateLib.get(firstKey);
@@ -440,7 +457,7 @@ async function fetcher(params, aioLibs) {
             const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
             const filteredPaths = filteredTargets.map(target => ({ 
               id: target.id, 
-              path: getTargetUrl(target, context, false),
+              path: getTargetUrl(target, locale),
               name: target.raw.tgtname
             }));
 
@@ -448,7 +465,7 @@ async function fetcher(params, aioLibs) {
             
             if (filteredPaths.length > 0) {
               const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
-              await processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds);
+              await processPublishBatches(promiseBatches, locale, state, counts, targets, aioLibs, failedIds);
               timings.sample('publishedPaths');
             }
           }
