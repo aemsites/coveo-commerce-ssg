@@ -208,7 +208,7 @@ function shouldProcessTarget(target) {
  * @param {Object} context - The context object with logger and other utilities
  * @returns {Object} Enhanced product with additional metadata
  */
-async function enrichTargetWithMetadata(target, state, context) {
+async function enrichTargetWithMetadata(target, state, context, locale) {
   const { logger } = context;
   // Need to be updated
   const { tgtnumber: skuOriginal } = target?.raw;
@@ -238,7 +238,7 @@ async function enrichTargetWithMetadata(target, state, context) {
     if (shouldProcessTarget(enrichedTarget) && targettHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const targetPath = getTargetUrl(target, context, false);
+        const targetPath = getTargetUrl(target, locale);
         const htmlPath = `/public/pdps${targetPath}`;
         await filesLib.write(htmlPath, targettHtml);
         logger.debug(`Saved HTML for product ${id} to ${htmlPath}`);
@@ -451,7 +451,7 @@ async function fetcher(params, aioLibs) {
             const results = Array.isArray(resp?.results) ? resp.results : [];
             // Enrich targets with metadata
             const targets = await Promise.all(
-              results?.map(target => enrichTargetWithMetadata(target, state, context))
+              results?.map(target => enrichTargetWithMetadata(target, state, context, locale))
             );
             
             const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
