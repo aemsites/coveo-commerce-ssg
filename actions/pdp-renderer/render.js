@@ -151,7 +151,7 @@ function getAntibodyPurity(technique, reagent, fraction){
   return fraction ? fraction : undefined
 }
 
-async function generateProductHtml(product, ctx, state) {
+async function generateProductHtml(product, ctx, state, dirname = __dirname) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
 
@@ -281,7 +281,7 @@ async function generateProductHtml(product, ctx, state) {
     let template = '';
     templateNames.forEach((templateName) => {
       const templateContent = fs.readFileSync(
-        __dirname + `/templates/us/${templateName}.html`,
+        `${dirname}/templates/us/${templateName}.html`,
         'utf-8'
       );
       if (templateContent) {
