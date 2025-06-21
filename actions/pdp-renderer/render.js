@@ -130,10 +130,10 @@ function parseJson(jsonString) {
   }
 }
 
-async function getRelatedTargets(relatedTargets, aioLibs, logger){
+async function getRelatedTargets(relatedTargets, aioLibs, locale, logger){
   const targets = relatedTargets?.split('|');
   // load target state
-  const state = await loadState('en-us', aioLibs, logger);
+  const state = await loadState(locale, aioLibs, logger);
   let additionalTargets = [];
   targets?.forEach(target =>{
     additionalTargets.push(state.ids[target]?.name);
@@ -151,7 +151,7 @@ function getAntibodyPurity(technique, reagent, fraction){
   return fraction ? fraction : undefined
 }
 
-async function generateProductHtml(product, ctx, state, dirname = __dirname) {
+async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
 
@@ -161,8 +161,11 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     product.status = product.raw.adstatus.toLowerCase();
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
-    
-    product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
+    product.metatitle = parseJson(product.raw.admetatitle);
+    product.gentitle = parseJson(product.raw.adgentitle);
+    const [lang, region] = locale.split('-');
+    const normalizedLocale = `${lang}-${region.toUpperCase()}`;
+    product.productmetatitle = product.metatitle[normalizedLocale] || product.gentitle[normalizedLocale] || product.title;
     product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
     product.categorytype = product.raw.adcategorytype;
     product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
@@ -237,7 +240,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     if(product.raw.adrelatedtargets){
       const stateLib = await State.init({});
       const filesLib = await Files.init({});
-      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
     }
 
     // load the templates

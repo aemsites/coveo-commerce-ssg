@@ -78,6 +78,7 @@ const main = async () => {
       product,
       { logger },
       stateObj,
+      'en-us',
       `${__dirname}/../actions/`
     )
     const filePath = `${__dirname}/test.html`
