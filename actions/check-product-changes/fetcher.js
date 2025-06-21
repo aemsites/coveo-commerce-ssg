@@ -196,7 +196,7 @@ function unpublishAndDelete(batches, locale, adminApi) {
  */
 function shouldProcessProduct(product) {
   const { currentHash, newHash } = product;
-  return currentHash !== newHash;
+  return product?.raw?.adseoclasslevelone && product?.raw?.adproductslug && currentHash !== newHash;
 }
 
 /**
