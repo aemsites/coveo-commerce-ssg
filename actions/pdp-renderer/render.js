@@ -29,7 +29,8 @@ Handlebars.registerHelper('getReactType', function(context, field) {
 });
 
 Handlebars.registerHelper('getReactNotes', function(context, field) {
-  return context[field]?.notes || '';
+  const escapedString = context[field]?.notes.replace(/"/g, '\\"');
+  return escapedString || '';
 });
 
 Handlebars.registerHelper('getReactDilution', function(context, field) {
