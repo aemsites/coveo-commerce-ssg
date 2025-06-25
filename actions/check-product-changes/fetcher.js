@@ -409,6 +409,9 @@ async function fetcher(params, aioLibs) {
   }
   const failedSkus = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
+
+  let adminApi;
+  
   try {
     // Get the first key only
     let firstKey = null;
@@ -432,7 +435,7 @@ async function fetcher(params, aioLibs) {
     const state = await loadState(locale, aioLibs, logger);
     timings.sample('loadedState');
 
-    const adminApi = new AdminAPI({
+    adminApi = new AdminAPI({
       org: orgName,
       site: siteName,
     }, sharedContext, { authToken });
