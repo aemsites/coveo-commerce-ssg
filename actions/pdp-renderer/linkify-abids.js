@@ -84,7 +84,7 @@ const linkifyAbids = (product, skus, logger) => {
     return {
       ...image,
       imgLegend: linkifyHandler(image.imgLegend || ''),
-      imagesusage: linkifyHandler(image.imgImageUsageJSON || ''),
+      imagesusage: JSON.parse(linkifyHandler(image.imgImageUsageJSON || '')),
     }
   })
   updatedProduct.applications = product.applications?.map((app) => ({
