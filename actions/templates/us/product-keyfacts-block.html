@@ -282,7 +282,7 @@
             {{/if}}
         {{/if}}
 
-        {{#if (isOneOf raw.adseoclasslevelone values="reagents,panels,dyes,buffers,media")}}
+        {{#if (isOneOf raw.adseoclasslevelone values="antibiotics,beads,blood-derived-fluids,buffers,dyes,equipment-tools,lab-consumables,media,membranes,nucleic-acids,panels,reagents,slides,standards,vectors")}}
             {{#if raw.adapplications}}
             <div>
                 <h6>Applications</h6>
@@ -869,7 +869,7 @@
             {{/if}}
         {{/if}}
 
-        {{#if (isOneOf raw.adseoclasslevelone values="antibody-arrays,antibody-panels")}}
+        {{#if (isOneOf raw.adseoclasslevelone values="antibody-arrays,antibody-panels,multiplex-assay-kits")}}
             {{#if raw.adkitassaytype}}
             <div>
                 <h6>Assay type</h6>

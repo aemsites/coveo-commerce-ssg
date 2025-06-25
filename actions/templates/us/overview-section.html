@@ -1,4 +1,4 @@
-{{#if isUnpublishedProduct}}
+{{#if (isOneOf raw.adstatus values="inactive,discontinued,quarantined")}}
 <div>
   {{> product-header-inactive-block class='inactive-product'}}
   {{> product-downloads-inactive-block class='inactive-product'}}
