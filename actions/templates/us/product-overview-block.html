@@ -17,7 +17,7 @@
       <div><p>{{{this.imgLegend}}}</p></div>
 
       {{#if this.imagesusage}}
-        {{#each this.imagesusage.imageBlocks}}
+        {{#each this.imagesusage}}
           {{#if (isOneOf this.type values="primary,sample")}}
             {{#each this.lanes}}
               {{#if this.description}}
@@ -28,7 +28,7 @@
           {{/if}}
         {{/each}}
 
-        {{#each this.imagesusage.imageBlocks}}
+        {{#each this.imagesusage}}
           {{#if (eq this.type "secondary")}}
             {{#each this.lanes}}
               {{#if this.description}}
