@@ -194,6 +194,10 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     })
     product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
     product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
+    product.purityassessment = product.raw.adpurityassessment || '';
+    if(product.purityassessment){
+      product.purity = product.purity + ' ' + product.purityassessment;
+    }
     product.applications = parseJson(product.raw.adapplicationreactivityjson);
     product.tabledata = parseJson(product.raw.reactivitytabledata);
     product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
