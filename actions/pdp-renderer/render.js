@@ -29,7 +29,7 @@ Handlebars.registerHelper('getReactType', function(context, field) {
 });
 
 Handlebars.registerHelper('getReactNotes', function(context, field) {
-  const escapedString = context[field]?.notes.replace(/"/g, '\\"');
+  const escapedString = context[field]?.notes?.replace(/"/g, '\\"');
   return escapedString || '';
 });
 
@@ -54,11 +54,11 @@ Handlebars.registerHelper("isValidImageUrl", function(image, options) {
 });
 
 Handlebars.registerHelper('replaceSlash', function(text) {
-  return text.replace(/[^a-zA-Z0-9]/g, "");
+  return text?.replace(/[^a-zA-Z0-9]/g, "");
 });
 
 Handlebars.registerHelper('stripTags', function(text) {
-  return text.replace(/(<([^>]+)>)/gi, "");
+  return text?.replace(/(<([^>]+)>)/gi, "");
 });
 
 Handlebars.registerHelper('toLowerCase', function(str) {
