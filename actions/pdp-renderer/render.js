@@ -137,7 +137,7 @@ async function getRelatedTargets(relatedTargets, aioLibs, logger){
   const state = await loadState('en-us', aioLibs, logger);
   let additionalTargets = [];
   targets?.forEach(target =>{
-    additionalTargets.push(state.ids[target]?.name);
+    additionalTargets.push(state.ids[target?.toLowerCase()]?.name);
   })
   return additionalTargets.join(',');
 }
