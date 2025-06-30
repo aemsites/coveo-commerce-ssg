@@ -352,6 +352,7 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
 }
 
 function getCountry(key){
+  if(!key) return '';
   const match = key.match(/webhook-skus-(?:updated|removed)-(\w+)\./);
   const countryCode = match?.[1] || '';
   return countryCode;
