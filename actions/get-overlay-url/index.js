@@ -45,9 +45,11 @@ async function main(params) {
     
     const presignUrl = await filesLib.generatePresignURL('check-product-changes/en-us.csv', { expiryInSeconds: 3600 })
     const presignTargetUrl = await filesLib.generatePresignURL('check-target-changes/en-us.csv', { expiryInSeconds: 3600 })
+    const presignSanitizedtUrl = await filesLib.generatePresignURL('check-target-changes/sanitized/en-us.csv', { expiryInSeconds: 3600 })
 
     const presignUrlJP = await filesLib.generatePresignURL('check-product-changes/ja-jp.csv', { expiryInSeconds: 3600 })
     const presignTargetUrlJP = await filesLib.generatePresignURL('check-target-changes/ja-jp.csv', { expiryInSeconds: 3600 })
+    const presignSanitizedtUrlJP = await filesLib.generatePresignURL('check-target-changes/sanitized/ja-jp.csv', { expiryInSeconds: 3600 })
 
     // Delete the test file
     logger.info(`Deleting test file "${testFileName}"`);
@@ -57,7 +59,15 @@ async function main(params) {
     logger.info('Operation completed successfully');
     return {
       statusCode: 200,
-      body: { overlayUrl: `${baseUrl}-public/public/pdps`, parseCSVUrl: `${presignUrl}`, parseCSVTargetUrl: `${presignTargetUrl}`,  parseCSVUrlJP: `${presignUrlJP}`, parseCSVTargetUrlJP: `${presignTargetUrlJP}`}
+      body: { 
+        overlayUrl: `${baseUrl}-public/public/pdps`, 
+        parseCSVUrl: `${presignUrl}`, 
+        parseCSVTargetUrl: `${presignTargetUrl}`, 
+        parseCSVSanitizedtUrl: `${presignSanitizedtUrl}`, 
+        parseCSVUrlJP: `${presignUrlJP}`, 
+        parseCSVTargetUrlJP: `${presignTargetUrlJP}`,
+        parseCSVSanitizedtUrlJP: `${presignSanitizedtUrlJP}`
+      }
     };
   } catch (error) {
     logger.error(`Error during file operations: ${error.message}`);
