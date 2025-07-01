@@ -45,11 +45,11 @@ async function main(params) {
     
     const presignUrl = await filesLib.generatePresignURL('check-product-changes/en-us.csv', { expiryInSeconds: 3600 })
     const presignTargetUrl = await filesLib.generatePresignURL('check-target-changes/en-us.csv', { expiryInSeconds: 3600 })
-    const presignSanitizedtUrl = await filesLib.generatePresignURL('check-target-changes/sanitized/en-us.csv', { expiryInSeconds: 3600 })
+    const presignSanitizedtUrl = await filesLib.generatePresignURL('check-product-changes/sanitized/en-us.csv', { expiryInSeconds: 3600 })
 
     const presignUrlJP = await filesLib.generatePresignURL('check-product-changes/ja-jp.csv', { expiryInSeconds: 3600 })
     const presignTargetUrlJP = await filesLib.generatePresignURL('check-target-changes/ja-jp.csv', { expiryInSeconds: 3600 })
-    const presignSanitizedtUrlJP = await filesLib.generatePresignURL('check-target-changes/sanitized/ja-jp.csv', { expiryInSeconds: 3600 })
+    const presignSanitizedtUrlJP = await filesLib.generatePresignURL('check-product-changes/sanitized/ja-jp.csv', { expiryInSeconds: 3600 })
 
     // Delete the test file
     logger.info(`Deleting test file "${testFileName}"`);
