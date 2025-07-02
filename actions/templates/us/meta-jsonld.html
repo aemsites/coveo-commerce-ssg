@@ -76,7 +76,9 @@
     {{#unless @first}},{{/unless}}
     {{{json property}}}
     {{/each}}
-  ],
+  ]
+  {{#if associatedproducts}}
+  ,
   "isRelatedTo":[
     {{#each associatedproducts}}
     {{#if @last}}
@@ -92,5 +94,6 @@
     {{/if}}
     {{/each}}
   ]
+  {{/if}}
 }
 </script>

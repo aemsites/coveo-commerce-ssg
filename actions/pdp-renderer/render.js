@@ -152,6 +152,21 @@ function getAntibodyPurity(technique, reagent, fraction){
   return fraction ? fraction : undefined
 }
 
+function getFormattedDate(){
+  const date = new Date();
+
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+
+  const hh = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  const ss = String(date.getUTCSeconds()).padStart(2, '0');
+
+  const isoWithoutMs = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+  return isoWithoutMs;
+}
+
 async function generateProductHtml(product, ctx, state, dirname = __dirname) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
@@ -160,6 +175,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus?.toLowerCase();
+    product.publihseddate = getFormattedDate();
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     
