@@ -396,6 +396,15 @@ function getProductUrl(product, locale) {
   return path;
 }
 
+function getSanitizedProductUrl(product, locale){
+  const path = getProductUrl(product, locale);
+  if (/-{2,}/.test(path)) {
+    const sanitizedPath = path?.replace(/-+/g, '-');
+    return sanitizedPath;
+  }
+  return path;
+}
+
 /**
  * Constructs the URL of a product.
  *
@@ -442,6 +451,7 @@ module.exports = {
   requestSpreadsheet,
   isValidUrl,
   getProductUrl,
+  getSanitizedProductUrl,
   getTargetUrl,
   mapLocale,
   FILE_PREFIX,

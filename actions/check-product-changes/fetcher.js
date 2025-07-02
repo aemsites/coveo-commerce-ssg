@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { isValidUrl, getProductUrl } = require('../utils');
+const { isValidUrl, getProductUrl, getSanitizedProductUrl } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
@@ -22,6 +22,11 @@ const BATCH_SIZE = 75;
 
 function getStateFileLocation(stateKey) {
   return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
+}
+
+
+function getSanitizedFileLocation(stateKey) {
+  return `${FILE_PREFIX}/sanitized/${stateKey}.${FILE_EXT}`;
 }
 
 /**
@@ -77,6 +82,46 @@ async function loadState(locale, aioLibs, logger) {
 /**
  * Saves the state to the cloud file system.
  *
+ * @param {String} locale - The locale (or store code).
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
+ */
+async function loadSanitizedState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
+  const { filesLib } = aioLibs;
+  const stateObj = { locale };
+  try {
+    const stateKey = locale || 'default';
+    const fileLocation = getSanitizedFileLocation(stateKey);
+    const buffer = await filesLib.read(fileLocation);
+    const stateData = buffer?.toString();
+    if (stateData) {
+      const lines = stateData.split('\n');
+      stateObj.skus = lines.reduce((acc, line) => {
+        // the format of the state object is:
+        // <sku1>,<timestamp>,<hash>,<path>
+        // <sku2>,<timestamp>,<hash>,<path>
+        // ...
+        // each row is a set of SKUs, last previewed timestamp and hash
+        const [sku, source, destination] = line.split(',');
+        acc[sku] = { source, destination };
+        return acc;
+      }, {});
+    } else {
+      stateObj.skus = {};
+    }
+  // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    stateObj.skus = {};
+  }
+  return stateObj;
+}
+
+/**
+ * Saves the state to the cloud file system.
+ *
  * @param {PollerState} state - The object describing state and metadata.
  * @param {Object} aioLibs - The libraries required for loading the state.
  * @param {Object} aioLibs.filesLib - The file library for reading state files.
@@ -91,6 +136,28 @@ async function saveState(locale, state, aioLibs) {
     ...Object.entries(state.skus)
       .map(([sku, { lastPreviewedAt, hash, path }]) => {
         return `${sku},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
+      }),
+  ].join('\n');
+  return await filesLib.write(fileLocation, csvData);
+}
+
+/**
+ * Saves the state to the cloud file system.
+ *
+ * @param {PollerState} state - The object describing state and metadata.
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<void>} - A promise that resolves when the state is saved.
+ */
+async function saveSanitizedState(locale, state, aioLibs) {
+  const { filesLib } = aioLibs;
+  const stateKey = locale || 'default';
+  const fileLocation = getSanitizedFileLocation(stateKey);
+  const csvData = [
+    ...Object.entries(state.skus)
+      .map(([sku, { source, destination }]) => {
+        return `${sku},${source},${destination}`;
       }),
   ].join('\n');
   return await filesLib.write(fileLocation, csvData);
@@ -206,8 +273,8 @@ function shouldProcessProduct(product) {
  * @param {Object} context - The context object with logger and other utilities
  * @returns {Object} Enhanced product with additional metadata
  */
-async function enrichProductWithMetadata(product, state, context, locale) {
-  const { logger } = context;
+async function enrichProductWithMetadata(product, state, sanitizedState, context, locale) {
+  const { logger, aioLibs } = context;
   const { sku: skuOriginal, adproductslug: urlKey } = product?.raw;
   const sku = skuOriginal.split('-')[0].toLowerCase();
   logger.info('sku - urlKey', sku, urlKey);
@@ -216,6 +283,16 @@ async function enrichProductWithMetadata(product, state, context, locale) {
   let productHtml = null;
   
   try {
+    if (/-{2,}/.test(product?.raw?.adproductslug)) {
+        const source = getProductUrl(product, locale);
+        const destination = getSanitizedProductUrl(product, locale);
+      sanitizedState.skus[sku] = {
+        sku,
+        source,
+        destination
+      };
+      saveSanitizedState(locale, sanitizedState, aioLibs);
+    }
     productResponse = await generateProductHtml(product, context, state);
     productHtml = productResponse?.body;
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
@@ -235,7 +312,7 @@ async function enrichProductWithMetadata(product, state, context, locale) {
     if (shouldProcessProduct(enrichedProduct) && productHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const productPath = getProductUrl(product, locale);
+        const productPath = getSanitizedProductUrl(product, locale);
         const htmlPath = `/public/pdps${productPath}`;
         await filesLib.write(htmlPath, productHtml);
         logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
@@ -434,6 +511,7 @@ async function fetcher(params, aioLibs) {
     logger.info(`Fetching for locale ${locale}`);
     // load state
     const state = await loadState(locale, aioLibs, logger);
+    const sanitizedState = await loadSanitizedState(locale, aioLibs, logger);
     timings.sample('loadedState');
 
     adminApi = new AdminAPI({
@@ -463,13 +541,13 @@ async function fetcher(params, aioLibs) {
             const results = Array.isArray(resp?.results) ? resp.results : [];
             // Enrich products with metadata
             const products = await Promise.all(
-              results?.map(product => enrichProductWithMetadata(product, state, context, locale))
+              results?.map(product => enrichProductWithMetadata(product, state, sanitizedState, context, locale))
             );
             
             const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
             const filteredPaths = filteredProducts.map(product => ({ 
               sku: product.sku, 
-              path: getProductUrl(product, locale)
+              path: getSanitizedProductUrl(product, locale)
             }));
 
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
