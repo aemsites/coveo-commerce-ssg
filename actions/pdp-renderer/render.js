@@ -152,6 +152,16 @@ function getAntibodyPurity(technique, reagent, fraction){
   return fraction ? fraction : undefined
 }
 
+function sanitizeString(str) {
+  return str
+    .replace(/\\+_/g, '_')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function getFormattedDate(){
   const date = new Date();
 
@@ -204,6 +214,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     product.notes = parseJson(product.raw?.adnotesjson);
     product.images = parseJson(product.raw.imagesjson);
     product.images?.forEach((image) =>{
+      image.santizedTitle = sanitizeString(image.imgTitle);
       image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
       image.legend = image.legend?.replace(/"/g, '\\"');
       image.imagesusage = parseJson(image?.imgImageUsageJSON);

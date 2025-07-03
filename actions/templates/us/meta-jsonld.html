@@ -36,15 +36,15 @@
         {
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}",
-            "caption": "{{this.imgTitle}}"
+            "name": "{{this.santizedTitle}}",
+            "caption": "{{this.santizedTitle}}"
         }
     {{else}}
         {
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}",
-            "caption": "{{this.imgTitle}}"
+            "name": "{{this.santizedTitle}}",
+            "caption": "{{this.santizedTitle}}"
         },
     {{/if}}
     {{/isValidImageUrl}}
