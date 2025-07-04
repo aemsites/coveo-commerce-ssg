@@ -106,6 +106,26 @@
             </div>
             {{/if}}
 
+        {{#if relatedimmunogens}}
+        <div>
+            <h6>Immunogen</h6>            
+            <div>
+                <em>This product was produced with the following immunogens:</em>
+            </div>
+            {{#each relatedimmunogens}}
+            {{#if this.description}}
+            <p>
+                {{this.description}}
+                {{#if this.databaseLinks}}
+                {{#each this.databaseLinks}}
+                Database link <a href="{{this.value}}">{{this.label}}</a>
+                {{/each}}
+                {{/if}}
+            </p>
+            {{/if}}
+            {{/each}}
+        </div>
+        {{else}}            
             {{#if (and immunogenlinkjson immunogendesc)}}
             <div>
                 <h6>Immunogen</h6>
@@ -117,6 +137,7 @@
                 <p>{{raw.adimmunogencommercialsensitivity}}</p>
             </div>
             {{/if}}
+        {{/if}}
 
             {{#if raw.adantibodyepitope}}
             <div>
@@ -255,6 +276,26 @@
             </div>
             {{/if}}
 
+        {{#if relatedimmunogens}}
+        <div>
+            <h6>Immunogen</h6>            
+            <div>
+                <em>This product was produced with the following immunogens:</em>
+            </div>
+            {{#each relatedimmunogens}}
+            {{#if this.description}}
+            <p>
+                {{this.description}}
+                {{#if this.databaseLinks}}
+                {{#each this.databaseLinks}}
+                Database link <a href="{{this.value}}">{{this.label}}</a>
+                {{/each}}
+                {{/if}}
+            </p>
+            {{/if}}
+            {{/each}}
+        </div>
+        {{else}}            
             {{#if (and immunogenlinkjson immunogendesc)}}
             <div>
                 <h6>Immunogen</h6>
@@ -266,6 +307,7 @@
                 <p>{{raw.adimmunogencommercialsensitivity}}</p>
             </div>
             {{/if}}
+        {{/if}}
 
             {{#if raw.adantibodyepitope}}
             <div>
