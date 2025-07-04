@@ -186,6 +186,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate();
+    logger.debug("published Date :",publihseddate);
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     
