@@ -153,7 +153,7 @@ function createBatches(ids) {
     if (!acc.length || acc[acc.length - 1].length === BATCH_SIZE) {
       acc.push([]);
     }
-    acc[acc.length - 1].push(id);
+    acc[acc.length - 1].push(id?.toLowerCase());
 
     return acc;
   }, []);
