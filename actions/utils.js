@@ -279,7 +279,7 @@ async function requestCOVEO(coveoUrl, skus, ctx) {
 async function requestTargetCOVEO(coveoUrl, ids, ctx) {
   const { logger } = ctx;
   const body = {
-    context: { type: "target", number: ids },
+    context: { type: "target", number: ids, host: ctx.config.coveoHost },
     pipeline: ctx.config.coveoPipeline,
     searchHub: ctx.config.coveoSearchHub,
     numberOfResults: ids.length,
