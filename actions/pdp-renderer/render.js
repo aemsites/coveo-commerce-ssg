@@ -187,91 +187,94 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate();
     logger.debug("published Date :",product.publihseddate);
-    product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
-    product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
-    
-    product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
-    product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
-    product.categorytype = product.raw.adcategorytype;
-    product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
-    product.targetdata = parseJson(product.raw.targetjson);
-    product.target = parseJson(product.raw.adprimarytargetjson);
-    product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
-    product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
-    product.targetfunction = product.targetrelevance?.function?.join('. ');
-    product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
-    product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
-    product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
-    product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
-    product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
-    if (product.celltargetattr) {
-      product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
-      product.celltargetattr.strlocus = product.celltargetattr?.strLocus?.join(', ');
-      product.celltargetattr.cultureproperties = product.celltargetattr?.cultureProperties?.join(', ');
-    }
-    product.cellattr = parseJson(product.raw.adcelllineattributesjson);
-    if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
-    product.conjugations = parseJson(product.raw.adconjugationsjson);
-    product.notes = parseJson(product.raw?.adnotesjson);
-    product.images = parseJson(product.raw.imagesjson);
-    product.images?.forEach((image) =>{
-      image.santizedTitle = sanitizeString(image.imgTitle);
-      image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
-      image.legend = image.legend?.replace(/"/g, '\\"');
-      image.imagesusage = parseJson(image?.imgImageUsageJSON);
-    })
-    product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
-    product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
-    product.purityassessment = product.raw.adpurityassessment || '';
-    if(product.purityassessment){
-      product.purity = product.purity + ' ' + product.purityassessment;
-    }
-    product.applications = parseJson(product.raw.adapplicationreactivityjson);
-    product.tabledata = parseJson(product.raw.reactivitytabledata);
-    product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
-    product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
-    product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
-    if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.categoryType?.toLowerCase()?.replace(/ /g, '-');
-    product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
-    product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
-      if (toprecommendedproduct) {
-        toprecommendedproduct.type = toprecommendedproduct?.categoryType?.toLowerCase()?.replace(/ /g, '-');
+
+    if(product.status !== 'inactive' || product.status !== 'quarantined'){
+      product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
+      product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
+      
+      product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
+      product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
+      product.categorytype = product.raw.adcategorytype;
+      product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
+      product.targetdata = parseJson(product.raw.targetjson);
+      product.target = parseJson(product.raw.adprimarytargetjson);
+      product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
+      product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
+      product.targetfunction = product.targetrelevance?.function?.join('. ');
+      product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
+      product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
+      product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
+      product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
+      product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
+      if (product.celltargetattr) {
+        product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
+        product.celltargetattr.strlocus = product.celltargetattr?.strLocus?.join(', ');
+        product.celltargetattr.cultureproperties = product.celltargetattr?.cultureProperties?.join(', ');
       }
-    });
-    if (product.alternateproducts) {
-      product.toprecommendedproducts = [];
-    }
-    product.publications = parseJson(product.raw.adpublicationsjson)?.items;
-    product.sampletypes = parseJson(product.raw.adkitsampletypesjson);
+      product.cellattr = parseJson(product.raw.adcelllineattributesjson);
+      if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
+      product.conjugations = parseJson(product.raw.adconjugationsjson);
+      product.notes = parseJson(product.raw?.adnotesjson);
+      product.images = parseJson(product.raw.imagesjson);
+      product.images?.forEach((image) =>{
+        image.santizedTitle = sanitizeString(image.imgTitle);
+        image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
+        image.legend = image.legend?.replace(/"/g, '\\"');
+        image.imagesusage = parseJson(image?.imgImageUsageJSON);
+      })
+      product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
+      product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
+      product.purityassessment = product.raw.adpurityassessment || '';
+      if(product.purityassessment){
+        product.purity = product.purity + ' ' + product.purityassessment;
+      }
+      product.applications = parseJson(product.raw.adapplicationreactivityjson);
+      product.tabledata = parseJson(product.raw.reactivitytabledata);
+      product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
+      product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
+      product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
+      if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.categoryType?.toLowerCase()?.replace(/ /g, '-');
+      product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
+      product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
+        if (toprecommendedproduct) {
+          toprecommendedproduct.type = toprecommendedproduct?.categoryType?.toLowerCase()?.replace(/ /g, '-');
+        }
+      });
+      if (product.alternateproducts) {
+        product.toprecommendedproducts = [];
+      }
+      product.publications = parseJson(product.raw.adpublicationsjson)?.items;
+      product.sampletypes = parseJson(product.raw.adkitsampletypesjson);
 
-    product.publications?.forEach((publication) => {
-      publication.publicationYear = new Date(publication.publicationDate).getFullYear();
-    });
-    product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
-    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
-    const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
-    product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
-    product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
-    product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
-    product.immunogendesc = product.raw.adimmunogendescription;
-    product.relatedimmunogens = parseJson(product.raw.adrelatedimmunogensjson);
-    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
-    product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
-    product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
-    product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-    product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
-    product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
-    product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
-    product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
-    product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
-    product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
-    product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
-    product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
+      product.publications?.forEach((publication) => {
+        publication.publicationYear = new Date(publication.publicationDate).getFullYear();
+      });
+      product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
+      product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+      const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
+      product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
+      product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
+      product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
+      product.immunogendesc = product.raw.adimmunogendescription;
+      product.relatedimmunogens = parseJson(product.raw.adrelatedimmunogensjson);
+      product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
+      product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
+      product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
+      product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
+      product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
+      product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
+      product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
+      product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
+      product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+      product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
+      product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+      product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
-    if(product.raw.adrelatedtargets){
-      const stateLib = await State.init({});
-      const filesLib = await Files.init({});
-      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+      if(product.raw.adrelatedtargets){
+        const stateLib = await State.init({});
+        const filesLib = await Files.init({});
+        product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+      }
     }
 
     // load the templates
