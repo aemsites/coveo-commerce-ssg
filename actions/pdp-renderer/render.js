@@ -162,8 +162,8 @@ function sanitizeString(str) {
     .replace(/'/g, '&#039;');
 }
 
-function getFormattedDate(){
-  const date = new Date();
+function getFormattedDate(previewedDate = new Date()){
+  const date = new Date(previewedDate);
 
   const yyyy = date.getUTCFullYear();
   const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -185,7 +185,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus?.toLowerCase();
-    product.publihseddate = getFormattedDate();
+    product.publihseddate = getFormattedDate(state.skus[sku]?.lastPreviewedAt);
     logger.debug("published Date :",product.publihseddate);
 
     if(product.status !== 'inactive' || product.status !== 'quarantined'){
