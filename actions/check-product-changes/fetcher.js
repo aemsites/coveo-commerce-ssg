@@ -545,7 +545,7 @@ async function fetcher(params, aioLibs) {
             );
             
             const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-            const filteredPaths = filteredProducts.map(product => ({ 
+            let filteredPaths = filteredProducts.map(product => ({ 
               sku: product.sku, 
               path: getSanitizedProductUrl(product, locale)
             }));
