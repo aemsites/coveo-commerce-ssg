@@ -549,7 +549,7 @@ async function fetcher(params, aioLibs) {
               sku: product.sku, 
               path: getSanitizedProductUrl(product, locale)
             }));
-
+            filteredPaths = filteredPaths.filter(item => item !== '/en-us/products/unavailable/#NAME?')
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
             
             if (filteredPaths.length > 0) {
