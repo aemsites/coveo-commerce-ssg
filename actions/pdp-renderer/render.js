@@ -185,7 +185,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus?.toLowerCase();
-    product.publihseddate = getFormattedDate(state.skus[product?.raw?.ec_product_id]?.lastPreviewedAt);
+    product.publihseddate = getFormattedDate(product?.raw?.sysindexeddate);
     logger.debug("published Date :",product.publihseddate);
 
     if(product.status !== 'inactive' || product.status !== 'quarantined'){
