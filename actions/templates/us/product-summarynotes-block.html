@@ -9,7 +9,15 @@
         {{#each summarynotes}}
         <div>
             <div>
-                <h5>{{this.noteType}}</h5>
+                {{#if (eq this.noteType "targetSummaryMechanical")}}
+                <h5>Activity summary</h5>
+                {{else if (eq this.noteType "targetSummaryBiological")}}
+                <h5>Biological function summary</h5>
+                {{else if (eq this.noteType "disease")}}
+                <h5>Associated diseases and disorders</h5>
+                {{else}}
+                <h5>Pathways</h5>
+                {{/if}}
                 <p>{{#stripTags this.statement}}{{this.statement}}{{/stripTags}}</p>
             </div>
         </div>
