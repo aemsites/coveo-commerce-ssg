@@ -149,7 +149,7 @@ async function generateTargetHtml(target, ctx, state) {
     logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
 
     target.title = `${target.raw.tgtname} | Abcam `;
-    target.publihseddate = getFormattedDate(product?.raw?.sysindexeddate);
+    target.publihseddate = getFormattedDate(target?.raw?.sysindexeddate);
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);
     target.function = target?.relevancejson?.function;
     target.involvementindisease = target?.relevancejson?.involvementInDisease;
