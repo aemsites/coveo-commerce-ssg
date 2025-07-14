@@ -5,11 +5,6 @@ const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
 const { loadState } = require('../check-target-changes/target-fetcher');
-const createDOMPurify = require('dompurify');
-const { JSDOM } = require('jsdom');
-
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -339,10 +334,9 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     // render the main template with the content
     const linkifiedProduct = linkifyAbids(product, state.skus, logger);
     const html = template(linkifiedProduct);
-    const cleanHtml = DOMPurify.sanitize(html);
     const response = {
       statusCode: 200,
-      body: cleanHtml,
+      body: html,
     };
 
     logger.info(`${response.statusCode}: successful request`);
