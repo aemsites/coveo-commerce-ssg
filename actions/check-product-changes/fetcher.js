@@ -419,6 +419,8 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
           });
         } else {
           counts.failed += records.length;
+          const skus= records.map(item => item.sku);
+          failedSkus.push(...skus);
         }
         await saveState(locale, state, aioLibs);
       }

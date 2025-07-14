@@ -14,7 +14,7 @@
       <div><p>{{ alternateproducts.reviewsSummary.numberOfReviews }} Reviews</p></div>
    </div>
    <div>
-      <div><a href="{{concat '/en-us/product' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat '/en-us/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
    </div>
    {{/if}}
 
@@ -42,7 +42,7 @@
          {{/if}}
          {{#if this.productSlug}}
          <div>
-            <div><a href="{{concat '/en-us/product' this.type this.productSlug}}" target="_blank">View product</a></div>
+            <div><a href="{{concat '/en-us/products' this.type this.productSlug}}" target="_blank">View product</a></div>
          </div>
          {{/if}}
       {{/each}}
