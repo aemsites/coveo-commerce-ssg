@@ -108,21 +108,26 @@
 
         {{#if relatedimmunogens}}
         <div>
-            <h6>Immunogen</h6>            
+            <h6>Immunogen</h6>
+            {{#if (gt (len relatedimmunogens 0) 1)}}
             <div>
                 <em>This product was produced with the following immunogens:</em>
             </div>
-            {{#each relatedimmunogens}}
-            {{#if this.description}}
-            <p>
-                {{this.description}}
-                {{#if this.databaseLinks}}
-                {{#each this.databaseLinks}}
-                Database link <a href="{{this.value}}">{{this.label}}</a>
-                {{/each}}
-                {{/if}}
-            </p>
             {{/if}}
+            {{#each relatedimmunogens}}
+                {{#if this.sensitivity}}
+                    <p>{{this.sensitivity}}</p>
+                {{/if}}
+                {{#if this.description}}
+                <p>
+                    {{this.description}}
+                    {{#if this.databaseLinks}}
+                    {{#each this.databaseLinks}}
+                    Database link <a href="{{this.value}}">{{this.label}}</a>
+                    {{/each}}
+                    {{/if}}
+                </p>
+                {{/if}}
             {{/each}}
         </div>
         {{else}}            
@@ -278,21 +283,26 @@
 
         {{#if relatedimmunogens}}
         <div>
-            <h6>Immunogen</h6>            
+            <h6>Immunogen</h6>
+            {{#if (gt (len relatedimmunogens 0) 1)}}
             <div>
                 <em>This product was produced with the following immunogens:</em>
             </div>
-            {{#each relatedimmunogens}}
-            {{#if this.description}}
-            <p>
-                {{this.description}}
-                {{#if this.databaseLinks}}
-                {{#each this.databaseLinks}}
-                Database link <a href="{{this.value}}">{{this.label}}</a>
-                {{/each}}
-                {{/if}}
-            </p>
             {{/if}}
+            {{#each relatedimmunogens}}
+                {{#if this.sensitivity}}
+                    <p>{{this.sensitivity}}</p>
+                {{/if}}
+                {{#if this.description}}
+                <p>
+                    {{this.description}}
+                    {{#if this.databaseLinks}}
+                    {{#each this.databaseLinks}}
+                    Database link <a href="{{this.value}}">{{this.label}}</a>
+                    {{/each}}
+                    {{/if}}
+                </p>
+                {{/if}}
             {{/each}}
         </div>
         {{else}}            
