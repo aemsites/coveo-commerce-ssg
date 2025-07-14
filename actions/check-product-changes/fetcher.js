@@ -382,7 +382,7 @@ function enrichWithPath(skus, state, logger){
 /**
  * Identifies and processes products that need to be deleted
  */
-async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
+async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus) {
   if (!skus.length) return;
   logger.debug("processUnpublishBatches --- locale", skus, locale);
   try {
@@ -561,7 +561,7 @@ async function fetcher(params, aioLibs) {
             }
           }
         } else {
-          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger); 
+          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
         }
         
         // After processing, delete the key
