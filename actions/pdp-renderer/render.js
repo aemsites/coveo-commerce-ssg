@@ -37,6 +37,10 @@ Handlebars.registerHelper('getReactDilution', function(context, field) {
   return context[field]?.recommendeddilution || '';
 });
 
+Handlebars.registerHelper('escapeQuotes', function (text) {
+  return text.replace(/"/g, '\\"');
+});
+
 Handlebars.registerHelper("concat", function(...args) {
   return args.filter(arg => typeof arg === "string").join("/");
 });
