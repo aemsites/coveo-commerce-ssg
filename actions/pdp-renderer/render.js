@@ -298,6 +298,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
       "product-reactivity-block",
       "product-datasheet-block",
       "product-protocols-block",
+      "product-promise-block",
       "product-storage-block",
       "product-notes-block",
       "product-summarynotes-block",
