@@ -74,7 +74,7 @@
                         {{#each species}}           
                             "reactivity":"{{this.suitability}}",
                             "dilution-info":"{{this.recommendedDilution}}",
-                            "notes":"{{this.notes}}"
+                            "notes":"{{escapeQuotes this.notes}}"
                         {{/each}}
                     }
                     {{else}}
@@ -82,7 +82,7 @@
                         {{#each species}}           
                             "reactivity":"{{this.suitability}}",
                             "dilution-info":"{{this.recommendedDilution}}",
-                            "notes":"{{this.notes}}"
+                            "notes":"{{escapeQuotes this.notes}}"
                         {{/each}}
                     },
                     {{/if}}

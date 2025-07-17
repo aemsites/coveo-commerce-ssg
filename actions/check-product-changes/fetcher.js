@@ -382,7 +382,7 @@ function enrichWithPath(skus, state, logger){
 /**
  * Identifies and processes products that need to be deleted
  */
-async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
+async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus) {
   if (!skus.length) return;
   logger.debug("processUnpublishBatches --- locale", skus, locale);
   try {
@@ -419,6 +419,8 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
           });
         } else {
           counts.failed += records.length;
+          const skus= records.map(item => item.sku);
+          failedSkus.push(...skus);
         }
         await saveState(locale, state, aioLibs);
       }
@@ -545,11 +547,11 @@ async function fetcher(params, aioLibs) {
             );
             
             const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-            const filteredPaths = filteredProducts.map(product => ({ 
+            let filteredPaths = filteredProducts.map(product => ({ 
               sku: product.sku, 
               path: getSanitizedProductUrl(product, locale)
             }));
-
+            filteredPaths = filteredPaths.filter(item => item !== '/en-us/products/unavailable/#NAME?')
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
             
             if (filteredPaths.length > 0) {
@@ -559,7 +561,7 @@ async function fetcher(params, aioLibs) {
             }
           }
         } else {
-          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger); 
+          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
         }
         
         // After processing, delete the key

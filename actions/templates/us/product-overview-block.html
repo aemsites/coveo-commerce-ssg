@@ -6,10 +6,10 @@
   {{#isValidImageUrl this}}
   <div>
     <div>
-      <img src=https://content.abcam.com/{{ this.imgSeoUrl }}  alt="{{this.imgTitle}}">
+      <img src="https://content.abcam.com/{{ this.imgSeoUrl }}/_jcr_content/renditions/webp-768.webp"  alt="{{this.imgTitle}}"/>
     </div>
     <div>
-      <div><dd>{{this.imgApplication}}</dd></div>
+      <div><dl><dd>{{this.imgApplication}}</dd></dl></div>
       {{#if this.imgSourceName}}
       <strong>{{this.imgSourceName}}{{#if this.imgSourceExternalId}}<strong>{{this.imgSourceExternalId}}</strong>{{/if}}</strong>
       {{/if}}
