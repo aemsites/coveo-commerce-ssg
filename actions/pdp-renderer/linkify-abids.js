@@ -55,7 +55,7 @@ const linkifyContent = (content, currentProductCode, skus, logger) => {
       return abId
     }
 
-    return `<a href="${href}">${abId}</a>`
+    return `<a href='${href}'>${abId}</a>`
   })
 }
 
