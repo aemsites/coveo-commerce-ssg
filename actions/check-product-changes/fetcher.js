@@ -283,7 +283,7 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
   let productHtml = null;
   
   try {
-    if (/-{2,}/.test(product?.raw?.adproductslug)) {
+    if (/^-|--/.test(product?.raw?.adproductslug)) {
         const source = getProductUrl(product, locale);
         const destination = getSanitizedProductUrl(product, locale);
       sanitizedState.skus[sku] = {

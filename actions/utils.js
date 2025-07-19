@@ -398,8 +398,8 @@ function getProductUrl(product, locale) {
 
 function getSanitizedProductUrl(product, locale){
   const path = getProductUrl(product, locale);
-  if (/-{2,}/.test(path)) {
-    const sanitizedPath = path?.replace(/-+/g, '-');
+  if (/^-|--/.test(path)) {
+    const sanitizedPath = path?.replace(/-+/g, '-')?.replace(/^-/g, '');
     return sanitizedPath;
   }
   return path;
