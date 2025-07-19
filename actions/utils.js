@@ -397,12 +397,12 @@ function getProductUrl(product, locale) {
 }
 
 function getSanitizedProductUrl(product, locale){
-  const path = getProductUrl(product, locale);
-  if (/^-|--/.test(path)) {
-    const sanitizedPath = path?.replace(/-+/g, '-')?.replace(/^-/g, '');
-    return sanitizedPath;
+  const slug = product?.raw?.adproductslug;
+  if (/^-|--/.test(slug)) {
+    const sanitizedSlug = slug?.replace(/-+/g, '-')?.replace(/^-/g, '');
+    product.raw.adproductslug = sanitizedSlug;
   }
-  return path;
+  return getProductUrl(product, locale);
 }
 
 /**
