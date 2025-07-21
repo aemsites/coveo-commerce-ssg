@@ -221,11 +221,14 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
       product.notes = parseJson(product.raw?.adnotesjson);
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(
-          /<a\s([^>]*?href=")((?:(?:\.\.\/)+)|(?:\/))([^"?#]+)([?#][^"]*)?"/gi,
-          (_, prefix, pathPrefix, path, query = "") => {
-            // Remove any ../ segments and trailing slashes
-            const cleanPath = path.replace(/^\.\.\//, '').replace(/\/$/, '');
-            return `<a ${prefix}/en-us/${cleanPath.toLowerCase()}${query.toLowerCase()}"`;
+          /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
+          (match, prefix, pathPrefix, path, query, rest) => {
+            // Remove ../ segments and normalize path
+            const cleanPath = path.replace(/^(\.\.\/)+/, '').replace(/^\//, '').toLowerCase();
+            // Preserve query string if it exists
+            const cleanQuery = query ? query.toLowerCase() : '';
+            // Reconstruct the tag with modified href
+            return `<a ${prefix}/en-us/${cleanPath}${cleanQuery}"${rest}>`;
           }
         );
       });
