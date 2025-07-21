@@ -221,11 +221,11 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
       product.notes = parseJson(product.raw?.adnotesjson);
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(
-          /<a\s([^>]*?href=")(?:\/(?!en-us\/)([^"?#]+)|((?:\.\.\/)+)([^"?#]+))([?#][^"]*)?"/gi,
-          (_, prefix, rootPath, dotSegments, relPath, query = "") => {
-            const path = (rootPath || relPath || "").toLowerCase();
-            const q = (query || "").toLowerCase();
-            return `<a ${prefix}/en-us/${path}${q}"`;
+          /<a\s([^>]*?href=")((?:(?:\.\.\/)+)|(?:\/))([^"?#]+)([?#][^"]*)?"/gi,
+          (_, prefix, pathPrefix, path, query = "") => {
+            // Remove any ../ segments and trailing slashes
+            const cleanPath = path.replace(/^\.\.\//, '').replace(/\/$/, '');
+            return `<a ${prefix}/en-us/${cleanPath.toLowerCase()}${query.toLowerCase()}"`;
           }
         );
       });
