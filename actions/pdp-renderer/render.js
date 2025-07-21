@@ -219,6 +219,14 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
       if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
       product.conjugations = parseJson(product.raw.adconjugationsjson);
       product.notes = parseJson(product.raw?.adnotesjson);
+      product.notes?.forEach((note) =>{
+        note.statement = note.statement?.replace(/<a\s([^>]*?href=")(\/(?!en-us\/)[^"]*)"/gi,
+          (_, prefix, path) => {
+            const normalizedPath = `/en-us${path.toLowerCase()}`;
+            return `<a ${prefix}${normalizedPath}"`;
+          } 
+        )
+      })
       product.images = parseJson(product.raw.imagesjson);
       product.images?.forEach((image) =>{
         image.santizedTitle = sanitizeString(image.imgTitle);
