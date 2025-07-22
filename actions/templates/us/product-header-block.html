@@ -9,7 +9,7 @@
             {{#each raw.adtags}}
             <li>{{ this }}</li>
             {{/each}}
-            {{#if (eq (len raw.adtags) 0)}}
+            {{#if (eqnumber (len raw.adtags) 0)}}
             {{else}}
             <li><a href="#">What is this?</a></li>
             {{/if}}
