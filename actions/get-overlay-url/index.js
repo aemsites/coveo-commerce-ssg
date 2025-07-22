@@ -43,7 +43,8 @@ async function main(params) {
     const baseUrl = url.match(/(https:\/\/[^"'\s]+?)\/[^\/]+$/)?.[1] || null;
     logger.info(`Extracted base URL: ${baseUrl}`);
     
-    const presignUrl = await filesLib.generatePresignURL('check-product-changes/en-us.csv', { expiryInSeconds: 3600 })
+    await filesLib.delete('check-product-changes/en-us.csv');
+    // const presignUrl = await filesLib.generatePresignURL('check-product-changes/en-us.csv', { expiryInSeconds: 3600 })
     const presignTargetUrl = await filesLib.generatePresignURL('check-target-changes/en-us.csv', { expiryInSeconds: 3600 })
     const presignSanitizedtUrl = await filesLib.generatePresignURL('check-product-changes/sanitized/en-us.csv', { expiryInSeconds: 3600 })
 
