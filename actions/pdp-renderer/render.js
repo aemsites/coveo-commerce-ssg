@@ -166,16 +166,16 @@ function sanitizeString(str) {
     .replace(/'/g, '&#039;');
 }
 
-function getFormattedDate(previewedDate = new Date()){
-  const date = new Date(previewedDate);
+function getFormattedDate(indexedDate){
+  const indexeddate = new Date(indexedDate);
 
-  const yyyy = date.getUTCFullYear();
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(date.getUTCDate()).padStart(2, '0');
+  const yyyy = indexeddate.getUTCFullYear();
+  const mm = String(indexeddate.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(indexeddate.getUTCDate()).padStart(2, '0');
 
-  const hh = String(date.getUTCHours()).padStart(2, '0');
-  const min = String(date.getUTCMinutes()).padStart(2, '0');
-  const ss = String(date.getUTCSeconds()).padStart(2, '0');
+  const hh = String(indexeddate.getUTCHours()).padStart(2, '0');
+  const min = String(indexeddate.getUTCMinutes()).padStart(2, '0');
+  const ss = String(indexeddate.getUTCSeconds()).padStart(2, '0');
 
   const isoWithoutMs = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
   return isoWithoutMs;
@@ -189,7 +189,7 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
     product.status = product.raw.adstatus?.toLowerCase();
-    product.publihseddate = getFormattedDate(product?.raw?.sysindexeddate);
+    product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
 
     if(product.status !== 'inactive' || product.status !== 'quarantined'){
