@@ -226,6 +226,9 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.notes = parseJson(product.raw?.adnotesjson);
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(
+            /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi,
+            '<a href="$1"'
+          )?.replace(
           /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
           (match, prefix, pathPrefix, path, query, rest) => {
             // Remove ../ segments and normalize path
