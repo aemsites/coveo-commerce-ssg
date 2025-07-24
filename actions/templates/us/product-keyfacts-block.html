@@ -71,10 +71,10 @@
             {{#if raw.adcarrierfree}}
             <div>
                 <h6>Carrier free</h6>
-                {{#if (eq raw.adcarrierfree "False")}}
-                <p>No</p>
+                {{#if (eq raw.adcarrierfree "No")}}
+                    <p>No</p>
                 {{else}}
-                <p>Yes</p>
+                    <p>Yes</p>
                 {{/if}}
             </div>
             {{/if}} 
@@ -824,7 +824,7 @@
             {{#if raw.adcarrierfree}}
             <div>
                 <h6>Carrier free</h6>
-                {{#if (eq raw.adcarrierfree "False")}}
+                {{#if (eq raw.adcarrierfree "No")}}
                 <p>No</p>
                 {{else}}
                 <p>Yes</p>
