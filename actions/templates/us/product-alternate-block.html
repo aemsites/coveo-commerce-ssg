@@ -16,6 +16,16 @@
    <div>
       <div><a href="{{concat '/en-us/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
    </div>
+   <div>
+	   <div>
+         <h6>Why is this recommended?</h6>
+         <p>
+            We’re constantly upgrading our range to offer the highest quality products.
+            We have selected this alternative product for your review because it gives improved performance, is easier and
+            more convenient to use, or is available faster.
+         </p>
+	   </div>      
+   </div>
    {{/if}}
 
    {{#if toprecommendedproducts}}
@@ -46,6 +56,18 @@
          </div>
          {{/if}}
       {{/each}}
+   </div>
+   <div>
+		<div>
+         <h6>Why is this recommended?</h6>
+         <p>
+            We recommend this product because it’s often used in the same experiment or related research.
+         </p>
+         <p>            
+            We advise that you always check the datasheet to ensure it fits your experiments, or contact our
+            <a href="{{concat '/contact-us'}}">technical team</a> for help.
+         </p>
+		</div>
    </div>
    {{/if}}
 </div>
