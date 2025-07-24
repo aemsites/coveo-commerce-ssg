@@ -185,7 +185,7 @@ function getFormattedDate(indexedDate){
   return isoWithoutMs;
 }
 
-async function generateProductHtml(product, ctx, state, dirname = __dirname) {
+async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
 
@@ -195,7 +195,8 @@ async function generateProductHtml(product, ctx, state, dirname = __dirname) {
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
-
+    product.locale = locale;
+    
     if(product.status !== 'inactive' || product.status !== 'quarantined'){
       product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
       product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
