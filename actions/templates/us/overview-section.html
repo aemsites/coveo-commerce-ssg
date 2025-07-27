@@ -105,10 +105,19 @@
   {{> product-protocols-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if (isNotOneOf raw.adseoclasslevelone values="biochemicals,tissue-lysates,cell-lysates,cell-lines")}}
 <div>
   {{> product-target-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{else if (eq raw.adseoclasslevelone "cell-lines")}}
+  {{#if (and primarytargetrelatedjson primarytargetrelatedjson.number)}}
+  <div>
+    {{> product-target-block class="reduced-width"}}
+    {{> section-metadata-block style='left-column'}}
+  </div>
+  {{/if}}
+{{/if}}
 {{#if raw.adpublicationscount}}
 <div>
   {{> product-publications-block class="reduced-width"}}

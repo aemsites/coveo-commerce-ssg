@@ -78,6 +78,12 @@ Handlebars.registerHelper('isOneOf', function(value, options) {
   return validValues.includes(value?.toLowerCase()) ? true : false;
 });
 
+Handlebars.registerHelper('isNotOneOf', function(value, options) {
+  const validValues = options.hash.values.split(',');
+  return validValues.includes(value?.toLowerCase()) ? false : true;
+});
+
+
 Handlebars.registerHelper("object", function () {
     let obj = {};
     for (let i = 0; i < arguments.length - 1; i += 2) {
@@ -197,7 +203,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     logger.debug("published Date :",product.publihseddate);
     product.locale = locale;
     
-    if(product.status !== 'inactive' || product.status !== 'quarantined'){
+    if(product.status !== 'inactive' && product.status !== 'quarantined'){
       product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
       product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
       
@@ -209,6 +215,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.target = parseJson(product.raw.adprimarytargetjson);
       product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
       product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
+      product.primarytargetrelatedjson = parseJson(product.target?.adPrimaryTargetRelatedTargetsJSON);
       product.targetfunction = product.targetrelevance?.function?.join('. ');
       product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
       product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
