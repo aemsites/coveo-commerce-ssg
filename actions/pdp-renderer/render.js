@@ -202,11 +202,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
     product.locale = locale;
-    
+    product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
+    product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
+    product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
+
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
-      product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
-      product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
-      
       product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
       product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
       product.categorytype = product.raw.adcategorytype;
@@ -285,7 +285,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.publications?.forEach((publication) => {
         publication.publicationYear = new Date(publication.publicationDate).getFullYear();
       });
-      product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
+      
       product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
       const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
       product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
