@@ -270,11 +270,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
       product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
       product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
-      if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.categoryType?.toLowerCase()?.replace(/ /g, '-');
+      if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.seoClass?.levelOne;
       product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
       product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
         if (toprecommendedproduct) {
-          toprecommendedproduct.type = toprecommendedproduct?.categoryType?.toLowerCase()?.replace(/ /g, '-');
+          toprecommendedproduct.type = toprecommendedproduct?.seoClass?.levelOne;
         }
       });
       if (product.alternateproducts) {
