@@ -205,6 +205,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
+    product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
       product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
@@ -304,7 +305,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
-      product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
       if(product.raw.adrelatedtargets){
         const stateLib = await State.init({});
