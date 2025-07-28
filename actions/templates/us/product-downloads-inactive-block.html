@@ -6,7 +6,7 @@
                 <div>
                     <div><em>{{this.documentType}}</em></div>
                     <div><span>{{#if this.language}}{{this.language}}{{else}}en{{/if}}</span></div>
-                    <div><a href="{{this.url}}" target="_blank"></a></div>
+                    <div><a href="{{concat 'https://doc.abcam.com' this.url}}" target="_blank"></a></div>
                 </div>
                 {{/if}}
             {{/each}}
@@ -16,7 +16,7 @@
                 <div>
                     <div><em>{{this.documentType}}</em></div>
                     <div><span>{{#if this.language}}{{this.language}}{{else}}en{{/if}}</span></div>
-                    <div><a href="{{concat '/content/dam/abcam/product' this.url}}" target="_blank"></a></div>
+                    <div><a href="{{concat 'https://content.abcam.com/content/dam/abcam/product' this.url}}" target="_blank"></a></div>
                 </div>
                 {{/if}}
             {{/each}}
