@@ -217,6 +217,14 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
       product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
       product.primarytargetrelatedjson = parseJson(product.target?.adPrimaryTargetRelatedTargetsJSON)?.at(0);
+      const primarytargetrelatedjson =  parseJson(product.target?.adPrimaryTargetRelatedTargetsJSON);
+      if(primarytargetrelatedjson) {
+        let primarytargetname = [];
+        primarytargetrelatedjson?.forEach((target) => {
+          primarytargetname.push(target?.name);
+        })
+        product.target.primarytargetname = primarytargetname?.join(' ');
+      }
       product.targetfunction = product.targetrelevance?.function?.join('. ');
       product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
       product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
