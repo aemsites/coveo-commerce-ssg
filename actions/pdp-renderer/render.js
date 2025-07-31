@@ -207,6 +207,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
     product.protocolsdownloads?.forEach((link) => {
       link.url =`https://content.abcam.com/content/dam/abcam/product/${link.url}`;
+      logger.debug(link.url);
     })
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
