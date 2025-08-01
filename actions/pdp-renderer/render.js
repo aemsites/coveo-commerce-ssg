@@ -301,7 +301,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       
       product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
       const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
-      product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
+      product.sequenceinfotag = parseJson(sequenceinfotag);
       product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
       product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
       product.immunogendesc = product.raw.adimmunogendescription;

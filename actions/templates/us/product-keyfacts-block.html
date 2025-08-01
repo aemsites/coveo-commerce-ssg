@@ -726,7 +726,11 @@
             {{#if sequenceinfotag}}
             <div>
                 <h6>Tags</h6>
-                <p>{{sequenceinfotag.tag}} tag {{sequenceinfotag.terminus}}</p>
+                <p>
+                    {{#each sequenceinfotag}}
+                    {{this.tag}} tag {{this.terminus}}
+                    {{/each}}
+                </p>
             </div>
             {{ else }}
             <div>
