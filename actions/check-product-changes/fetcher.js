@@ -566,7 +566,7 @@ async function fetcher(params, aioLibs) {
         
         // After processing, delete the key
         if (counts.failed > 0) {
-          logger.info(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
+          logger.error(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
         } else {
           await stateLib.delete(firstKey);
           logger.info(`Deleted processed key: ${firstKey}`);
