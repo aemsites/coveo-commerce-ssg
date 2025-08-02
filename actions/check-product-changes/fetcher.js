@@ -523,73 +523,88 @@ async function fetcher(params, aioLibs) {
 
     // start processing preview and publish queues
     await adminApi.startProcessing();
-        
+
+    const maxTries = 5;
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const skusState = await stateLib.get(firstKey);
-      
-      try {
-        const skus = JSON.parse(skusState.value);
-        const batches = createBatches(skus);
-        logger.info(`Created ${batches.length} batches from ${skus.length} SKUs`);
-        
-        if(firstKey.includes('updated')){
-          // Process each batch sequentially to maintain log order
-          for (const batch of batches) {
-            const resp = await requestCOVEO(coveoUrl, batch, context);
-            timings.sample('fetchedData');
-            logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
-            logger.debug('COVEO response:', JSON.stringify(resp, null, 2));
-            const results = Array.isArray(resp?.results) ? resp.results : [];
-            // Enrich products with metadata
-            const products = await Promise.all(
-              results?.map(product => enrichProductWithMetadata(product, state, sanitizedState, context, locale))
-            );
-            
-            const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-            let filteredPaths = filteredProducts.map(product => ({ 
-              sku: product.sku, 
-              path: getSanitizedProductUrl(product, locale)
-            }));
-            filteredPaths = filteredPaths.filter(item => item !== '/en-us/products/unavailable/#NAME?')
-            logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
-            
-            if (filteredPaths.length > 0) {
-              const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
-              await processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus);
-              timings.sample('publishedPaths');
-            }
-          }
-        } else {
-          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
-        }
-        
-        // After processing, delete the key
-        if (counts.failed > 0) {
-          logger.error(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
-        } else {
-          await stateLib.delete(firstKey);
-          logger.info(`Deleted processed key: ${firstKey}`);
-        }
 
-      } catch (e) {
-        logger.error(`Error processing key ${firstKey}:`, e);
+      let attempt = 0;
+      let success = false;
+
+      while (attempt < maxTries && !success) {
+        try {
+          attempt++;
+          const skus = JSON.parse(skusState.value);
+          const batches = createBatches(skus);
+          logger.info(`Created ${batches.length} batches from ${skus.length} SKUs`);
+
+          if (firstKey.includes('updated')) {
+            // Process each batch sequentially to maintain log order
+            for (const batch of batches) {
+              const resp = await requestCOVEO(coveoUrl, batch, context);
+              timings.sample('fetchedData');
+              logger.info(`Fetched data for ${resp?.results?.length} SKUs`);
+              logger.debug('COVEO response:', JSON.stringify(resp, null, 2));
+
+              const results = Array.isArray(resp?.results) ? resp.results : [];
+              // Enrich products with metadata
+              const products = await Promise.all(
+                results.map(product => enrichProductWithMetadata(product, state, sanitizedState, context, locale))
+              );
+
+              const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
+              let filteredPaths = filteredProducts.map(product => ({
+                sku: product.sku,
+                path: getSanitizedProductUrl(product, locale)
+              }));
+              filteredPaths = filteredPaths.filter(item => item !== '/en-us/products/unavailable/#NAME?');
+              logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
+
+              if (filteredPaths.length > 0) {
+                const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
+                await processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus);
+                timings.sample('publishedPaths');
+              }
+            }
+          } else {
+            processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus);
+          }
+          
+          // After processing, delete the key
+          if (counts.failed > 0) {
+            logger.error(`Failed to process ${counts.failed} products, attempt ${attempt}`);
+          } else {
+            await stateLib.delete(firstKey);
+            logger.info(`Deleted processed key: ${firstKey}`);
+            success = true;
+          }
+
+        } catch (e) {
+          logger.error(`Error processing key ${firstKey} on attempt ${attempt}:`, e);
+        }
       }
+
+      if (attempt === maxTries) {
+        logger.error(`Max attempts reached. Deleting key: ${firstKey}`);
+        await stateLib.delete(firstKey);
+      }
+
     } else {
       logger.info('No keys found to process');
     }
-    
+
     // Aggregate timings
     for (const [name, values] of Object.entries(timings.measures)) {
       if (Array.isArray(values)) {
         timings.measures[name] = aggregate(values);
       }
     }
-    
+
     if (adminApi.previewDurations && adminApi.previewDurations.length > 0) {
       timings.measures.previewDuration = aggregate(adminApi.previewDurations);
     }
-    
+
     await adminApi.stopProcessing();
   } catch (e) {
     logger.error('Error in fetcher:', e);
