@@ -176,7 +176,7 @@ function sanitizeString(str) {
     .replace(/'/g, '&#039;');
 }
 
-function getFormattedDate(indexedDate){
+function getFormattedDate(indexedDate) {
   const indexeddate = new Date(indexedDate);
 
   const yyyy = indexeddate.getUTCFullYear();
@@ -190,6 +190,13 @@ function getFormattedDate(indexedDate){
   const isoWithoutMs = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
   return isoWithoutMs;
 }
+
+Handlebars.registerHelper('trimColons', function (text) {
+  if (typeof text === 'string') {
+    return text.replace(/:\s*/g, ' : '); // Removes leading and trailing colons
+  }
+  return text; // Return as-is if not a string
+});
 
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   // const path = state.skus[sku]?.path || '';
@@ -229,7 +236,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         })
         product.target.primarytargetname = primarytargetname?.join(' ');
       }
-      product.targetfunction = product.targetrelevance?.function?.join('. ');
+      product.targetfunction = String(product.targetrelevance?.function?.join('. ') || '');
       product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
       product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
       product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);

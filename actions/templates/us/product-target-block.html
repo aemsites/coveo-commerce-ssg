@@ -1,10 +1,12 @@
 <div class="product-target-data {{class}}">
     <div>
-        <div><h3>Target data</h3></div>
+        <div>
+            <h3>Target data</h3>
+        </div>
     </div>
     {{#if targetfunction}}
     <div>
-        <div>{{targetfunction}}</div>
+        <div>{{trimColons targetfunction}}</div>
     </div>
     {{else if raw.adstandardproteinfunction}}
     <div>
@@ -13,17 +15,21 @@
     {{/if}}
     {{#if (and (isNotOneOf raw.adseoclasslevelone values="cell-lines") target)}}
     <div>
-        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}" target="_blank">See full target information {{target.adPrimaryTargetName}}</a></div>
+        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
+                target="_blank">See full target information {{target.adPrimaryTargetName}}</a></div>
     </div>
     {{else if (eq raw.adseoclasslevelone "cell-lines")}}
     <div>
-        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}" target="_blank">See full target information {{target.primarytargetname}}</a></div>
+        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
+                target="_blank">See full target information {{target.primarytargetname}}</a></div>
     </div>
     {{/if}}
 
     {{#if relatedtargets}}
     <div>
-        <div><h3>Additional Targets</h3></div>
+        <div>
+            <h3>Additional Targets</h3>
+        </div>
     </div>
     <div>
         <div>{{relatedtargets}}</div>

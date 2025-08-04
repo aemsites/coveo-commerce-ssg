@@ -14,7 +14,7 @@
       <strong>{{this.imgSourceName}}{{#if this.imgSourceExternalId}}<strong>{{this.imgSourceExternalId}}</strong>{{/if}}</strong>
       {{/if}}
       <h6>{{this.imgTitle}}</h6>
-      <div><p>{{{this.imgLegend}}}</p></div>
+      <div><p>{{{trimColons this.imgLegend}}}</p></div>
 
       {{#if this.imagesusage}}
         {{#each this.imagesusage}}
@@ -67,7 +67,9 @@
         <p>Exposure time: {{this.imgExposureTime}}</p>
       {{/if}}
 
-      {{#if this.imgCopyrightCredit}} <p><strong><em>{{this.imgCopyrightCredit}}</em></strong></p> {{/if}}
+      {{#if this.imgCopyrightCredit}}
+        <p><strong><em>{{this.imgCopyrightCredit}}</em></strong></p>
+      {{/if}}
     </div>
   </div>
   {{/isValidImageUrl}}
