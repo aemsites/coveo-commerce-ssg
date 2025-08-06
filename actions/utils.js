@@ -392,9 +392,15 @@ function isValidUrl(string) {
  * @returns {string} The product url or null if storeUrl or pathFormat are missing.
  */
 function getProductUrl(product, locale) {
-  const path = (locale === 'en-us') ? `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}` :  `/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
-  return path;
+  let slug = product?.raw?.adproductslug;
+  if (slug === '#NAME?') {
+    slug = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+  }
+
+  const basePath = (locale === 'en-us') ? '/en-us/products' : '/products';
+  return `${basePath}/${product?.raw?.adseoclasslevelone}/${slug}`;
 }
+
 
 function getSanitizedProductUrl(product, locale){
   const slug = product?.raw?.adproductslug;
