@@ -384,6 +384,11 @@ function isValidUrl(string) {
   }
 }
 
+  const locales = [
+    'zh-cn',
+    'ja-jp'
+  ];
+
 /**
  * Constructs the URL of a product.
  *
@@ -397,7 +402,7 @@ function getProductUrl(product, locale) {
     slug = product?.raw?.adassetdefinitionnumber?.toLowerCase();
   }
 
-  const basePath = (locale === 'en-us') ? '/en-us/products' : '/products';
+  const basePath = locales.includes(locale) ? '/products' : `/${locale}/products`;
   return `${basePath}/${product?.raw?.adseoclasslevelone}/${slug}`;
 }
 
@@ -417,10 +422,12 @@ function getSanitizedProductUrl(product, locale){
  * @param {Object} product Product with sku and urlKey properties.
  */
 function getTargetUrl(target, locale) {
-  const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
-  const path = (locale === 'en-us') ? `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}` : `/targets/${target?.raw?.tgtslug}/${targetnumber}`;
-  return path;
+  const { tgtnumber, tgtslug } = target?.raw || {};
+  const targetnumber = tgtnumber?.replace(/^TGT/, "");
+  const basePath = locales.includes(locale) ? '/targets' : `/${locale}/targets`;
+  return `${basePath}/${tgtslug}/${targetnumber}`;
 }
+
 
 /**
  * Adjust the context according to the given locale.
