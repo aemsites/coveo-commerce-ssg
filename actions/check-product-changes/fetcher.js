@@ -366,18 +366,18 @@ async function processPublishBatches(promiseBatches, locale, state, counts, prod
   }
 }
 
-function enrichWithPath(skus, state, logger){
-  logger.debug("enriching record with product path :", skus)
-  const records = [];
-  skus.forEach((sku) => {
-    const record = {};
-    record.sku = sku;
-    record.path = state.skus[sku]?.path;
-    records.push(record);
-  })
-  logger.debug("enriched record with product path :", records)
+function enrichWithPath(skus, state, logger) {
+  logger.debug("Enriching records with product paths:", skus);
+
+  const records = skus.map((sku) => ({
+    sku,
+    path: state.skus?.[sku]?.path || '', 
+  }));
+
+  logger.debug("Enriched records:", records);
   return records;
 }
+
 
 /**
  * Identifies and processes products that need to be deleted
@@ -392,9 +392,8 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
     if (skus.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
       const batches = createBatches(skus, context);
-      const products = await Promise.all(
-        batches?.map(skus => enrichWithPath(skus, state, logger))
-      );
+      const products = batches?.map(skus => enrichWithPath(skus, state, logger));
+
       const promiseBatches = unpublishAndDelete(products, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
@@ -551,7 +550,7 @@ async function fetcher(params, aioLibs) {
               sku: product.sku, 
               path: getSanitizedProductUrl(product, locale)
             }));
-            filteredPaths = filteredPaths.filter(item => item !== '/en-us/products/unavailable/#NAME?')
+
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
             
             if (filteredPaths.length > 0) {
@@ -564,13 +563,22 @@ async function fetcher(params, aioLibs) {
           processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
         }
         
-        // After processing, delete the key
+        const now = new Date();
+        const timestampMs = now.getTime(); // Milliseconds since epoch
+
         if (counts.failed > 0) {
-          logger.error(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
+          logger.error(`Failed to process ${counts.failed} products, creating new webhook with failed SKUs and deleting key: ${firstKey}`);
+          
+          const sKey = `${firstKey?.split('.')[0]}.${timestampMs}`;
+          logger.error(`Webhook request created with failed SKUs: ${sKey}`);
+          // Store Failed SKUs in state with a TTL of 24 hours (86400 seconds)
+          await stateLib.put(sKey, JSON.stringify(failedSkus), { ttl: 86400 });
         } else {
-          await stateLib.delete(firstKey);
-          logger.info(`Deleted processed key: ${firstKey}`);
+          logger.info(`Deleteing processed key: ${firstKey}`);
         }
+
+        // Delete the original key regardless of success/failure
+        await stateLib.delete(firstKey);
 
       } catch (e) {
         logger.error(`Error processing key ${firstKey}:`, e);

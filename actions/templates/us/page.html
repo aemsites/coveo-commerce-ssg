@@ -12,6 +12,9 @@
     <meta name="clickableuri" content="{{raw.clickableuri}}"/>  
     <meta name="pageurl" content="{{raw.clickableuri}}"/>  
     <meta name="template" content="product-detail-page"/>  
+    {{#if (eq raw.adseoclasslevelone "unavailable")}}
+    <meta name="robots" content="noindex, nofollow">
+    {{/if}}
     {{#if (eq raw.adstatus "active")}} {{> meta-jsonld}} {{/if}}
   </head>
 

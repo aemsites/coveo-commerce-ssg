@@ -384,6 +384,11 @@ function isValidUrl(string) {
   }
 }
 
+  const locales = [
+    'zh-cn',
+    'ja-jp'
+  ];
+
 /**
  * Constructs the URL of a product.
  *
@@ -392,9 +397,15 @@ function isValidUrl(string) {
  * @returns {string} The product url or null if storeUrl or pathFormat are missing.
  */
 function getProductUrl(product, locale) {
-  const path = (locale === 'en-us') ? `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}` :  `/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
-  return path;
+  let slug = product?.raw?.adproductslug;
+  if (slug === '#NAME?') {
+    slug = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+  }
+
+  const basePath = locales.includes(locale) ? '/products' : `/${locale}/products`;
+  return `${basePath}/${product?.raw?.adseoclasslevelone}/${slug}`;
 }
+
 
 function getSanitizedProductUrl(product, locale){
   const slug = product?.raw?.adproductslug;
@@ -411,10 +422,12 @@ function getSanitizedProductUrl(product, locale){
  * @param {Object} product Product with sku and urlKey properties.
  */
 function getTargetUrl(target, locale) {
-  const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
-  const path = (locale === 'en-us') ? `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}` : `/targets/${target?.raw?.tgtslug}/${targetnumber}`;
-  return path;
+  const { tgtnumber, tgtslug } = target?.raw || {};
+  const targetnumber = tgtnumber?.replace(/^TGT/, "");
+  const basePath = locales.includes(locale) ? '/targets' : `/${locale}/targets`;
+  return `${basePath}/${tgtslug}/${targetnumber}`;
 }
+
 
 /**
  * Adjust the context according to the given locale.

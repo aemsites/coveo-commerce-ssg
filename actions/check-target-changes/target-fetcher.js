@@ -292,17 +292,15 @@ async function processPublishBatches(promiseBatches, locale, state, counts, targ
   }
 }
 
-function enrichWithPath(ids, state, logger){
-  logger.debug("enriching record with target path :", ids)
-  const records = [];
-  ids.forEach((id) => {
-    const record = {};
-    record.id = id;
-    logger.debug(state.ids[id])
-    record.path = state.ids[id]?.path;
-    records.push(record);
-  })
-  logger.debug("enriched record with target path :", records)
+function enrichWithPath(ids, state, logger) {
+  logger.debug("Enriching records with product paths:", ids);
+
+  const records = ids.map((id) => ({
+    id,
+    path: state.ids?.[id]?.path || '', 
+  }));
+
+  logger.debug("Enriched records:", records);
   return records;
 }
 
@@ -319,9 +317,8 @@ async function processDeletedTargets(ids, locale, state, counts, context, adminA
     if (ids.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
       const batches = createBatches(ids, context);
-      const targets = await Promise.all(
-        batches?.map(ids => enrichWithPath(ids, state, logger))
-      );
+      const targets = batches?.map(ids => enrichWithPath(ids, state, logger));
+
       const promiseBatches = unpublishAndDelete(targets, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
@@ -474,13 +471,22 @@ async function fetcher(params, aioLibs) {
           processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger); 
         }
 
+        const now = new Date();
+        const timestampMs = now.getTime(); // Milliseconds since epoch
+
         // After processing, delete the key
         if (counts.failed > 0) {
-          logger.info(`Failed to process ${counts.failed} targets, not deleting key: ${firstKey}`);
+          logger.error(`Failed to process ${counts.failed} products, creating new webhook with failed SKUs and deleting key: ${firstKey}`);
+          const sKey = `${firstKey?.split('.')[0]}.${timestampMs}`;
+          logger.error(`Webhook request created with failed SKUs: ${sKey}`);
+          // Store Failed SKUs in state with a TTL of 24 hours (86400 seconds)
+          await stateLib.put(sKey, JSON.stringify(failedIds), { ttl: 86400 });
         } else {
-          await stateLib.delete(firstKey);
           logger.info(`Deleted processed key: ${firstKey}`);
         }
+
+        // Delete the original key regardless of success/failure
+        await stateLib.delete(firstKey);
 
       } catch (e) {
         logger.error(`Error processing key ${firstKey}:`, e);
