@@ -101,10 +101,10 @@ async function loadSanitizedState(locale, aioLibs, logger) {
       const lines = stateData.split('\n');
       stateObj.skus = lines.reduce((acc, line) => {
         // the format of the state object is:
-        // <sku1>,<timestamp>,<hash>,<path>
-        // <sku2>,<timestamp>,<hash>,<path>
+        // <source>,<destination>
+        // <source>,<destination>
         // ...
-        // each row is a set of SKUs, last previewed timestamp and hash
+        // each row is a set of source and destination URLs
         const [sku, source, destination] = line.split(',');
         acc[sku] = { source, destination };
         return acc;
@@ -293,6 +293,10 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
       };
       saveSanitizedState(locale, sanitizedState, aioLibs);
     }
+    const { filesLib } = aioLibs;
+    const buffer = await filesLib.read('localisation/pdp-headings.json');
+    const localisedStr = buffer?.toString();
+    state.localisedJson = JSON.parse(localisedStr);
     productResponse = await generateProductHtml(product, context, state, locale);
     productHtml = productResponse?.body;
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');

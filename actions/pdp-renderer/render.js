@@ -198,9 +198,17 @@ Handlebars.registerHelper('trimColons', function (text) {
   return text; // Return as-is if not a string
 });
 
+function createLocalizer(localisedJson, locale = 'en-us') {
+  return function(key) {
+    const item = localisedJson.find(entry => entry.Key === key);
+    return item ? item[locale] : null;
+  };
+}
+
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
-  // const path = state.skus[sku]?.path || '';
   const { logger } = ctx;
+  const { localisedJson } = state;
+  const getLocalizedValue = createLocalizer(localisedJson, locale);
 
   try {
     // const product = JSON.parse(data?.toString());
@@ -219,6 +227,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
+      product.hostspecies = getLocalizedValue('host-species');
       product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
       product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
       product.categorytype = product.raw.adcategorytype;
