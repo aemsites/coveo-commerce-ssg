@@ -296,6 +296,7 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
     const { filesLib } = aioLibs;
     const buffer = await filesLib.read('localisation/pdp-headings.json');
     const localisedStr = buffer?.toString();
+    logger.debug("localisedStr", localisedStr);
     state.localisedJson = JSON.parse(localisedStr);
     productResponse = await generateProductHtml(product, context, state, locale);
     productHtml = productResponse?.body;

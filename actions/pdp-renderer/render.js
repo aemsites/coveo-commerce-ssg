@@ -208,6 +208,7 @@ function createLocalizer(localisedJson, locale = 'en-us') {
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
   const { localisedJson } = state;
+  logger.debug(localisedJson || "No localisedJson found");
   const getLocalizedValue = createLocalizer(localisedJson, locale);
 
   try {
@@ -228,6 +229,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
       product.hostspecies = getLocalizedValue('host-species');
+      logger.debug('product.hostspecies', product.hostspecies);
       product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
       product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
       product.categorytype = product.raw.adcategorytype;
