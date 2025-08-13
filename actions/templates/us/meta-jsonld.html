@@ -21,6 +21,7 @@
       "name": "Abcam Limited"  
     }
   },
+  {{#if raw.adreviewsaggregaterating}}
   "aggregateRating": {
   "@type": "AggregateRating",
     "ratingValue": "{{raw.adreviewsaggregaterating}}",
@@ -29,6 +30,7 @@
     "reviewCount": "{{raw.adreviewscount}}",
     "ratingCount": "{{raw.adreviewscount}}"
   },
+  {{/if}}
   "image": [
   {{#each images}}
     {{#isValidImageUrl this}}
