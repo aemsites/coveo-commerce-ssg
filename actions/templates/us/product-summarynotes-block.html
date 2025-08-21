@@ -2,7 +2,7 @@
     {{#if summarynotes}}
     <div>
         <div>
-            <h3>Supplementary info</h3>
+            <h3>{{supplementaryinfo}}</h3>
             <p>This supplementary information is collated from multiple sources and compiled automatically.</p>
         </div>
     </div>
@@ -10,11 +10,11 @@
         <div>
             <div>
                 {{#if (eq this.noteType "targetSummaryMechanical")}}
-                <h5>Activity summary</h5>
+                <h5>{{activitysummary}}</h5>
                 {{else if (eq this.noteType "targetSummaryBiological")}}
                 <h5>Biological function summary</h5>
                 {{else if (eq this.noteType "disease")}}
-                <h5>Associated diseases and disorders</h5>
+                <h5>{{associateddiseasesanddisorders}}</h5>
                 {{else}}
                 <h5>Pathways</h5>
                 {{/if}}

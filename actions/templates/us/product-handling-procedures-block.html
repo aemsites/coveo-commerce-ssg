@@ -2,31 +2,34 @@
 <div class="product-keyfacts {{class}}">
     <div>
         <div>
-            <h3>Handling procedures</h3>
+            <h3>{{handlingprocedures}}</h3>
         </div>
     </div>
     <div>
         {{#if cellattr.initialHandlingGuidelines}}
         <div>
-            <h6>Initial handling guidelines</h6>
+            <h6>{{initialhandlingguidelines}}</h6>
             <p>{{{cellattr.initialHandlingGuidelines}}}</p>
         </div>
         {{/if}}
+
         {{#if cellattr.subcultureguidelines}}
         <div>
-            <h6>Subculture guidelines</h6>
+            <h6>{{subcultureguidelines}}</h6>
             <p>{{{cellattr.subcultureguidelines}}}</p>
         </div>
         {{/if}}
+
         {{#if cellattr.cultureMedium}}
         <div>
-            <h6>Culture medium</h6>
+            <h6>{{culturemedium}}</h6>
             <p>{{cellattr.cultureMedium}}</p>
         </div>
         {{/if}}
+
         {{#if cellattr.cryopreservationMedium}}
         <div>
-            <h6>Cryopreservation medium</h6>
+            <h6>{{cryopreservationmedium}}</h6>
             <p>{{cellattr.cryopreservationMedium}}</p>
         </div>
         {{/if}}

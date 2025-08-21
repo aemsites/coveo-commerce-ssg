@@ -1,31 +1,34 @@
 <div class="product-keyfacts {{class}}">
     <div>
         <div>
-            <h3>General info</h3>
+            <h3>{{generalinfo}}</h3>
         </div>
     </div>
     <div>
         {{#if targetfunction}}
         <div>
-            <h6>Function</h6>
+            <h6>{{function}}</h6>
             <p>{{trimColons targetfunction}}</p>
         </div>
         {{/if}}
+
         {{#if targetsequencesimilarities}}
         <div>
-            <h6>Sequence similarities</h6>
+            <h6>{{sequencesimilarities}}</h6>
             <p>{{targetsequencesimilarities}}</p>
         </div>
         {{/if}}
+
         {{#if targetposttranslationalmodifications}}
         <div>
-            <h6>Post-translational modifications</h6>
+            <h6>{{posttranslationalmodifications}}</h6>
             <p>{{targetposttranslationalmodifications}}</p>
         </div>
         {{/if}}
+
         {{#if subcellularlocalisations}}
         <div>
-            <h6>Subcellular localisation</h6>
+            <h6>{{subcellularlocalisation}}</h6>
             <p>{{subcellularlocalisations.localisation}}</p>
         </div>
         {{/if}}
