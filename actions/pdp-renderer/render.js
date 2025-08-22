@@ -205,13 +205,11 @@ function createLocalizer(localisedJson, locale = 'en-us') {
   };
 }
 
-
 function convertJsonKeysToLowerCase(jsonObj) {
   return Object.fromEntries(
     Object.entries(jsonObj).map(([key, value]) => [key.toLowerCase(), value])
   );
 }
-
 
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
@@ -248,7 +246,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.carrierfree = getLocalizedValue('carrier-free');
       product.targetspecies = getLocalizedValue('target-species');
       product.reactswith = getLocalizedValue('reacts-with');
-      product.applications = getLocalizedValue('applications');
+      product.applicationsheading = getLocalizedValue('applications');
       product.immunogen = getLocalizedValue('immunogen');
       product.epitope = getLocalizedValue('epitope');
       product.specificity = getLocalizedValue('specificity');
@@ -299,7 +297,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.mutationdescription = getLocalizedValue('mutation-description');
       product.antibioticresistance = getLocalizedValue('antibiotic-resistance');
       product.disease = getLocalizedValue('disease');
-      product.associatedproducts = getLocalizedValue('associated-products');
+      product.associatedproductsheading = getLocalizedValue('associated-products');
       product.recommendedalternatives = getLocalizedValue('recommended-alternatives');
       product.relatedconjugatesandformulations = getLocalizedValue('related-conjugates-and-formulations');
       product.reactivitydata = getLocalizedValue('reactivity-data');
@@ -349,7 +347,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productprotocols = getLocalizedValue('product-protocols');
       product.targetdata = getLocalizedValue('target-data');
       product.additionaltargets = getLocalizedValue('additional-targets');
-      product.publications = getLocalizedValue('publications');
+      product.publicationsheading = getLocalizedValue('publications');
       product.productpromise = getLocalizedValue('product-promise');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
