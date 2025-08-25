@@ -1,7 +1,7 @@
 <div class="product-alternate {{class}}">
    {{#if alternateproducts}}
    <div>
-      <div><h3>Have you thought about this alternative?</h3></div>
+      <div><h3>{{haveyouthoughtaboutthisalternative}}</h3></div>
    </div>
    <div>
       <div><p>{{ alternateproducts.productCode }}</p></div>
@@ -18,7 +18,7 @@
    </div>
    <div>
 	   <div>
-         <h6>Why is this recommended?</h6>
+         <h6>{{whyisthisrecommended}}</h6>
          <p>
             We’re constantly upgrading our range to offer the highest quality products.
             We have selected this alternative product for your review because it gives improved performance, is easier and
@@ -30,7 +30,7 @@
 
    {{#if toprecommendedproducts}}
    <div>
-      <div><h3>You may be interested in:</h3></div>
+      <div><h3>{{youmaybeinterestedin}}:</h3></div>
    </div>
    <div>
       {{#each toprecommendedproducts}}
@@ -59,7 +59,7 @@
    </div>
    <div>
 		<div>
-         <h6>Why is this recommended?</h6>
+         <h6>{{whyisthisrecommended}}</h6>
          <p>
             We recommend this product because it’s often used in the same experiment or related research.
          </p>

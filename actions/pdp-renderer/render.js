@@ -198,10 +198,24 @@ Handlebars.registerHelper('trimColons', function (text) {
   return text; // Return as-is if not a string
 });
 
-async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
-  // const path = state.skus[sku]?.path || '';
-  const { logger } = ctx;
+function createLocalizer(localisedJson, locale = 'en-us') {
+  return function(key) {
+    const item = localisedJson.find(entry => entry.Key === key);
+    return item ? item[locale] : null;
+  };
+}
 
+function convertJsonKeysToLowerCase(jsonObj) {
+  return Object.fromEntries(
+    Object.entries(jsonObj).map(([key, value]) => [key.toLowerCase(), value])
+  );
+}
+
+async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
+  const { logger } = ctx;
+  const { localisedJson } = state;
+  logger.debug(localisedJson || "No localisedJson found");
+  const getLocalizedValue = createLocalizer(localisedJson, locale);
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
@@ -219,8 +233,135 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
-      product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
-      product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
+
+      product.keyfacts = getLocalizedValue('key-facts');
+      product.hostspecies = getLocalizedValue('host-species');
+      product.clonality = getLocalizedValue('clonality');
+      product.clonenumber = getLocalizedValue('clone-number');
+      product.isotype = getLocalizedValue('isotype');
+      product.lightchaintype = getLocalizedValue('light-chain-type');
+      product.conjugation = getLocalizedValue('conjugation');
+      product.excitation = getLocalizedValue('excitation');
+      product.emission = getLocalizedValue('emission');
+      product.carrierfree = getLocalizedValue('carrier-free');
+      product.targetspecies = getLocalizedValue('target-species');
+      product.reactswith = getLocalizedValue('reacts-with');
+      product.applicationsheading = getLocalizedValue('applications');
+      product.immunogen = getLocalizedValue('immunogen');
+      product.epitope = getLocalizedValue('epitope');
+      product.specificity = getLocalizedValue('specificity');
+      product.targetisotype = getLocalizedValue('target-isotype');
+      product.targetspecificity = getLocalizedValue('target-specificity');
+      product.minimalcrossreactivity = getLocalizedValue('minimal-cross-reactivity');
+      product.preadsorbed = getLocalizedValue('pre-adsorbed');
+      product.target = getLocalizedValue('target');
+      product.assaytype = getLocalizedValue('assay-type');
+      product.storagebuffer = getLocalizedValue('storage-buffer');
+      product.form = getLocalizedValue('form');
+      product.purity = getLocalizedValue('purity');
+      product.reconstitution = getLocalizedValue('reconstitution');
+      product.casnumber = getLocalizedValue('cas-number');
+      product.source = getLocalizedValue('source');
+      product.molecularweight = getLocalizedValue('molecular-weight');
+      product.molecularformula = getLocalizedValue('molecular-formula');
+      product.pubchem = getLocalizedValue('pubchem');
+      product.nature = getLocalizedValue('nature');
+      product.solubility = getLocalizedValue('solubility');
+      product.biochemicalname = getLocalizedValue('biochemical-name');
+      product.biologicaldescription = getLocalizedValue('biological-description');
+      product.canonicalsmiles = getLocalizedValue('canonical-smiles');
+      product.isomericsmiles = getLocalizedValue('isomeric-smiles');
+      product.inchi = getLocalizedValue('inchi');
+      product.inchikey = getLocalizedValue('inchikey');
+      product.iupacname = getLocalizedValue('iupac-name');
+      product.detectionmethod = getLocalizedValue('detection-method');
+      product.sampletypes = getLocalizedValue('sample-types');
+      product.sensitivity = getLocalizedValue('sensitivity');
+      product.range = getLocalizedValue('range');
+      product.assaytime = getLocalizedValue('assay-time');
+      product.assayplatform = getLocalizedValue('assay-platform');
+      product.generalrecovery = getLocalizedValue('general-recovery');
+      product.endotoxinlevel = getLocalizedValue('endotoxin-level');
+      product.expressionsystem = getLocalizedValue('expression-system');
+      product.tags = getLocalizedValue('tags');
+      product.biologicallyactive = getLocalizedValue('biologically-active');
+      product.biologicalactivity = getLocalizedValue('biological-activity');
+      product.massspectrometry = getLocalizedValue('mass-spectrometry');
+      product.accession = getLocalizedValue('accession');
+      product.animalfree = getLocalizedValue('animal-free');
+      product.species = getLocalizedValue('species');
+      product.celltype = getLocalizedValue('cell-type');
+      product.speciesororganism = getLocalizedValue('species-or-organism');
+      product.tissue = getLocalizedValue('tissue');
+      product.knockoutvalidation = getLocalizedValue('knockout-validation');
+      product.mutationdescription = getLocalizedValue('mutation-description');
+      product.antibioticresistance = getLocalizedValue('antibiotic-resistance');
+      product.disease = getLocalizedValue('disease');
+      product.associatedproductsheading = getLocalizedValue('associated-products');
+      product.recommendedalternatives = getLocalizedValue('recommended-alternatives');
+      product.relatedconjugatesandformulations = getLocalizedValue('related-conjugates-and-formulations');
+      product.reactivitydata = getLocalizedValue('reactivity-data');
+      product.haveyouthoughtaboutthisalternative = getLocalizedValue('have-you-thought-about-this-alternative');
+      product.whyisthisrecommended = getLocalizedValue('why-is-this-recommended');
+      product.youmaybeinterestedin = getLocalizedValue('you-may-be-interested-in');
+      product.productdetails = getLocalizedValue('product-details');
+      product.sequenceinfo = getLocalizedValue('sequence-info');
+      product.precision = getLocalizedValue('precision');
+      product.recovery = getLocalizedValue('recovery');
+      product.whatsincluded = getLocalizedValue('whats-included');
+      product.propertiesandstorageinformation = getLocalizedValue('properties-and-storage-information');
+      product.purificationtechnique = getLocalizedValue('purification-technique');
+      product.purificationnotes = getLocalizedValue('purification-notes');
+      product.genename = getLocalizedValue('gene-name');
+      product.geneeditingtype = getLocalizedValue('gene-editing-type');
+      product.geneeditingmethod = getLocalizedValue('gene-editing-method');
+      product.zygosity = getLocalizedValue('zygosity');
+      product.shippedatconditions = getLocalizedValue('shipped-at-conditions');
+      product.appropriateshorttermstorageduration = getLocalizedValue('appropriate-short-term-storage-duration');
+      product.appropriateshorttermstorageconditions = getLocalizedValue('appropriate-short-term-storage-conditions');
+      product.appropriatelongtermstorageconditions = getLocalizedValue('appropriate-long-term-storage-conditions');
+      product.aliquotinginformation = getLocalizedValue('aliquoting-information');
+      product.storageinformation = getLocalizedValue('storage-information');
+      product.handlingprocedures = getLocalizedValue('handling-procedures');
+      product.initialhandlingguidelines = getLocalizedValue('initial-handling-guidelines');
+      product.subcultureguidelines = getLocalizedValue('subculture-guidelines');
+      product.culturemedium = getLocalizedValue('culture-medium');
+      product.cryopreservationmedium = getLocalizedValue('cryopreservation-medium');
+      product.supplementaryinfo = getLocalizedValue('supplementary-info');
+      product.activitysummary = getLocalizedValue('activity-summary');
+      product.associateddiseasesanddisorders = getLocalizedValue('associated-diseases-and-disorders');
+      product.specifications = getLocalizedValue('specifications');
+      product.additionalnotes = getLocalizedValue('additional-notes');
+      product.generalinfo = getLocalizedValue('general-info');
+      product.function = getLocalizedValue('function');
+      product.sequencesimilarities = getLocalizedValue('sequence-similarities');
+      product.posttranslationalmodifications = getLocalizedValue('post-translational-modifications');
+      product.subcellularlocalisation = getLocalizedValue('subcellular-localisation');
+      product.qualitycontrol = getLocalizedValue('quality-control');
+      product.stranalysis = getLocalizedValue('str-analysis');
+      product.cellculture = getLocalizedValue('cell-culture');
+      product.biosafetylevel = getLocalizedValue('biosafety-level');
+      product.adherentsuspension = getLocalizedValue('adherentsuspension');
+      product.gender = getLocalizedValue('gender');
+      product.viability = getLocalizedValue('viability');
+      product.productprotocols = getLocalizedValue('product-protocols');
+      product.targetdataheading = getLocalizedValue('target-data');
+      product.additionaltargets = getLocalizedValue('additional-targets');
+      product.publicationsheading = getLocalizedValue('publications');
+      product.productpromise = getLocalizedValue('product-promise');
+
+      const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
+      product.englishtitle = localisedtitle[locale] ? product.title : null;
+      product.title = localisedtitle[locale] || product.title;
+
+      const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
+      const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
+      product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
+
+      const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
+      const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
+      product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
+
       product.categorytype = product.raw.adcategorytype;
       product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
       product.targetdata = parseJson(product.raw.targetjson);
