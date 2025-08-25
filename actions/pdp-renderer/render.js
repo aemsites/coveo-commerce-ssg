@@ -352,6 +352,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
       product.title = localisedtitle[locale] || product.title;
+      product.englishtitle = localisedtitle[locale] ? product.title : null;
 
       const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
       const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
