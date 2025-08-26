@@ -31,27 +31,38 @@
     "ratingCount": "{{raw.adreviewscount}}"
   },
   {{/if}}
-  "image": [
-  {{#each images}}
-    {{#isValidImageUrl this}}
-    {{#if @last}}
-        {
-            "@type": "ImageObject",
-            "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.santizedTitle}}",
-            "caption": "{{this.santizedTitle}}"
-        }
-    {{else}}
-        {
-            "@type": "ImageObject",
-            "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.santizedTitle}}",
-            "caption": "{{this.santizedTitle}}"
-        },
-    {{/if}}
-    {{/isValidImageUrl}}
-  {{/each}}
-  ],
+  {{#if (len images 0)}}
+    "image": [
+      {{#each images}}
+        {{#isValidImageUrl this}}
+        {{#if @last}}
+            {
+                "@type": "ImageObject",
+                "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
+                "name": "{{this.santizedTitle}}",
+                "caption": "{{this.santizedTitle}}"
+            }
+        {{else}}
+            {
+                "@type": "ImageObject",
+                "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
+                "name": "{{this.santizedTitle}}",
+                "caption": "{{this.santizedTitle}}"
+            },
+        {{/if}}
+        {{/isValidImageUrl}}
+      {{/each}}
+    ],
+  {{else}}
+    "image": [
+      {
+        "@type": "ImageObject",
+        "contentUrl": "https://www.abcam.com/default-meta-image.png",
+        "name": "{{title}}",
+        "caption": "{{title}}"
+      }
+    ],     
+  {{/if}}
   "additionalProperty": [
     {{#each (filter
       (array
