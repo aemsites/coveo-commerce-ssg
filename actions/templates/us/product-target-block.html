@@ -15,12 +15,12 @@
     {{/if}}
     {{#if (and (isNotOneOf raw.adseoclasslevelone values="cell-lines") target)}}
     <div>
-        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
+        <div><a href="{{concat locale '/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
                 target="_blank">See full target information {{target.adPrimaryTargetName}}</a></div>
     </div>
     {{else if (eq raw.adseoclasslevelone "cell-lines")}}
     <div>
-        <div><a href="{{concat '/en-us/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
+        <div><a href="{{concat locale '/targets' target.adPrimaryTargetSlug (extractNumber target.adPrimaryTargetNumber)}}"
                 target="_blank">See full target information {{target.primarytargetname}}</a></div>
     </div>
     {{/if}}
