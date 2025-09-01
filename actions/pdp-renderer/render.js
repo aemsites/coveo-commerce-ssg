@@ -467,7 +467,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
-      product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
       product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
       product.relatedProducts = mapRelatedProducts({
       alternateproducts: product.alternateproducts ? [product.alternateproducts] : [],
