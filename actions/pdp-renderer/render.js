@@ -211,7 +211,7 @@ function convertJsonKeysToLowerCase(jsonObj) {
   );
 }
 
-const localeNotInUrl = ['zh-cn', 'ja-jp'];
+const localeCnJp = ['zh-cn', 'ja-jp'];
 
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
@@ -224,7 +224,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
-    product.locale = (localeNotInUrl.includes(locale)) ? '' :  `/${locale}`;
+    product.locale = (localeCnJp.includes(locale)) ? '' :  `/${locale}`;
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
@@ -353,7 +353,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise = getLocalizedValue('product-promise');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
-      product.englishtitle = localisedtitle[locale] ? product.title : null;
+      product.englishtitle = locale === 'en-us' ? null : product.title;
       product.title = localisedtitle[locale] || product.title;
 
       const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
