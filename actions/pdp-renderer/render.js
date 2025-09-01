@@ -3,6 +3,7 @@ const { State, Files } = require('@adobe/aio-sdk');
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
+const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
 const { mapRelatedProducts } = require('./map-related-products');
 const { loadState } = require('../check-target-changes/target-fetcher');
 
@@ -158,7 +159,10 @@ async function generateProductHtml(product, ctx, state) {
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
-
+    product.status = product.raw.adstatus.toLowerCase();
+    product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
+    product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
+    
     product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
     product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
     product.categorytype = product.raw.adcategorytype;
@@ -208,7 +212,7 @@ async function generateProductHtml(product, ctx, state) {
     product.publications?.forEach((publication) => {
       publication.publicationYear = new Date(publication.publicationDate).getFullYear();
     });
-    product.protocolsdownloads = parseJson(product.raw.adproductprotocols);
+    product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
     product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
     const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
     product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
@@ -226,9 +230,10 @@ async function generateProductHtml(product, ctx, state) {
     product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
     product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
     product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+    product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
     product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
     product.relatedProducts = mapRelatedProducts({
-      alternateproducts: [product.alternateproducts],
+      alternateproducts: product.alternateproducts ? [product.alternateproducts] : [],
       associatedproducts: product.associatedproducts,
       toprecommendedproducts: product.toprecommendedproducts,
       crosssell: product.crosssell,
@@ -277,8 +282,9 @@ async function generateProductHtml(product, ctx, state) {
       "product-kitcomponent-block",
       "product-header-inactive-block",
       "product-related-products",
+      "product-related-products",
       "product-downloads-inactive-block",
-      "alternate-products-inactive-block",
+      "product-unpublished-replacements-block",
       "meta-jsonld",
       "product-reactivity-jsonld"
   ];

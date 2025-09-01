@@ -43,12 +43,13 @@ function getStateFileLocation(stateKey) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
  */
-async function loadState(locale, aioLibs) {
+async function loadState(locale, aioLibs, logger) {
   const { filesLib } = aioLibs;
   const stateObj = { locale };
   try {
     const stateKey = locale || 'default';
     const fileLocation = getStateFileLocation(stateKey);
+    logger.info("fileLocation :: ",fileLocation);
     const buffer = await filesLib.read(fileLocation);
     const stateData = buffer?.toString();
     if (stateData) {
@@ -61,7 +62,7 @@ async function loadState(locale, aioLibs) {
         // each row is a set of ids, last previewed timestamp, hash and name
         const items = line.split(',');
         const [id, time, hash, path, name] = [items[0], items[1], items[2], items[3], items.slice(4).join(',')]
-        acc[id] = { lastPreviewedAt: new Date(parseInt(time)), hash, path, name };
+        acc[id.toLowerCase()] = { lastPreviewedAt: new Date(parseInt(time)), hash, path, name };
         return acc;
       }, {});
     } else {
@@ -291,22 +292,37 @@ async function processPublishBatches(promiseBatches, state, counts, targets, aio
   }
 }
 
+function enrichWithPath(ids, state, logger){
+  logger.debug("enriching record with target path :", ids)
+  const records = [];
+  ids.forEach((id) => {
+    const record = {};
+    record.id = id;
+    logger.debug(state.ids[id])
+    record.path = state.ids[id]?.path;
+    records.push(record);
+  })
+  logger.debug("enriched record with target path :", records)
+  return records;
+}
+
 /**
  * Identifies and processes targets that need to be deleted
  */
-async function processDeletedTargets(remainingIds, locale, state, counts, context, adminApi, aioLibs, logger) {
-  if (!remainingIds.length) return;
+async function processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger) {
+  if (!ids.length) return;
 
   try {
     const { filesLib } = aioLibs;
-    const publishedTargets = await requestSpreadsheet('published-targets-index', null, context);
-    const deletedTargets = publishedTargets.data.filter(({ id }) => remainingIds.includes(id));
 
     // Process in batches
-    if (deletedTargets.length) {
+    if (ids.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
-      const batches = createBatches(deletedTargets, context);
-      const promiseBatches = unpublishAndDelete(batches, locale, adminApi);
+      const batches = createBatches(ids, context);
+      const targets = await Promise.all(
+        batches?.map(ids => enrichWithPath(ids, state, logger))
+      );
+      const promiseBatches = unpublishAndDelete(targets, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
       for (const { records, liveUnpublishedAt, previewUnpublishedAt } of response) {
@@ -314,10 +330,10 @@ async function processDeletedTargets(remainingIds, locale, state, counts, contex
           records.map((record) => {
             // Delete the HTML file from public storage
             try {
-              const product = deletedTargets.find(p => p.id === record.id);
-              if (product) {
-                const productUrl = getTargetUrl({ urlKey: product.urlKey, id: product.id }, context, false).toLowerCase();
-                const htmlPath = `/public/pdps${productUrl}`;
+              const target = ids.find(p => p.id === record.id);
+              if (target) {
+                const targetUrl = state.ids[id]?.path;
+                const htmlPath = `/public/pdps${targetUrl}`;
                 filesLib.delete(htmlPath);
                 logger.debug(`Deleted HTML file for product ${record.id} from ${htmlPath}`);
               }
@@ -351,7 +367,7 @@ function makeContext(params) {
     coveoOrg: params.COVEO_ORG,
     coveoPipeline: params.COVEO_GENERAL_PIPELINE,
     coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
-    coveoAuth: params.COVEO_TARGET_AUTH,
+    coveoAuth: params.COVEO_AUTH,
   }
 	return ctx;
 }
@@ -380,7 +396,7 @@ async function fetcher(params, aioLibs) {
   const locale = 'en-us';
   logger.info(`Fetching for locale ${locale}`);
   // load state
-  const state = await loadState(locale, aioLibs);
+  const state = await loadState(locale, aioLibs, logger);
   timings.sample('loadedState');
   const context = {
     ...wskContext,
@@ -394,7 +410,7 @@ async function fetcher(params, aioLibs) {
     
     // Get the first key only
     let firstKey = null;
-    for await (const { keys } of stateLib.list({ match: 'webhook-ids-updated.*' })) {
+    for await (const { keys } of stateLib.list({ match: 'webhook-ids-*' })) {
       if (keys.length > 0) {
         firstKey = keys[0];
         break;
@@ -409,33 +425,38 @@ async function fetcher(params, aioLibs) {
         const batches = createBatches(ids);
         logger.info(`Created ${batches.length} batches from ${ids.length} ids`);
         
-        // Process each batch sequentially to maintain log order
-        for (const batch of batches) {
-          const resp = await requestTargetCOVEO(coveoUrl, batch, context);
-          timings.sample('fetchedData');
-          logger.info(`Fetched data for ${resp?.results?.length} ids`);
-          const results = Array.isArray(resp?.results) ? resp.results : [];
-          // Enrich targets with metadata
-          const targets = await Promise.all(
-            results?.map(target => enrichTargetWithMetadata(target, state, context))
-          );
-          
-          const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
-          const filteredPaths = filteredTargets.map(target => ({ 
-            id: target.id, 
-            path: getTargetUrl(target, context, false),
-            name: target.raw.tgtname
-          }));
+        if(firstKey.includes('updated')) {
+          // Process each batch sequentially to maintain log order
+          for (const batch of batches) {
+            const resp = await requestTargetCOVEO(coveoUrl, batch, context);
+            timings.sample('fetchedData');
+            logger.info(`Fetched data for ${resp?.results?.length} ids`);
+            const results = Array.isArray(resp?.results) ? resp.results : [];
+            // Enrich targets with metadata
+            const targets = await Promise.all(
+              results?.map(target => enrichTargetWithMetadata(target, state, context))
+            );
+            
+            const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
+            const filteredPaths = filteredTargets.map(target => ({ 
+              id: target.id, 
+              path: getTargetUrl(target, context, false),
+              name: target.raw.tgtname
+            }));
 
-          logger.info(`Filtered down to ${filteredPaths.length} targets that need updating`);
-          
-          if (filteredPaths.length > 0) {
-            const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-            await processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds);
-            timings.sample('publishedPaths');
+            logger.info(`Filtered down to ${filteredPaths.length} targets that need updating`);
+            
+            if (filteredPaths.length > 0) {
+              const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
+              await processPublishBatches(promiseBatches, state, counts, targets, aioLibs, failedIds);
+              timings.sample('publishedPaths');
+            }
           }
+        } else {
+          logger.info(`Processing deletion of ${ids}`);
+          processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger); 
         }
-        
+
         // After processing, delete the key
         if (counts.failed > 0) {
           logger.info(`Failed to process ${counts.failed} targets, not deleting key: ${firstKey}`);

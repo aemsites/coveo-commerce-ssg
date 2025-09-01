@@ -1,10 +1,10 @@
-{{#if (isOneOf raw.adstatus values="inactive,quarantined")}}
+{{#if isUnpublishedProduct}}
 <div>
   {{> product-header-inactive-block class='inactive-product'}}
   {{> product-downloads-inactive-block class='inactive-product'}}
 </div>
 <div>
-  {{> alternate-products-inactive-block class='inactive-product'}}
+  {{> product-unpublished-replacements-block class='inactive-product'}}
 </div>
 <div>
   <p> Please note: All products are 'FOR RESEARCH USE ONLY. NOT FOR USE IN DIAGNOSTIC OR THERAPEUTIC PROCEDURES'. </p>
@@ -12,6 +12,11 @@
 </div>
 {{else}}
 <div>
+  <div class="breadcrumb">
+    <div>
+      <div></div>
+    </div>
+  </div>
   {{> product-header-block class="reduced-width"}}
   {{#if (len images 0)}}
     {{> product-overview-block class="reduced-width"}}
@@ -32,14 +37,28 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
+{{#if relatedProducts}}
 <div>
-  {{> product-alternate-block class="reduced-width"}}
+  {{> product-related-products class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{/if}}
+{{#if relatedProducts}}
+<div>
+  {{> product-related-products class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 <div>
   {{> product-notes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if sequenceinfo}}
+<div>
+  {{> product-sequenceinfo-block class="reduced-width"}}
+  {{> section-metadata-block style='left-column'}}
+</div>
+{{/if}}
 {{#if raw.adkitassayprecisionjson}}
 <div>
   {{> product-precision-block class="reduced-width"}}
@@ -75,12 +94,6 @@
 {{#if (or raw.adform purificationnotes)}}
 <div>
   {{> product-specifications-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-{{#if sequenceinfo}}
-<div>
-  {{> product-sequenceinfo-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
@@ -136,17 +149,6 @@
   {{> product-buybox-block }}
   {{> product-downloads-block }}
   {{> section-metadata-block style='right-column'}}
-</div>
-<div>
-  {{> associated-products-block class='associatedproducts'}}
-</div>
-<div>
-  <div class="recommended-products">
-    <div>
-      <div></div>
-    </div>
-  </div>
-  {{> section-metadata-block style='bg-slate-100'}}
 </div>
 <div>
   <div class="recently-viewed">

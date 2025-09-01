@@ -11,6 +11,9 @@
       <h5>{{this.categoryType}}</h5>
       <p>{{this.productCode}}</p>
       <a href="{{this.href}}">{{this.productName}}</a>
+      {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
+      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
+      {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
     </div>
     {{/each}}
   </div>
@@ -24,8 +27,10 @@
       <h6>{{this.relationship}}</h6>
       <h5>{{this.categoryType}}</h5>
       <p>{{this.productCode}}</p>
-      <h4>{{this.name}}</h4>
-      <a>{{this.href}}</a>
+      <a href="{{this.href}}">{{this.productName}}</a>
+      {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
+      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
+      {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
     </div>
     {{/each}}
   </div>

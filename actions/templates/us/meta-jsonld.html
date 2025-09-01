@@ -3,7 +3,7 @@
   "@context": "https://schema.org/", 
   "@type": "Product", 
   "name": "{{title}}",
-  "description": "{{raw.adproductsummary}}",
+  "description": "{{raw.admetadescription}}",
   "brand": {
     "@type": "Brand",
     "name": "Abcam Limited"
@@ -11,7 +11,7 @@
   "sku": "{{raw.adassetdefinitionnumber}}",
   "offers": {
     "@type": "Offer",
-    "url": "{{raw.sysclickableuri}}",
+    "url": "https://www.abcam.com{{raw.sysclickableuri}}",
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
     "availability": "https://schema.org/InStock",
@@ -26,7 +26,8 @@
     "ratingValue": "{{raw.adreviewsaggregaterating}}",
     "bestRating": "5",
     "worstRating": "1",
-    "reviewCount": "{{raw.adreviewscount}}"
+    "reviewCount": "{{raw.adreviewscount}}",
+    "ratingCount": "{{raw.adreviewscount}}"
   },
   "image": [
   {{#each images}}
@@ -35,13 +36,15 @@
         {
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}"
+            "name": "{{this.imgTitle}}",
+            "caption": "{{this.imgTitle}}"
         }
     {{else}}
         {
             "@type": "ImageObject",
             "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}"
+            "name": "{{this.imgTitle}}",
+            "caption": "{{this.imgTitle}}"
         },
     {{/if}}
     {{/isValidImageUrl}}
@@ -53,7 +56,7 @@
         (object "@type" "PropertyValue" "name" "Storage buffer" "value" raw.adformulation)
         (object "@type" "PropertyValue" "name" "Isotype" "value" raw.adisotype)
         (object "@type" "PropertyValue" "name" "Clonality" "value" raw.adclonality)
-        (object "@type" "PropertyValue" "name" "Purification technique" "value" schemapurificationtechnique)
+        (object "@type" "PropertyValue" "name" "Purification technique" "value" purificationtechnique)
         (object "@type" "PropertyValue" "name" "Form" "value" raw.adform)
         (object "@type" "PropertyValue" "name" "Reactive species" "value" raw.adspecies)
         (object "@type" "PropertyValue" "name" "Host species" "value" raw.adhostspecies)
