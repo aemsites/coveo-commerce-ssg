@@ -55,7 +55,7 @@ const linkifyContent = (content, currentProductCode, skus, logger) => {
       return abId
     }
 
-    return `<a href=${href}>${abId}</a>`
+    return `<a href='${href}'>${abId}</a>`
   })
 }
 
@@ -80,13 +80,18 @@ const linkifyAbids = (product, skus, logger) => {
     ...note,
     statement: linkifyHandler(note.statement || ''),
   }))
-  updatedProduct.images = product.images?.map((image) => {
-    return {
-      ...image,
-      imgLegend: linkifyHandler(image.imgLegend || ''),
-      imgImageUsageJSON: linkifyHandler(image.imgImageUsageJSON || ''),
-    }
-  })
+  updatedProduct.images = product.images?.map((image) => ({
+    ...image,
+    imgLegend: linkifyHandler(image.imgLegend || ''),
+    imagesusage: image.imagesusage?.imageBlocks?.map((block) =>({
+      ...block,
+      lanes: block.lanes?.map((lane) =>({
+        ...lane,
+        description: linkifyHandler(lane.description || ''),
+      })),
+    })),
+  }))
+  logger.debug('linkifyContent images', updatedProduct.images);
   updatedProduct.applications = product.applications?.map((app) => ({
     ...app,
     species: app.species?.map((species) => ({

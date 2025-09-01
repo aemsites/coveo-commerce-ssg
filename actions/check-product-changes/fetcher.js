@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
-const { requestSaaS, requestSpreadsheet, isValidUrl, getProductUrl, mapLocale } = require('../utils');
+const { isValidUrl, getProductUrl, getSanitizedProductUrl } = require('../utils');
 const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
@@ -22,6 +22,11 @@ const BATCH_SIZE = 75;
 
 function getStateFileLocation(stateKey) {
   return `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
+}
+
+
+function getSanitizedFileLocation(stateKey) {
+  return `${FILE_PREFIX}/sanitized/${stateKey}.${FILE_EXT}`;
 }
 
 /**
@@ -43,7 +48,8 @@ function getStateFileLocation(stateKey) {
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
  */
-async function loadState(locale, aioLibs) {
+async function loadState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
   const { filesLib } = aioLibs;
   const stateObj = { locale };
   try {
@@ -76,21 +82,82 @@ async function loadState(locale, aioLibs) {
 /**
  * Saves the state to the cloud file system.
  *
+ * @param {String} locale - The locale (or store code).
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
+ */
+async function loadSanitizedState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
+  const { filesLib } = aioLibs;
+  const stateObj = { locale };
+  try {
+    const stateKey = locale || 'default';
+    const fileLocation = getSanitizedFileLocation(stateKey);
+    const buffer = await filesLib.read(fileLocation);
+    const stateData = buffer?.toString();
+    if (stateData) {
+      const lines = stateData.split('\n');
+      stateObj.skus = lines.reduce((acc, line) => {
+        // the format of the state object is:
+        // <source>,<destination>
+        // <source>,<destination>
+        // ...
+        // each row is a set of source and destination URLs
+        const [sku, source, destination] = line.split(',');
+        acc[sku] = { source, destination };
+        return acc;
+      }, {});
+    } else {
+      stateObj.skus = {};
+    }
+  // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    stateObj.skus = {};
+  }
+  return stateObj;
+}
+
+/**
+ * Saves the state to the cloud file system.
+ *
  * @param {PollerState} state - The object describing state and metadata.
  * @param {Object} aioLibs - The libraries required for loading the state.
  * @param {Object} aioLibs.filesLib - The file library for reading state files.
  * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
  * @returns {Promise<void>} - A promise that resolves when the state is saved.
  */
-async function saveState(state, aioLibs) {
+async function saveState(locale, state, aioLibs) {
   const { filesLib } = aioLibs;
-  let { locale } = state;
   const stateKey = locale || 'default';
   const fileLocation = getStateFileLocation(stateKey);
   const csvData = [
     ...Object.entries(state.skus)
       .map(([sku, { lastPreviewedAt, hash, path }]) => {
         return `${sku},${lastPreviewedAt.getTime()},${hash || ''},${path}`;
+      }),
+  ].join('\n');
+  return await filesLib.write(fileLocation, csvData);
+}
+
+/**
+ * Saves the state to the cloud file system.
+ *
+ * @param {PollerState} state - The object describing state and metadata.
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<void>} - A promise that resolves when the state is saved.
+ */
+async function saveSanitizedState(locale, state, aioLibs) {
+  const { filesLib } = aioLibs;
+  const stateKey = locale || 'default';
+  const fileLocation = getSanitizedFileLocation(stateKey);
+  const csvData = [
+    ...Object.entries(state.skus)
+      .map(([sku, { source, destination }]) => {
+        return `${sku},${source},${destination}`;
       }),
   ].join('\n');
   return await filesLib.write(fileLocation, csvData);
@@ -196,7 +263,7 @@ function unpublishAndDelete(batches, locale, adminApi) {
  */
 function shouldProcessProduct(product) {
   const { currentHash, newHash } = product;
-  return currentHash !== newHash;
+  return product?.raw?.adseoclasslevelone && product?.raw?.adproductslug && currentHash !== newHash;
 }
 
 /**
@@ -206,8 +273,8 @@ function shouldProcessProduct(product) {
  * @param {Object} context - The context object with logger and other utilities
  * @returns {Object} Enhanced product with additional metadata
  */
-async function enrichProductWithMetadata(product, state, context) {
-  const { logger } = context;
+async function enrichProductWithMetadata(product, state, sanitizedState, context, locale) {
+  const { logger, aioLibs } = context;
   const { sku: skuOriginal, adproductslug: urlKey } = product?.raw;
   const sku = skuOriginal.split('-')[0].toLowerCase();
   logger.info('sku - urlKey', sku, urlKey);
@@ -216,7 +283,22 @@ async function enrichProductWithMetadata(product, state, context) {
   let productHtml = null;
   
   try {
-    productResponse = await generateProductHtml(product, context, state);
+    if (/^-|--/.test(product?.raw?.adproductslug)) {
+        const source = getProductUrl(product, locale);
+        const destination = getSanitizedProductUrl(product, locale);
+      sanitizedState.skus[sku] = {
+        sku,
+        source,
+        destination
+      };
+      saveSanitizedState(locale, sanitizedState, aioLibs);
+    }
+    const { filesLib } = aioLibs;
+    const buffer = await filesLib.read('localisation/pdp-headings.json');
+    const localisedStr = buffer?.toString();
+    logger.debug("localisedStr", localisedStr);
+    state.localisedJson = JSON.parse(localisedStr);
+    productResponse = await generateProductHtml(product, context, state, locale);
     productHtml = productResponse?.body;
     newHash = crypto.createHash('sha256').update(productHtml).digest('hex');
     
@@ -235,7 +317,7 @@ async function enrichProductWithMetadata(product, state, context) {
     if (shouldProcessProduct(enrichedProduct) && productHtml) {
       try {
         const { filesLib } = context.aioLibs;
-        const productPath = getProductUrl(product, context, false);
+        const productPath = getSanitizedProductUrl(product, locale);
         const htmlPath = `/public/pdps${productPath}`;
         await filesLib.write(htmlPath, productHtml);
         logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
@@ -267,7 +349,7 @@ async function enrichProductWithMetadata(product, state, context) {
 /**
  * Processes publish batches and updates state
  */
-async function processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus) {
+async function processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus) {
   const response = await Promise.all(promiseBatches);
   for (const { records, previewedAt, publishedAt } of response) {
     if (previewedAt && publishedAt) {
@@ -285,29 +367,29 @@ async function processPublishBatches(promiseBatches, state, counts, products, ai
       const skus= records.map(item => item.sku);
       failedSkus.push(...skus);
     }
-    await saveState(state, aioLibs);
+    await saveState(locale, state, aioLibs);
   }
 }
 
-function enrichWithPath(skus, state, logger){
-  logger.debug("enriching record with product path :", skus)
-  const records = [];
-  skus.forEach((sku) => {
-    const record = {};
-    record.sku = sku;
-    record.path = state.skus[sku]?.path;
-    records.push(record);
-  })
-  logger.debug("enriched record with product path :", records)
+function enrichWithPath(skus, state, logger) {
+  logger.debug("Enriching records with product paths:", skus);
+
+  const records = skus.map((sku) => ({
+    sku,
+    path: state.skus?.[sku]?.path || '', 
+  }));
+
+  logger.debug("Enriched records:", records);
   return records;
 }
+
 
 /**
  * Identifies and processes products that need to be deleted
  */
-async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger) {
+async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus) {
   if (!skus.length) return;
-  logger.debug("processUnpublishBatches ---", skus);
+  logger.debug("processUnpublishBatches --- locale", skus, locale);
   try {
     const { filesLib } = aioLibs;
 
@@ -315,9 +397,8 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
     if (skus.length) {
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
       const batches = createBatches(skus, context);
-      const products = await Promise.all(
-        batches?.map(skus => enrichWithPath(skus, state, logger))
-      );
+      const products = batches?.map(skus => enrichWithPath(skus, state, logger));
+
       const promiseBatches = unpublishAndDelete(products, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);
@@ -342,14 +423,34 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
           });
         } else {
           counts.failed += records.length;
+          const skus= records.map(item => item.sku);
+          failedSkus.push(...skus);
         }
-        await saveState(state, aioLibs);
+        await saveState(locale, state, aioLibs);
       }
     }
   } catch (e) {
     logger.error('Error processing deleted products:', e);
   }
 }
+
+function getCountry(key){
+  if(!key) return '';
+  const match = key.match(/webhook-skus-(?:updated|removed)-(\w+)\./);
+  const countryCode = match?.[1] || '';
+  return countryCode;
+}
+
+// function getSiteName(name, key) {
+//   const countryCode = getCountry(key);
+  
+//   if (['cn', 'jp'].includes(countryCode)) {
+//     return `${name}-${countryCode}`;
+//   }
+
+//   return name;
+// }
+
 
 function makeContext(params) {
 	const ctx = {};
@@ -385,25 +486,17 @@ async function fetcher(params, aioLibs) {
     logger, counts, aioLibs
   };
   const timings = new Timings();
-  const adminApi = new AdminAPI({
-    org: orgName,
-    site: siteName,
-  }, sharedContext, { authToken });
-  const locale = 'en-us';
-  logger.info(`Fetching for locale ${locale}`);
-  // load state
-  const state = await loadState(locale, aioLibs);
-  timings.sample('loadedState');
+
   const context = {
     ...wskContext,
     ...sharedContext,
   }
   const failedSkus = [];
   const coveoUrl = new URL(`https://${wskContext.config.coveoOrg}.org.coveo.com/rest/search/v2`);
+
+  let adminApi;
+  
   try {
-    // start processing preview and publish queues
-    await adminApi.startProcessing();
-    
     // Get the first key only
     let firstKey = null;
     for await (const { keys } of stateLib.list({ match: 'webhook-skus-*' })) {
@@ -412,6 +505,29 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
+    const country = getCountry(firstKey);
+    // const siteNameCountry = getSiteName(siteName, firstKey);
+    const locales = {
+      cn: 'zh-cn',
+      jp: 'ja-jp'
+    };
+
+    const locale = locales[country] || 'en-us';
+
+    logger.info(`Fetching for locale ${locale}`);
+    // load state
+    const state = await loadState(locale, aioLibs, logger);
+    const sanitizedState = await loadSanitizedState(locale, aioLibs, logger);
+    timings.sample('loadedState');
+
+    adminApi = new AdminAPI({
+      org: orgName,
+      site: siteName,
+    }, sharedContext, { authToken });
+
+    // start processing preview and publish queues
+    await adminApi.startProcessing();
+        
     if (firstKey) {
       logger.info(`Processing single key: ${firstKey}`);
       const skusState = await stateLib.get(firstKey);
@@ -431,34 +547,43 @@ async function fetcher(params, aioLibs) {
             const results = Array.isArray(resp?.results) ? resp.results : [];
             // Enrich products with metadata
             const products = await Promise.all(
-              results?.map(product => enrichProductWithMetadata(product, state, context))
+              results?.map(product => enrichProductWithMetadata(product, state, sanitizedState, context, locale))
             );
             
             const filteredProducts = products.filter(product => product).filter(shouldProcessProduct);
-            const filteredPaths = filteredProducts.map(product => ({ 
+            let filteredPaths = filteredProducts.map(product => ({ 
               sku: product.sku, 
-              path: getProductUrl(product, context, false)
+              path: getSanitizedProductUrl(product, locale)
             }));
 
             logger.info(`Filtered down to ${filteredPaths.length} products that need updating`);
             
             if (filteredPaths.length > 0) {
-              const promiseBatches = previewAndPublish([filteredPaths], 'en-us', adminApi);
-              await processPublishBatches(promiseBatches, state, counts, products, aioLibs, failedSkus);
+              const promiseBatches = previewAndPublish([filteredPaths], locale, adminApi);
+              await processPublishBatches(promiseBatches, locale, state, counts, products, aioLibs, failedSkus);
               timings.sample('publishedPaths');
             }
           }
         } else {
-          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger); 
+          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
         }
         
-        // After processing, delete the key
+        const now = new Date();
+        const timestampMs = now.getTime(); // Milliseconds since epoch
+
         if (counts.failed > 0) {
-          logger.info(`Failed to process ${counts.failed} products, not deleting key: ${firstKey}`);
+          logger.error(`Failed to process ${counts.failed} products, creating new webhook with failed SKUs and deleting key: ${firstKey}`);
+          
+          const sKey = `${firstKey?.split('.')[0]}.${timestampMs}`;
+          logger.error(`Webhook request created with failed SKUs: ${sKey}`);
+          // Store Failed SKUs in state with a TTL of 24 hours (86400 seconds)
+          await stateLib.put(sKey, JSON.stringify(failedSkus), { ttl: 86400 });
         } else {
-          await stateLib.delete(firstKey);
-          logger.info(`Deleted processed key: ${firstKey}`);
+          logger.info(`Deleteing processed key: ${firstKey}`);
         }
+
+        // Delete the original key regardless of success/failure
+        await stateLib.delete(firstKey);
 
       } catch (e) {
         logger.error(`Error processing key ${firstKey}:`, e);

@@ -2,14 +2,22 @@
     {{#if summarynotes}}
     <div>
         <div>
-            <h3>Supplementary info</h3>
+            <h3>{{supplementaryinfo}}</h3>
             <p>This supplementary information is collated from multiple sources and compiled automatically.</p>
         </div>
     </div>
         {{#each summarynotes}}
         <div>
             <div>
-                <h5>{{this.noteType}}</h5>
+                {{#if (eq this.noteType "targetSummaryMechanical")}}
+                <h5>{{activitysummary}}</h5>
+                {{else if (eq this.noteType "targetSummaryBiological")}}
+                <h5>Biological function summary</h5>
+                {{else if (eq this.noteType "disease")}}
+                <h5>{{associateddiseasesanddisorders}}</h5>
+                {{else}}
+                <h5>Pathways</h5>
+                {{/if}}
                 <p>{{#stripTags this.statement}}{{this.statement}}{{/stripTags}}</p>
             </div>
         </div>

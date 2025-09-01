@@ -6,6 +6,7 @@ application:
         license: Apache-2.0
         inputs:
           LOG_LEVEL: error
+          LOG_INGESTOR_ENDPOINT: "https://log-ingestor.aem-storefront.com/api/v1/services/change-detector"
           HLX_ORG_NAME: "abcam-ltd"
           HLX_SITE_NAME: $AEM_ENVIRONMENT
           HLX_PATH_FORMAT: "/en-us/products/{category}/{slug}"

@@ -5,11 +5,17 @@
         </div>
         <div>
             <h1>{{title}}</h1>
+            {{#if englishtitle}}
+            <h6>{{englishtitle}}</h6>
+            {{/if}}
             <ul>
             {{#each raw.adtags}}
             <li>{{ this }}</li>
             {{/each}}
+            {{#if (eqnumber (len raw.adtags) 0)}}
+            {{else}}
             <li><a href="#">What is this?</a></li>
+            {{/if}}
             </ul>
             {{#if raw.adreviewscount}}
             <em>{{raw.adreviewsaggregaterating}}</em>
@@ -20,7 +26,7 @@
                 {{/if}}
             {{else}}
             <p>Be the first to review this product! <a
-                href="https://www.abcam.com/reviews/submit-review-2?productCode=">Submit a
+                href="https://www.abcam.com/reviews/submit-review?productCode=">Submit a
                 review</a></p>
             {{/if}}
             | 

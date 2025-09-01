@@ -6,18 +6,18 @@
   {{#isValidImageUrl this}}
   <div>
     <div>
-      <img src=https://content.abcam.com/{{ this.imgSeoUrl }}  alt="{{this.imgTitle}}">
+      <img src="https://content.abcam.com/{{ this.imgSeoUrl }}/_jcr_content/renditions/webp-768.webp"  alt="{{this.imgTitle}}"/>
     </div>
     <div>
-      <div><dd>{{this.imgApplication}}</dd></div>
+      <div><dl><dd>{{this.imgApplication}}</dd></dl></div>
       {{#if this.imgSourceName}}
       <strong>{{this.imgSourceName}}{{#if this.imgSourceExternalId}}<strong>{{this.imgSourceExternalId}}</strong>{{/if}}</strong>
       {{/if}}
       <h6>{{this.imgTitle}}</h6>
-      <div><p>{{{this.imgLegend}}}</p></div>
+      <div><p>{{{trimColons this.imgLegend}}}</p></div>
 
       {{#if this.imagesusage}}
-        {{#each this.imagesusage.imageBlocks}}
+        {{#each this.imagesusage}}
           {{#if (isOneOf this.type values="primary,sample")}}
             {{#each this.lanes}}
               {{#if this.description}}
@@ -28,7 +28,7 @@
           {{/if}}
         {{/each}}
 
-        {{#each this.imagesusage.imageBlocks}}
+        {{#each this.imagesusage}}
           {{#if (eq this.type "secondary")}}
             {{#each this.lanes}}
               {{#if this.description}}
@@ -67,7 +67,9 @@
         <p>Exposure time: {{this.imgExposureTime}}</p>
       {{/if}}
 
-      {{#if this.imgCopyrightCredit}} <p><strong><em>{{this.imgCopyrightCredit}}</em></strong></p> {{/if}}
+      {{#if this.imgCopyrightCredit}}
+        <p><strong><em>{{this.imgCopyrightCredit}}</em></strong></p>
+      {{/if}}
     </div>
   </div>
   {{/isValidImageUrl}}

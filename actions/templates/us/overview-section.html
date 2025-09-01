@@ -1,4 +1,4 @@
-{{#if isUnpublishedProduct}}
+{{#if (isOneOf raw.adstatus values="inactive,quarantined")}}
 <div>
   {{> product-header-inactive-block class='inactive-product'}}
   {{> product-downloads-inactive-block class='inactive-product'}}
@@ -119,10 +119,19 @@
   {{> product-protocols-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{#if (isNotOneOf raw.adseoclasslevelone values="biochemicals,tissue-lysates,cell-lysates,cell-lines")}}
 <div>
   {{> product-target-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
+{{else if (eq raw.adseoclasslevelone "cell-lines")}}
+  {{#if (and primarytargetrelatedjson primarytargetrelatedjson.number)}}
+  <div>
+    {{> product-target-block class="reduced-width"}}
+    {{> section-metadata-block style='left-column'}}
+  </div>
+  {{/if}}
+{{/if}}
 {{#if raw.adpublicationscount}}
 <div>
   {{> product-publications-block class="reduced-width"}}
@@ -138,11 +147,7 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 <div>
-  <div class="product-promise reduced-width">
-    <div>
-      <div></div>
-    </div>
-  </div>
+  {{> product-promise-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 <div>

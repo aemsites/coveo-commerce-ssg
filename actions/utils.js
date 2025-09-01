@@ -279,7 +279,7 @@ async function requestCOVEO(coveoUrl, skus, ctx) {
 async function requestTargetCOVEO(coveoUrl, ids, ctx) {
   const { logger } = ctx;
   const body = {
-    context: { type: "target", number: ids },
+    context: { type: "target", number: ids, host: ctx.config.coveoHost },
     pipeline: ctx.config.coveoPipeline,
     searchHub: ctx.config.coveoSearchHub,
     numberOfResults: ids.length,
@@ -384,6 +384,11 @@ function isValidUrl(string) {
   }
 }
 
+  const locales = [
+    'zh-cn',
+    'ja-jp'
+  ];
+
 /**
  * Constructs the URL of a product.
  *
@@ -391,35 +396,24 @@ function isValidUrl(string) {
  * @param {Object} context The context object containing the store URL and path format.
  * @returns {string} The product url or null if storeUrl or pathFormat are missing.
  */
-function getProductUrl(product, context, addStore = true) {
-  const path = `/en-us/products/${product?.raw?.adseoclasslevelone}/${product?.raw?.adproductslug}`;
-  // const { storeUrl, pathFormat } = context;
-  // if (!storeUrl || !pathFormat) {
-  //   return null;
-  // }
+function getProductUrl(product, locale) {
+  let slug = product?.raw?.adproductslug;
+  if (slug === '#NAME?') {
+    slug = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+  }
 
-  // const availableParams = {
-  //   sku: product.sku,
-  //   urlKey: product.urlKey,
-  //   locale: context.locale,
-  // };
+  const basePath = locales.includes(locale) ? '/products' : `/${locale}/products`;
+  return `${basePath}/${product?.raw?.adseoclasslevelone}/${slug}`;
+}
 
-  // let path = pathFormat.split('/')
-  //   .filter(Boolean)
-  //   .map(part => {
-  //     if (part.startsWith('{') && part.endsWith('}')) {
-  //       const key = part.substring(1, part.length - 1);
-  //       return availableParams[key];
-  //     }
-  //     return part;
-  //   });
 
-  // if (addStore) {
-  //   path.unshift(storeUrl);
-  //   return path.join('/');
-  // }
-
-  return path;
+function getSanitizedProductUrl(product, locale){
+  const slug = product?.raw?.adproductslug;
+  if (/^-|--/.test(slug)) {
+    const sanitizedSlug = slug?.replace(/-+/g, '-')?.replace(/^-/g, '');
+    product.raw.adproductslug = sanitizedSlug;
+  }
+  return getProductUrl(product, locale);
 }
 
 /**
@@ -427,11 +421,13 @@ function getProductUrl(product, context, addStore = true) {
  *
  * @param {Object} product Product with sku and urlKey properties.
  */
-function getTargetUrl(target) {
-  const targetnumber = target?.raw?.tgtnumber?.replace(/^TGT/, "");
-  const path = `/en-us/targets/${target?.raw?.tgtslug}/${targetnumber}`;
-  return path;
+function getTargetUrl(target, locale) {
+  const { tgtnumber, tgtslug } = target?.raw || {};
+  const targetnumber = tgtnumber?.replace(/^TGT/, "");
+  const basePath = locales.includes(locale) ? '/targets' : `/${locale}/targets`;
+  return `${basePath}/${tgtslug}/${targetnumber}`;
 }
+
 
 /**
  * Adjust the context according to the given locale.
@@ -468,6 +464,7 @@ module.exports = {
   requestSpreadsheet,
   isValidUrl,
   getProductUrl,
+  getSanitizedProductUrl,
   getTargetUrl,
   mapLocale,
   FILE_PREFIX,

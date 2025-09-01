@@ -127,6 +127,21 @@ function parseJson(jsonString) {
   }
 }
 
+function getFormattedDate(previewedDate){
+  const date = new Date(previewedDate);
+
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+
+  const hh = String(date.getUTCHours()).padStart(2, '0');
+  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  const ss = String(date.getUTCSeconds()).padStart(2, '0');
+
+  const isoWithoutMs = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+  return isoWithoutMs;
+}
+
 async function generateTargetHtml(target, ctx, state) {
   const { logger } = ctx;
 
@@ -134,6 +149,7 @@ async function generateTargetHtml(target, ctx, state) {
     logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
 
     target.title = `${target.raw.tgtname} | Abcam `;
+    target.publihseddate = getFormattedDate(target?.raw?.indexeddate);
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);
     target.function = target?.relevancejson?.function;
     target.involvementindisease = target?.relevancejson?.involvementInDisease;

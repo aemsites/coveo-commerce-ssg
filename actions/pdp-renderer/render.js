@@ -11,6 +11,10 @@ Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
 });
 
+Handlebars.registerHelper("eqnumber", function(a, b) {
+  return a === b;
+});
+
 Handlebars.registerHelper("lt", function(a, b) {
   return a < b;
 });
@@ -30,11 +34,16 @@ Handlebars.registerHelper('getReactType', function(context, field) {
 });
 
 Handlebars.registerHelper('getReactNotes', function(context, field) {
-  return context[field]?.notes || '';
+  const escapedString = context[field]?.notes?.replace(/"/g, '\\"');
+  return escapedString || '';
 });
 
 Handlebars.registerHelper('getReactDilution', function(context, field) {
   return context[field]?.recommendeddilution || '';
+});
+
+Handlebars.registerHelper('escapeQuotes', function (text) {
+  return text.replace(/"/g, '\\"');
 });
 
 Handlebars.registerHelper("concat", function(...args) {
@@ -54,11 +63,11 @@ Handlebars.registerHelper("isValidImageUrl", function(image, options) {
 });
 
 Handlebars.registerHelper('replaceSlash', function(text) {
-  return text.replace(/[^a-zA-Z0-9]/g, "");
+  return text?.replace(/[^a-zA-Z0-9]/g, "");
 });
 
 Handlebars.registerHelper('stripTags', function(text) {
-  return text.replace(/(<([^>]+)>)/gi, "");
+  return text?.replace(/(<([^>]+)>)/gi, "");
 });
 
 Handlebars.registerHelper('toLowerCase', function(str) {
@@ -69,6 +78,12 @@ Handlebars.registerHelper('isOneOf', function(value, options) {
   const validValues = options.hash.values.split(',');
   return validValues.includes(value?.toLowerCase()) ? true : false;
 });
+
+Handlebars.registerHelper('isNotOneOf', function(value, options) {
+  const validValues = options.hash.values.split(',');
+  return validValues.includes(value?.toLowerCase()) ? false : true;
+});
+
 
 Handlebars.registerHelper("object", function () {
     let obj = {};
@@ -131,13 +146,13 @@ function parseJson(jsonString) {
   }
 }
 
-async function getRelatedTargets(relatedTargets, aioLibs){
+async function getRelatedTargets(relatedTargets, aioLibs, logger){
   const targets = relatedTargets?.split('|');
   // load target state
-  const state = await loadState('en-us', aioLibs);
+  const state = await loadState('en-us', aioLibs, logger);
   let additionalTargets = [];
   targets?.forEach(target =>{
-    additionalTargets.push(state.ids[target]?.name);
+    additionalTargets.push(state.ids[target?.toLowerCase()]?.name);
   })
   return additionalTargets.join(',');
 }
@@ -152,100 +167,323 @@ function getAntibodyPurity(technique, reagent, fraction){
   return fraction ? fraction : undefined
 }
 
-async function generateProductHtml(product, ctx, state) {
-  // const path = state.skus[sku]?.path || '';
-  const { logger } = ctx;
+function sanitizeString(str) {
+  return str
+    .replace(/\\+_/g, '_')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
+function getFormattedDate(indexedDate) {
+  const indexeddate = new Date(indexedDate);
+
+  const yyyy = indexeddate.getUTCFullYear();
+  const mm = String(indexeddate.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(indexeddate.getUTCDate()).padStart(2, '0');
+
+  const hh = String(indexeddate.getUTCHours()).padStart(2, '0');
+  const min = String(indexeddate.getUTCMinutes()).padStart(2, '0');
+  const ss = String(indexeddate.getUTCSeconds()).padStart(2, '0');
+
+  const isoWithoutMs = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+  return isoWithoutMs;
+}
+
+Handlebars.registerHelper('trimColons', function (text) {
+  if (typeof text === 'string') {
+    return text.replace(/:\s*/g, ' : '); // Removes leading and trailing colons
+  }
+  return text; // Return as-is if not a string
+});
+
+function createLocalizer(localisedJson, locale = 'en-us') {
+  return function(key) {
+    const item = localisedJson.find(entry => entry.Key === key);
+    return item ? item[locale] : null;
+  };
+}
+
+function convertJsonKeysToLowerCase(jsonObj) {
+  return Object.fromEntries(
+    Object.entries(jsonObj).map(([key, value]) => [key.toLowerCase(), value])
+  );
+}
+
+async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
+  const { logger } = ctx;
+  const { localisedJson } = state;
+  logger.debug(localisedJson || "No localisedJson found");
+  const getLocalizedValue = createLocalizer(localisedJson, locale);
   try {
     // const product = JSON.parse(data?.toString());
     logger.debug(product?.raw?.adproductslug || "No adproductslug found");
-    product.status = product.raw.adstatus.toLowerCase();
+    product.status = product.raw.adstatus?.toLowerCase();
+    product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
+    logger.debug("published Date :",product.publihseddate);
+    product.locale = locale;
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
-    
-    product.productmetatitle = product.raw.admetatitle || product.raw.adgentitle || product.title;
-    product.productmetadescription = product.raw.admetadescription || product.raw.adgenshortdescription || '';
-    product.categorytype = product.raw.adcategorytype;
-    product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
-    product.targetdata = parseJson(product.raw.targetjson);
-    product.target = parseJson(product.raw.adprimarytargetjson);
-    product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
-    product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
-    product.targetfunction = product.targetrelevance?.function?.join('. ');
-    product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
-    product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
-    product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
-    product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
-    product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
-    if (product.celltargetattr) {
-      product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
-      product.celltargetattr.strlocus = product.celltargetattr?.strLocus?.join(', ');
-      product.celltargetattr.cultureproperties = product.celltargetattr?.cultureProperties?.join(', ');
-    }
-    product.cellattr = parseJson(product.raw.adcelllineattributesjson);
-    if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
-    product.conjugations = parseJson(product.raw.adconjugationsjson);
-    product.notes = parseJson(product.raw?.adnotesjson);
-    product.images = parseJson(product.raw.imagesjson);
-    product.images?.forEach((image) =>{
-      image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
-      image.legend = image.legend?.replace(/"/g, '\\"');
-      image.imagesusage = parseJson(image?.imgImageUsageJSON);
-    })
-    product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
-    product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
-    product.applications = parseJson(product.raw.adapplicationreactivityjson);
-    product.tabledata = parseJson(product.raw.reactivitytabledata);
-    product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
-    product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
-    product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
-    if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.categoryType?.toLowerCase()?.replace(/ /g, '-');
-    product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
-    product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
-      if (toprecommendedproduct) {
-        toprecommendedproduct.type = toprecommendedproduct?.categoryType?.toLowerCase()?.replace(/ /g, '-');
-      }
-    });
-    product.publications = parseJson(product.raw.adpublicationsjson)?.items;
-    product.sampletypes = parseJson(product.raw.adkitsampletypesjson);
-
-    product.publications?.forEach((publication) => {
-      publication.publicationYear = new Date(publication.publicationDate).getFullYear();
-    });
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
-    product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
-    const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
-    product.sequenceinfotag = parseJson(sequenceinfotag)?.at(0);
-    product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
-    product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
-    product.immunogendesc = product.raw.adimmunogendescription;
-    product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
-    product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
-    product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
-    product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-    product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
-    product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
-    product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
-    product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
-    product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
-    product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
-    product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+    product.protocolsdownloads?.forEach((link) => {
+      link.url = product.isLegacyUnpublished ? `https://doc.abcam.com/${link.url}` : `https://content.abcam.com/content/dam/abcam/product/${link.url}`;
+      logger.debug(link.url);
+    })
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
-    product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
-    product.relatedProducts = mapRelatedProducts({
+
+    if(product.status !== 'inactive' && product.status !== 'quarantined'){
+
+      product.keyfacts = getLocalizedValue('key-facts');
+      product.hostspecies = getLocalizedValue('host-species');
+      product.clonality = getLocalizedValue('clonality');
+      product.clonenumber = getLocalizedValue('clone-number');
+      product.isotype = getLocalizedValue('isotype');
+      product.lightchaintype = getLocalizedValue('light-chain-type');
+      product.conjugation = getLocalizedValue('conjugation');
+      product.excitation = getLocalizedValue('excitation');
+      product.emission = getLocalizedValue('emission');
+      product.carrierfree = getLocalizedValue('carrier-free');
+      product.targetspecies = getLocalizedValue('target-species');
+      product.reactswith = getLocalizedValue('reacts-with');
+      product.applicationsheading = getLocalizedValue('applications');
+      product.immunogen = getLocalizedValue('immunogen');
+      product.epitope = getLocalizedValue('epitope');
+      product.specificity = getLocalizedValue('specificity');
+      product.targetisotype = getLocalizedValue('target-isotype');
+      product.targetspecificity = getLocalizedValue('target-specificity');
+      product.minimalcrossreactivity = getLocalizedValue('minimal-cross-reactivity');
+      product.preadsorbed = getLocalizedValue('pre-adsorbed');
+      product.target = getLocalizedValue('target');
+      product.assaytype = getLocalizedValue('assay-type');
+      product.storagebuffer = getLocalizedValue('storage-buffer');
+      product.form = getLocalizedValue('form');
+      product.purity = getLocalizedValue('purity');
+      product.reconstitution = getLocalizedValue('reconstitution');
+      product.casnumber = getLocalizedValue('cas-number');
+      product.source = getLocalizedValue('source');
+      product.molecularweight = getLocalizedValue('molecular-weight');
+      product.molecularformula = getLocalizedValue('molecular-formula');
+      product.pubchem = getLocalizedValue('pubchem');
+      product.nature = getLocalizedValue('nature');
+      product.solubility = getLocalizedValue('solubility');
+      product.biochemicalname = getLocalizedValue('biochemical-name');
+      product.biologicaldescription = getLocalizedValue('biological-description');
+      product.canonicalsmiles = getLocalizedValue('canonical-smiles');
+      product.isomericsmiles = getLocalizedValue('isomeric-smiles');
+      product.inchi = getLocalizedValue('inchi');
+      product.inchikey = getLocalizedValue('inchikey');
+      product.iupacname = getLocalizedValue('iupac-name');
+      product.detectionmethod = getLocalizedValue('detection-method');
+      product.sampletypes = getLocalizedValue('sample-types');
+      product.sensitivity = getLocalizedValue('sensitivity');
+      product.range = getLocalizedValue('range');
+      product.assaytime = getLocalizedValue('assay-time');
+      product.assayplatform = getLocalizedValue('assay-platform');
+      product.generalrecovery = getLocalizedValue('general-recovery');
+      product.endotoxinlevel = getLocalizedValue('endotoxin-level');
+      product.expressionsystem = getLocalizedValue('expression-system');
+      product.tags = getLocalizedValue('tags');
+      product.biologicallyactive = getLocalizedValue('biologically-active');
+      product.biologicalactivity = getLocalizedValue('biological-activity');
+      product.massspectrometry = getLocalizedValue('mass-spectrometry');
+      product.accession = getLocalizedValue('accession');
+      product.animalfree = getLocalizedValue('animal-free');
+      product.species = getLocalizedValue('species');
+      product.celltype = getLocalizedValue('cell-type');
+      product.speciesororganism = getLocalizedValue('species-or-organism');
+      product.tissue = getLocalizedValue('tissue');
+      product.knockoutvalidation = getLocalizedValue('knockout-validation');
+      product.mutationdescription = getLocalizedValue('mutation-description');
+      product.antibioticresistance = getLocalizedValue('antibiotic-resistance');
+      product.disease = getLocalizedValue('disease');
+      product.associatedproductsheading = getLocalizedValue('associated-products');
+      product.recommendedalternatives = getLocalizedValue('recommended-alternatives');
+      product.relatedconjugatesandformulations = getLocalizedValue('related-conjugates-and-formulations');
+      product.reactivitydata = getLocalizedValue('reactivity-data');
+      product.haveyouthoughtaboutthisalternative = getLocalizedValue('have-you-thought-about-this-alternative');
+      product.whyisthisrecommended = getLocalizedValue('why-is-this-recommended');
+      product.youmaybeinterestedin = getLocalizedValue('you-may-be-interested-in');
+      product.productdetails = getLocalizedValue('product-details');
+      product.sequenceinfo = getLocalizedValue('sequence-info');
+      product.precision = getLocalizedValue('precision');
+      product.recovery = getLocalizedValue('recovery');
+      product.whatsincluded = getLocalizedValue('whats-included');
+      product.propertiesandstorageinformation = getLocalizedValue('properties-and-storage-information');
+      product.purificationtechnique = getLocalizedValue('purification-technique');
+      product.purificationnotes = getLocalizedValue('purification-notes');
+      product.genename = getLocalizedValue('gene-name');
+      product.geneeditingtype = getLocalizedValue('gene-editing-type');
+      product.geneeditingmethod = getLocalizedValue('gene-editing-method');
+      product.zygosity = getLocalizedValue('zygosity');
+      product.shippedatconditions = getLocalizedValue('shipped-at-conditions');
+      product.appropriateshorttermstorageduration = getLocalizedValue('appropriate-short-term-storage-duration');
+      product.appropriateshorttermstorageconditions = getLocalizedValue('appropriate-short-term-storage-conditions');
+      product.appropriatelongtermstorageconditions = getLocalizedValue('appropriate-long-term-storage-conditions');
+      product.aliquotinginformation = getLocalizedValue('aliquoting-information');
+      product.storageinformation = getLocalizedValue('storage-information');
+      product.handlingprocedures = getLocalizedValue('handling-procedures');
+      product.initialhandlingguidelines = getLocalizedValue('initial-handling-guidelines');
+      product.subcultureguidelines = getLocalizedValue('subculture-guidelines');
+      product.culturemedium = getLocalizedValue('culture-medium');
+      product.cryopreservationmedium = getLocalizedValue('cryopreservation-medium');
+      product.supplementaryinfo = getLocalizedValue('supplementary-info');
+      product.activitysummary = getLocalizedValue('activity-summary');
+      product.associateddiseasesanddisorders = getLocalizedValue('associated-diseases-and-disorders');
+      product.specifications = getLocalizedValue('specifications');
+      product.additionalnotes = getLocalizedValue('additional-notes');
+      product.generalinfo = getLocalizedValue('general-info');
+      product.function = getLocalizedValue('function');
+      product.sequencesimilarities = getLocalizedValue('sequence-similarities');
+      product.posttranslationalmodifications = getLocalizedValue('post-translational-modifications');
+      product.subcellularlocalisation = getLocalizedValue('subcellular-localisation');
+      product.qualitycontrol = getLocalizedValue('quality-control');
+      product.stranalysis = getLocalizedValue('str-analysis');
+      product.cellculture = getLocalizedValue('cell-culture');
+      product.biosafetylevel = getLocalizedValue('biosafety-level');
+      product.adherentsuspension = getLocalizedValue('adherentsuspension');
+      product.gender = getLocalizedValue('gender');
+      product.viability = getLocalizedValue('viability');
+      product.productprotocols = getLocalizedValue('product-protocols');
+      product.targetdataheading = getLocalizedValue('target-data');
+      product.additionaltargets = getLocalizedValue('additional-targets');
+      product.publicationsheading = getLocalizedValue('publications');
+      product.productpromise = getLocalizedValue('product-promise');
+
+      const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
+      product.englishtitle = localisedtitle[locale] ? product.title : null;
+      product.title = localisedtitle[locale] || product.title;
+
+      const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
+      const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
+      product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
+
+      const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
+      const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
+      product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
+      product.raw.admetadescription = product.raw.admetadescription?.trim();
+
+      product.categorytype = product.raw.adcategorytype;
+      product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
+      product.targetdata = parseJson(product.raw.targetjson);
+      product.target = parseJson(product.raw.adprimarytargetjson);
+      product.alternativenames = product.target?.adPrimaryTargetAlternativeNames?.split('|')?.join(', ') || product.target?.adPrimaryTargetAlternativeNames;
+      product.targetrelevance = parseJson(product.target?.adPrimaryTargetRelevanceJSON)
+      product.primarytargetrelatedjson = parseJson(product.target?.adPrimaryTargetRelatedTargetsJSON)?.at(0);
+      const primarytargetrelatedjson =  parseJson(product.target?.adPrimaryTargetRelatedTargetsJSON);
+      if(primarytargetrelatedjson) {
+        let primarytargetname = [];
+        primarytargetrelatedjson?.forEach((target) => {
+          primarytargetname.push(target?.name);
+        })
+        product.target.primarytargetname = primarytargetname?.join(' ');
+      }
+      product.targetfunction = String(product.targetrelevance?.function?.join('. ') || '');
+      product.targetposttranslationalmodifications = product.targetrelevance?.postTranslationalModifications?.join('. ');
+      product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
+      product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
+      product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
+      product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
+      if (product.celltargetattr) {
+        product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
+        product.celltargetattr.strlocus = product.celltargetattr?.strLocus?.join(', ');
+        product.celltargetattr.cultureproperties = product.celltargetattr?.cultureProperties?.join(', ');
+      }
+      product.cellattr = parseJson(product.raw.adcelllineattributesjson);
+      if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
+      product.conjugations = parseJson(product.raw.adconjugationsjson);
+      product.notes = parseJson(product.raw?.adnotesjson);
+      product.notes?.forEach((note) => {
+        note.statement = note.statement?.replace(/href="([^"]*?)"/gi, (match, hrefValue) => {
+          const trimmedHref = hrefValue.trim();
+          return `href="${trimmedHref}"`;
+        });
+        note.statement = note.statement?.replace(
+            /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi, '<a href="$1"'
+          );
+        note.statement = note.statement?.replace(
+          /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
+          (match, prefix, pathPrefix, path, query, rest) => {
+            // Remove ../ segments and normalize path
+            const cleanPath = path.replace(/^(\.\.\/)+/, '').replace(/^\//, '').toLowerCase();
+            // Preserve query string if it exists
+            const cleanQuery = query ? query.toLowerCase() : '';
+            // Reconstruct the tag with modified href
+            return `<a ${prefix}/en-us/${cleanPath}${cleanQuery}"${rest}>`;
+          }
+        );
+      });
+      product.images = parseJson(product.raw.imagesjson);
+      product.images?.forEach((image) =>{
+        image.santizedTitle = sanitizeString(image.imgTitle);
+        image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
+        image.legend = image.legend?.replace(/"/g, '\\"');
+        image.imagesusage = parseJson(image?.imgImageUsageJSON);
+      })
+      product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
+      product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
+      product.purityassessment = product.raw.adpurityassessment || '';
+      if(product.purityassessment){
+        product.purity = product.purity + ' ' + product.purityassessment;
+      }
+      product.applications = parseJson(product.raw.adapplicationreactivityjson);
+      product.tabledata = parseJson(product.raw.reactivitytabledata);
+      product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
+      product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
+      product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
+      if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.seoClass?.levelOne;
+      product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
+      product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
+        if (toprecommendedproduct) {
+          toprecommendedproduct.type = toprecommendedproduct?.seoClass?.levelOne;
+        }
+      });
+      if (product.alternateproducts) {
+        product.toprecommendedproducts = [];
+      }
+      product.publications = parseJson(product.raw.adpublicationsjson)?.items;
+      product.sampletypes = parseJson(product.raw.adkitsampletypesjson);
+
+      product.publications?.forEach((publication) => {
+        publication.publicationYear = new Date(publication.publicationDate).getFullYear();
+      });
+      
+      product.sequenceinfo = product.raw.adproteinaminoacidsequencesjson;
+      const sequenceinfotag = product.raw.adproteinaminoacidsequencestags?.replace(/'/g, '"');
+      product.sequenceinfotag = parseJson(sequenceinfotag);
+      product.kitcomponent = parseJson(product.raw.adkitcomponentdetailsjson);
+      product.immunogenlinkjson = parseJson(product.raw.adimmunogendatabaselinksjson)?.at(0);
+      product.immunogendesc = product.raw.adimmunogendescription;
+      product.relatedimmunogens = parseJson(product.raw.adrelatedimmunogensjson);
+      product.purificationnotes = parseJson(product?.raw?.adpurificationnotesjson);
+      product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
+      product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
+      product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
+      product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
+      product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
+      product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
+      product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
+      product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
+      product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
+      product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+      product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
+      product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
+      product.relatedProducts = mapRelatedProducts({
       alternateproducts: product.alternateproducts ? [product.alternateproducts] : [],
       associatedproducts: product.associatedproducts,
       toprecommendedproducts: product.toprecommendedproducts,
       crosssell: product.crosssell,
-    });
-    if (product.alternateproducts) {
-      product.toprecommendedproducts = [];
-    }
+      });
+      if (product.alternateproducts) {
+        product.toprecommendedproducts = [];
+      }
 
-    if(product.raw.adrelatedtargets){
-      const stateLib = await State.init({});
-      const filesLib = await Files.init({});
-      product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib });
+      if(product.raw.adrelatedtargets){
+        const stateLib = await State.init({});
+        const filesLib = await Files.init({});
+        product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+      }
     }
 
     // load the templates
@@ -265,6 +503,7 @@ async function generateProductHtml(product, ctx, state) {
       "product-reactivity-block",
       "product-datasheet-block",
       "product-protocols-block",
+      "product-promise-block",
       "product-storage-block",
       "product-notes-block",
       "product-summarynotes-block",
@@ -291,7 +530,7 @@ async function generateProductHtml(product, ctx, state) {
     let template = '';
     templateNames.forEach((templateName) => {
       const templateContent = fs.readFileSync(
-        __dirname + `/templates/us/${templateName}.html`,
+        `${dirname}/templates/us/${templateName}.html`,
         'utf-8'
       );
       if (templateContent) {

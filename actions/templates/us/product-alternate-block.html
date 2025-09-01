@@ -1,7 +1,7 @@
 <div class="product-alternate {{class}}">
    {{#if alternateproducts}}
    <div>
-      <div><h3>Have you thought about this alternative?</h3></div>
+      <div><h3>{{haveyouthoughtaboutthisalternative}}</h3></div>
    </div>
    <div>
       <div><p>{{ alternateproducts.productCode }}</p></div>
@@ -14,13 +14,23 @@
       <div><p>{{ alternateproducts.reviewsSummary.numberOfReviews }} Reviews</p></div>
    </div>
    <div>
-      <div><a href="{{concat '/en-us/product' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat '/en-us/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+   </div>
+   <div>
+	   <div>
+         <h6>{{whyisthisrecommended}}</h6>
+         <p>
+            We’re constantly upgrading our range to offer the highest quality products.
+            We have selected this alternative product for your review because it gives improved performance, is easier and
+            more convenient to use, or is available faster.
+         </p>
+	   </div>      
    </div>
    {{/if}}
 
    {{#if toprecommendedproducts}}
    <div>
-      <div><h3>You may be interested in:</h3></div>
+      <div><h3>{{youmaybeinterestedin}}:</h3></div>
    </div>
    <div>
       {{#each toprecommendedproducts}}
@@ -42,10 +52,22 @@
          {{/if}}
          {{#if this.productSlug}}
          <div>
-            <div><a href="{{concat '/en-us/product' this.type this.productSlug}}" target="_blank">View product</a></div>
+            <div><a href="{{concat '/en-us/products' this.type this.productSlug}}" target="_blank">View product</a></div>
          </div>
          {{/if}}
       {{/each}}
+   </div>
+   <div>
+		<div>
+         <h6>{{whyisthisrecommended}}</h6>
+         <p>
+            We recommend this product because it’s often used in the same experiment or related research.
+         </p>
+         <p>            
+            We advise that you always check the datasheet to ensure it fits your experiments, or contact our
+            <a href="{{concat '/en-us/contact-us'}}">technical team</a> for help.
+         </p>
+		</div>
    </div>
    {{/if}}
 </div>

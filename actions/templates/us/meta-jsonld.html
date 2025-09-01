@@ -21,6 +21,7 @@
       "name": "Abcam Limited"  
     }
   },
+  {{#if raw.adreviewsaggregaterating}}
   "aggregateRating": {
   "@type": "AggregateRating",
     "ratingValue": "{{raw.adreviewsaggregaterating}}",
@@ -29,27 +30,38 @@
     "reviewCount": "{{raw.adreviewscount}}",
     "ratingCount": "{{raw.adreviewscount}}"
   },
-  "image": [
-  {{#each images}}
-    {{#isValidImageUrl this}}
-    {{#if @last}}
-        {
-            "@type": "ImageObject",
-            "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}",
-            "caption": "{{this.imgTitle}}"
-        }
-    {{else}}
-        {
-            "@type": "ImageObject",
-            "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
-            "name": "{{this.imgTitle}}",
-            "caption": "{{this.imgTitle}}"
-        },
-    {{/if}}
-    {{/isValidImageUrl}}
-  {{/each}}
-  ],
+  {{/if}}
+  {{#if (len images 0)}}
+    "image": [
+      {{#each images}}
+        {{#isValidImageUrl this}}
+        {{#if @last}}
+            {
+                "@type": "ImageObject",
+                "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
+                "name": "{{this.santizedTitle}}",
+                "caption": "{{this.santizedTitle}}"
+            }
+        {{else}}
+            {
+                "@type": "ImageObject",
+                "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
+                "name": "{{this.santizedTitle}}",
+                "caption": "{{this.santizedTitle}}"
+            },
+        {{/if}}
+        {{/isValidImageUrl}}
+      {{/each}}
+    ],
+  {{else}}
+    "image": [
+      {
+        "@type": "ImageObject",
+        "contentUrl": "https://www.abcam.com/eds/icons/default-meta-image.png",
+        "name": "{{title}}"
+      }
+    ],     
+  {{/if}}
   "additionalProperty": [
     {{#each (filter
       (array
@@ -69,13 +81,16 @@
         (object "@type" "PropertyValue" "name" "Assay type" "value" raw.adkitassaytype)
         (object "@type" "PropertyValue" "name" "Assay time" "value" raw.adkitassaytime)
         (object "@type" "PropertyValue" "name" "Range" "value" raw.adkitrange)
+        (object "@type" "PropertyValue" "name" "Citation Count" "value" raw.adpublicationscount)
         (object "@type" "PropertyValue" "name" "Sensitivity" "value" raw.adkitsensitivity)
         
       ) "value") as |property|}}
     {{#unless @first}},{{/unless}}
     {{{json property}}}
     {{/each}}
-  ],
+  ]
+  {{#if associatedproducts}}
+  ,
   "isRelatedTo":[
     {{#each associatedproducts}}
     {{#if @last}}
@@ -91,5 +106,6 @@
     {{/if}}
     {{/each}}
   ]
+  {{/if}}
 }
 </script>

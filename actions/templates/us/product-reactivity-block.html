@@ -1,6 +1,6 @@
 <div class="product-reactivity {{class}}">
     <div>
-        <div><h3>Reactivity Data</h3></div>
+        <div><h3>{{reactivitydata}}</h3></div>
     </div>
     <div>
       <div>
@@ -74,7 +74,7 @@
                         {{#each species}}           
                             "reactivity":"{{this.suitability}}",
                             "dilution-info":"{{this.recommendedDilution}}",
-                            "notes":"{{this.notes}}"
+                            "notes":"{{escapeQuotes this.notes}}"
                         {{/each}}
                     }
                     {{else}}
@@ -82,7 +82,7 @@
                         {{#each species}}           
                             "reactivity":"{{this.suitability}}",
                             "dilution-info":"{{this.recommendedDilution}}",
-                            "notes":"{{this.notes}}"
+                            "notes":"{{escapeQuotes this.notes}}"
                         {{/each}}
                     },
                     {{/if}}

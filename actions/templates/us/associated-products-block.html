@@ -1,10 +1,15 @@
 {{#if associatedproducts}}
 <div class="associated-products {{class}}">
     <div>
-        <div><h3>Associated products</h3></div>
+        <div>
+            <h3>{{associatedproductsheading}}</h3>
+        </div>
+    </div>
+    <div>
+        <div><em>Select an associated product type</em></div>
     </div>
     {{#each associatedproducts}}
-    <div>   
+    <div>
         <div>
             <h6>{{this.relationship}}</h6>
             <h5>{{this.associatedProduct.categoryType}}</h5>
@@ -12,10 +17,10 @@
             <h4>{{this.associatedProduct.name}}</h4>
             {{#if this.associatedProduct.seoClass}}
             <div>{{this.associatedProduct.seoClass.levelOne}}</div>
-            {{/if}}            
+            {{/if}}
             {{#if this.associatedProduct.productSlug}}
             <div>{{this.associatedProduct.productSlug}}</div>
-            {{/if}}            
+            {{/if}}
             {{#if this.associatedProduct.reviewsSummary}}
             <div>{{this.associatedProduct.reviewsSummary.aggregatedRating}}</div>
             <div>({{this.associatedProduct.reviewsSummary.numberOfReviews}} reviews)</div>

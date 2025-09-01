@@ -12,15 +12,24 @@ governing permissions and limitations under the License.
 
 const { Core, State, Files } = require('@adobe/aio-sdk');
 const { fetcher } = require('./fetcher');
+const { ObservabilityClient } = require('../lib/observability');
 
 async function main(params) {
   const logger = Core.Logger('main', { level: params.LOG_LEVEL || 'info' });
+  const observabilityClient = new ObservabilityClient(logger, {
+    token: params.AEM_TOKEN, 
+    endpoint: params.LOG_INGESTOR_ENDPOINT,
+    org: params.HLX_ORG_NAME,
+    site: params.HLX_SITE_NAME
+  });
   const stateLib = await State.init(params.libInit || {});
   const filesLib = await Files.init(params.libInit || {});
 
   const running = await stateLib.get('running');
   if (running?.value === 'true') {
-    return { state: 'skipped' };
+    const result = { state: 'skipped' };
+    await observabilityClient.sendActivationResult(result);
+    return result;
   }
 
   try {
@@ -28,7 +37,9 @@ async function main(params) {
     // this might not be updated and action execution could be permanently skipped
     // a ttl == function timeout is a mitigation for this risk
     await stateLib.put('running', 'true', { ttl: 3600 });
-    return await fetcher(params, { stateLib, filesLib });
+    const result = await fetcher(params, { stateLib, filesLib });
+    await observabilityClient.sendActivationResult(result);
+    return result;
   } finally {
     await stateLib.delete('running');
   }

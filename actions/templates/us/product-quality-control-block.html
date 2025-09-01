@@ -1,15 +1,17 @@
+{{#if (eq raw.adcategorytype "Cell Lines & Lysates")}}
 <div class="product-keyfacts {{class}}">
     <div>
         <div>
-            <h3>Quality control</h3>
+            <h3>{{qualitycontrol}}</h3>
         </div>
     </div>
     <div>
         {{#if celltargetattr.strlocus}}
         <div>
-            <h6>STR analysis</h6>
+            <h6>{{stranalysis}}</h6>
             <p>{{celltargetattr.strlocus}}</p>
         </div>
         {{/if}}
     </div>
 </div>
+{{/if}}

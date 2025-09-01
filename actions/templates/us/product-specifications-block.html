@@ -1,19 +1,20 @@
+{{#if (eq raw.adcategorytype "Proteins & Peptides")}}
 <div class="product-keyfacts {{class}}">
     <div>
         <div>
-            <h3>Specifications</h3>
+            <h3>{{specifications}}</h3>
         </div>
     </div>
     <div>
         {{#if raw.adform}}
         <div>
-            <h6>Form</h6>
+            <h6>{{form}}</h6>
             <p>{{raw.adform}}</p>
         </div>
         {{/if}}
         {{#if purificationnotes}}
         <div>
-            <h6>Additional notes</h6>
+            <h6>{{additionalnotes}}</h6>
             {{#each purificationnotes}}
             <div>
                 <div>
@@ -25,3 +26,4 @@
         {{/if}}
     </div>
 </div>
+{{/if}}

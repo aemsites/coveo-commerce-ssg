@@ -1,5 +1,5 @@
 <div class="product-header {{class}}">
-    {{#if (eq raw.adstatus "quarantined")}}
+    {{#if (and (eq raw.adstatus "quarantined") (eq raw.adawaitinginactivation "false"))}}
     <div>
         <div>
             <h1>We are sorry, {{title}} ({{raw.adassetdefinitionnumber}}) is temporarily unavailable</h1>
@@ -11,7 +11,7 @@
             </p>
         </div>
     </div>
-    {{else if (eq raw.adstatus "inactive")}}
+    {{else if (isOneOf raw.adstatus values="inactive,quarantined")}}
     <div>
         <div>
             <h1>{{title}} ({{raw.adassetdefinitionnumber}}) is unavailable</h1>
