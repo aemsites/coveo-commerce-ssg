@@ -45,15 +45,9 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if raw.adkitassayprecisionjson}}
+{{#if (or raw.adkitassayprecisionjson adkitrecoveryjson)}}
 <div>
   {{> product-precision-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-{{#if raw.adkitrecoveryjson}}
-<div>
-  {{> product-recovery-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
@@ -67,22 +61,6 @@
   {{> product-storage-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
-{{#if cellattr}}
-<div>
-  {{> product-handling-procedures-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
-<div>
-  {{> product-summarynotes-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{#if (or raw.adform purificationnotes)}}
-<div>
-  {{> product-specifications-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-{{/if}}
 {{#if (eq raw.adseoclasslevelone "proteins-peptides")}}
 <div>
   {{> product-general-info-block class="reduced-width"}}
@@ -95,7 +73,7 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 {{/if}}
-{{#if celltargetattr}}
+{{#if (or celltargetattr cellattr)}}
 <div>
   {{> product-cell-culture-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}

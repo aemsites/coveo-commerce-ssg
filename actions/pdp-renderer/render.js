@@ -310,6 +310,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.sequenceinfo = getLocalizedValue('sequence-info');
       product.precision = getLocalizedValue('precision');
       product.recovery = getLocalizedValue('recovery');
+      product.precisionrecovery = getLocalizedValue('precision-recovery');
       product.whatsincluded = getLocalizedValue('whats-included');
       product.propertiesandstorageinformation = getLocalizedValue('properties-and-storage-information');
       product.purificationtechnique = getLocalizedValue('purification-technique');
