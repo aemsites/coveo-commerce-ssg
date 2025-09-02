@@ -146,10 +146,10 @@ function parseJson(jsonString) {
   }
 }
 
-async function getRelatedTargets(relatedTargets, aioLibs, logger){
+async function getRelatedTargets(relatedTargets, aioLibs, locale, logger){
   const targets = relatedTargets?.split('|');
   // load target state
-  const state = await loadState('en-us', aioLibs, logger);
+  const state = await loadState(locale, aioLibs, logger);
   let additionalTargets = [];
   targets?.forEach(target =>{
     additionalTargets.push(state.ids[target?.toLowerCase()]?.name);
@@ -212,6 +212,8 @@ function convertJsonKeysToLowerCase(jsonObj) {
   );
 }
 
+const localeCnJp = ['zh-cn', 'ja-jp'];
+
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
   const { localisedJson } = state;
@@ -223,7 +225,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
-    product.locale = locale;
+    product.locale = (localeCnJp.includes(locale)) ? '' :  `/${locale}`;
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
@@ -352,7 +354,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise = getLocalizedValue('product-promise');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
-      product.englishtitle = localisedtitle[locale] ? product.title : null;
+      product.englishtitle = locale === 'en-us' ? null : product.title;
       product.title = localisedtitle[locale] || product.title;
 
       const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
@@ -410,7 +412,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
             // Preserve query string if it exists
             const cleanQuery = query ? query.toLowerCase() : '';
             // Reconstruct the tag with modified href
-            return `<a ${prefix}/en-us/${cleanPath}${cleanQuery}"${rest}>`;
+            return `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
           }
         );
       });
@@ -431,6 +433,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.tabledata = parseJson(product.raw.reactivitytabledata);
       product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
       product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
+      product.associatedproducts.locale = product.locale;
       product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
       if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.seoClass?.levelOne;
       product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
@@ -481,7 +484,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       if(product.raw.adrelatedtargets){
         const stateLib = await State.init({});
         const filesLib = await Files.init({});
-        product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, logger);
+        product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
       }
     }
 
