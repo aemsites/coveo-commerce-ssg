@@ -520,7 +520,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "product-kitcomponent-block",
       "product-header-inactive-block",
       "product-related-products",
-      "product-related-products",
       "product-downloads-inactive-block",
       "product-unpublished-replacements-block",
       "meta-jsonld",
