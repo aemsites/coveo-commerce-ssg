@@ -354,8 +354,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise = getLocalizedValue('product-promise');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
-      product.englishtitle = locale === 'en-us' ? null : product.title;
-      product.title = localisedtitle[locale] || product.title;
+      product.englishtitle = (locale === 'en-us') ? null : product.title;
+      product.title = localisedtitle ? localisedtitle[locale] : product.title;
 
       const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
       const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
@@ -433,7 +433,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.tabledata = parseJson(product.raw.reactivitytabledata);
       product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
       product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
-      product.associatedproducts.locale = product.locale;
+      if (product.associatedproducts) product.associatedproducts.locale = product.locale;
       product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
       if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.seoClass?.levelOne;
       product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
