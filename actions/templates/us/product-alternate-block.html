@@ -14,7 +14,11 @@
       <div><p>{{ alternateproducts.reviewsSummary.numberOfReviews }} Reviews</p></div>
    </div>
    <div>
+      {{#if locale}}
       <div><a href="{{concat locale 'products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      {{else}}
+      <div><a href="{{concat '/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      {{/if}}
    </div>
    <div>
 	   <div>
@@ -52,7 +56,11 @@
          {{/if}}
          {{#if this.productSlug}}
          <div>
+            {{#if locale}}
             <div><a href="{{concat locale 'products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            {{else}}
+            <div><a href="{{concat '/products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            {{/if}}
          </div>
          {{/if}}
       {{/each}}
@@ -65,7 +73,11 @@
          </p>
          <p>            
             We advise that you always check the datasheet to ensure it fits your experiments, or contact our
+            {{#if locale}}    
             <a href="{{concat locale 'contact-us'}}">technical team</a> for help.
+            {{else}}
+            <a href="{{concat '/contact-us'}}">technical team</a> for help.
+            {{/if}}
          </p>
 		</div>
    </div>

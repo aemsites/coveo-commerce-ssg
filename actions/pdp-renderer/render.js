@@ -225,7 +225,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
-    product.locale = (localeCnJp.includes(locale)) ? '' :  `/${locale}`;
+    product.locale = (localeCnJp.includes(locale)) ? null :  `/${locale}`;
     product.isUnpublishedProduct = (product.status === "inactive" || product.status === "quarantined") && !!product?.raw?.adunpublishedattributes;
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
