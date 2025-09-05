@@ -6,15 +6,14 @@
     </div>
     <div>
         <div>
-            <p>We are committed to supporting your work with high-quality reagents, and we're here for you every step of
-                the way.
-                In the unlikely event that one of our products does not perform as expected, you're protected by our
-                Product Promise.
-            </p>
+            <p>{{productpromise1}}</p>
         </div>
         <div>
-            <p>For full details, please see our <a href="{{locale}}/legal/product-promise-terms-conditions" target="_self">
-            Terms & Conditions</a></p>
+            {{#if locale}}
+            <p>{{productpromise2}} <a href="{{locale}}/legal/product-promise-terms-conditions" target="_self">{{productpromise3}}</a>{{productpromise4}}</p>
+            {{else}}
+            <p>{{productpromise2}}<a href="/legal/product-promise-terms-conditions" target="_self">{{productpromise3}}</a>{{productpromise4}}</p>
+            {{/if}}
         </div>
     </div>
 </div>
