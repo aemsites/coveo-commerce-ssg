@@ -476,7 +476,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       associatedproducts: product.associatedproducts,
       toprecommendedproducts: product.toprecommendedproducts,
       crosssell: product.crosssell,
-      });
+      },
+      product.locale);
       if (product.alternateproducts) {
         product.toprecommendedproducts = [];
       }

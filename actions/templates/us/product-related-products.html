@@ -10,10 +10,19 @@
       <h6>{{this.relationship}}</h6>
       <h5>{{this.categoryType}}</h5>
       <p>{{this.productCode}}</p>
+      {{#if locale}}
+      <a href="{{locale}}{{this.href}}">{{this.productName}}</a>
+      {{else}}
       <a href="{{this.href}}">{{this.productName}}</a>
+      {{/if}}
       {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
-      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
       {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
+      {{#if this.reviewSummary}}
+      <ul>
+        <li>{{this.reviewSummary.aggregatedRating}}</li>
+        <li>{{this.reviewSummary.numberOfReviews}}</li>
+      </ul>
+      {{/if}}
     </div>
     {{/each}}
   </div>
@@ -27,10 +36,19 @@
       <h6>{{this.relationship}}</h6>
       <h5>{{this.categoryType}}</h5>
       <p>{{this.productCode}}</p>
+      {{#if locale}}
+      <a href="{{locale}}{{this.href}}">{{this.productName}}</a>
+      {{else}}
       <a href="{{this.href}}">{{this.productName}}</a>
+      {{/if}}
       {{#if this.tags}}<em>{{this.tags}}</em>{{/if}}
-      {{#if this.imageCount}}<strong>{{this.imageCount}}</strong>{{/if}}
       {{#if this.image}}<img src="{{this.image.url}}" alt="{{this.image.title}}">{{/if}}
+      {{#if this.reviewSummary}}
+      <ul>
+        <li>{{this.reviewSummary.aggregatedRating}}</li>
+        <li>{{this.reviewSummary.numberOfReviews}}</li>
+      </ul>
+      {{/if}}
     </div>
     {{/each}}
   </div>

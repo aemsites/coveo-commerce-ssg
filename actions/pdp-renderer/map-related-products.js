@@ -1,63 +1,76 @@
-const mapProducts = (products) => {
-  if (!products || products.length === 0) return []
-  return products.map((product) => {
-    const prd = product.associatedProduct || product.product || product
-    if (!prd) return
-    const href =
-      prd.seoClass?.levelOne && prd.productSlug
-        ? `/${prd.seoClass.levelOne}/${prd.productSlug}`
-        : null
+const mapProducts = (products, locale) => {
+  if (!products || products.length === 0) return [];
 
-    return {
-      relationship: prd.relationship,
-      categoryType: prd.categoryType,
-      productCode: prd.productCode,
-      productName: prd.name,
-      href,
-      tags: prd.productTags?.map((tag) => tag.tagCode).join('|'), // We join just cause it's easier to handle in the template
-      imageCount: prd.imageCount || 0,
-      image: prd.images?.[0]?.seoUrl
-        ? {
-            url: `https://content.abcam.com/${prd.images[0].seoUrl}`,
-            title: prd.images?.[0]?.title || prd.name,
-          }
-        : null,
-    }
-  })
-}
+  return products
+    .map((product) => {
+      const prd = product.associatedProduct || product.product || product;
+      if (!prd) return null;
 
-const mapRelatedProducts = ({
-  alternateproducts,
-  associatedproducts,
-  toprecommendedproducts,
-  crosssell,
-}) => {
+      let href;
+      if (prd.seoClass?.levelOne && prd.productSlug) {
+        href = locale
+          ? `${locale}/products/${prd.seoClass.levelOne}/${prd.productSlug}`
+          : `/products/${prd.seoClass.levelOne}/${prd.productSlug}`;
+      }
+
+      return {
+        relationship: prd.relationship,
+        categoryType: prd.categoryType,
+        productCode: prd.productCode,
+        productName: prd.name,
+        reviewSummary: prd.reviewsSummary,
+        href,
+        tags: prd.productTags?.map((tag) => tag.tagCode).join('|'),
+        imageCount: prd.imageCount || 0,
+        image: prd.images?.[0]?.seoUrl
+          ? {
+              url: `https://content.abcam.com/${prd.images[0].seoUrl}`,
+              title: prd.images?.[0]?.title || prd.name,
+            }
+          : null,
+      };
+    })
+    .filter(Boolean); // Removes null entries
+};
+
+const mapRelatedProducts = (
+  {
+    alternateproducts,
+    associatedproducts,
+    toprecommendedproducts,
+    crosssell,
+  },
+  locale
+) => {
   const alternativeProducts = [
-    ...mapProducts(alternateproducts),
+    ...mapProducts(alternateproducts, locale),
     ...mapProducts(
       (associatedproducts || []).filter(({ relationshipType }) =>
         ['alternativeProduct'].includes(relationshipType)
-      )
+      ),
+      locale
     ),
-  ]
+  ];
+
   const complementaryProducts = [
-    ...mapProducts(toprecommendedproducts),
+    ...mapProducts(toprecommendedproducts, locale),
     ...mapProducts(
-      ...(associatedproducts || []).filter(({ relationshipType }) =>
+      (associatedproducts || []).filter(({ relationshipType }) =>
         ['compatibleSecondaries', 'isotypeControl'].includes(relationshipType)
-      )
+      ),
+      locale
     ),
-    ...mapProducts(crosssell),
-  ]
+    ...mapProducts(crosssell, locale),
+  ];
 
   if (!alternativeProducts.length && !complementaryProducts.length) {
-    return null
+    return null;
   }
 
   return {
     alternativeProducts: alternativeProducts.length ? alternativeProducts : null,
     complementaryProducts: complementaryProducts.length ? complementaryProducts : null,
-  }
-}
+  };
+};
 
-module.exports = { mapRelatedProducts }
+module.exports = { mapRelatedProducts };
