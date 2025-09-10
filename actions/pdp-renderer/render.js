@@ -355,6 +355,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise2 = getLocalizedValue('product-promise-p2');
       product.productpromise3 = getLocalizedValue('product-promise-p3');
       product.productpromise4 = getLocalizedValue('product-promise-p4');
+      product.viewalternnamesheading = getLocalizedValue('view-alternative-names');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
       product.englishtitle = locale === 'en-us' ? null : product.title;
