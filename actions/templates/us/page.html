@@ -2,7 +2,9 @@
   <head>
     <meta charset="utf-8"/>
     <title>{{productmetatitle}}</title>
-    <meta name="og:image" content="{{ogimage}}"/>
+    {{#if ogimage}}
+      <meta name="og:image" content="{{ogimage}}"/>
+    {{/if}}
     <meta name="description" content="{{productmetadescription}}"/>
     <meta name="published-time" content="{{publihseddate}}"/>
     <meta name="modified-time" content="{{publihseddate}}"/>

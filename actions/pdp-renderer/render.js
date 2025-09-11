@@ -423,8 +423,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
           }
         );
       });
-      product.images = parseJson(product.raw.imagesjson);
-      product.ogimage = "https://www.abcam.com/eds/icons/default-meta-image.png";
+      product.images = parseJson(product.raw.imagesjson);      
       product.images?.forEach((image) =>{
         product.ogimage = `https://content.abcam.com/${image.imgSeoUrl}`;
         image.santizedTitle = sanitizeString(image.imgTitle);
