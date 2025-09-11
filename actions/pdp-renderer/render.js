@@ -229,8 +229,10 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.isLegacyUnpublished = product.raw.adseoclasslevelone === 'unavailable';
     product.protocolsdownloads = product.isUnpublishedProduct ? parseJson(product.raw?.adunpublishedattributes)?.protocols : parseJson(product.raw.adproductprotocols);
     product.protocolsdownloads?.forEach((link) => {
-      link.url = product.isLegacyUnpublished ? `https://doc.abcam.com/${link.url}` : `https://content.abcam.com/content/dam/abcam/product/${link.url}`;
-      logger.debug(link.url);
+      if (link.url) {
+        link.url = product.isLegacyUnpublished ? `https://doc.abcam.com/${link.url}` : `https://content.abcam.com/content/dam/abcam/product/${link.url}`;
+        logger.debug(link.url);
+      }
     })
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
 
@@ -356,6 +358,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise3 = getLocalizedValue('product-promise-p3');
       product.productpromise4 = getLocalizedValue('product-promise-p4');
       product.viewalternnamesheading = getLocalizedValue('view-alternative-names');
+      product.whatisthis = getLocalizedValue('what-is-this');
 
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
       product.englishtitle = locale === 'en-us' ? null : product.title;
