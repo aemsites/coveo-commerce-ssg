@@ -1,13 +1,20 @@
 <div class="product-precision {{class}}">
     <div>
         <div>
-            <h3>{{precision}}</h3>
+            <h3>{{precisionrecovery}}</h3>
         </div>
     </div>
     <div>
         {{#if raw.adkitassayprecisionjson}}
         <div>
             <p>{{raw.adkitassayprecisionjson}}</p>
+        </div>
+        {{/if}}
+    </div>
+    <div>
+        {{#if raw.adkitrecoveryjson}}
+        <div>
+            <p>{{raw.adkitrecoveryjson}}</p>
         </div>
         {{/if}}
     </div>
