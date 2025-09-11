@@ -40,14 +40,20 @@
                 "@type": "ImageObject",
                 "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
                 "name": "{{this.santizedTitle}}",
-                "caption": "{{this.santizedTitle}}"
+                "creator": {
+                  "@type": "Organization",
+                  "name": "Abcam Limited"
+                }
             }
         {{else}}
             {
                 "@type": "ImageObject",
                 "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
                 "name": "{{this.santizedTitle}}",
-                "caption": "{{this.santizedTitle}}"
+                "creator": {
+                  "@type": "Organization",
+                  "name": "Abcam Limited"
+                }
             },
         {{/if}}
         {{/isValidImageUrl}}
@@ -58,7 +64,11 @@
       {
         "@type": "ImageObject",
         "contentUrl": "https://www.abcam.com/eds/icons/default-meta-image.png",
-        "name": "{{title}}"
+        "name": "{{title}}",
+        "creator": {
+          "@type": "Organization",
+          "name": "Abcam Limited"
+        }
       }
     ],     
   {{/if}}
