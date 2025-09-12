@@ -471,7 +471,15 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.purificationnotesstatement = product.purificationnotes?.map(note => note?.statement || '').join('\n');
       product.standardproteinisoforms = parseJson(product?.raw?.adstandardproteinisoformsjson)?.at(0);
       product.subcellularlocalisations = product.standardproteinisoforms?.subcellularLocalisations?.at(0);
-      product.purificationtechnique = (product?.raw?.adpurificationtechnique || '')?.concat(' ', product?.raw?.adpurificationtechniquereagent || '');
+      const pt = product?.raw?.adpurificationtechnique?.trim();
+      const pr = product?.raw?.adpurificationtechniquereagent?.trim();
+      if (pt && pr) {
+        product.purificationtechnique = `${pt} ${pr}`;
+      } else if (pt || pr) {
+        product.purificationtechnique = pt || pr;
+      } else {
+        product.purificationtechnique = '';
+      }
       product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
       product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
       product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
