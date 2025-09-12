@@ -423,8 +423,9 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
           }
         );
       });
-      product.images = parseJson(product.raw.imagesjson);
+      product.images = parseJson(product.raw.imagesjson);      
       product.images?.forEach((image) =>{
+        product.ogimage = `https://content.abcam.com/${image.imgSeoUrl}`;
         image.santizedTitle = sanitizeString(image.imgTitle);
         image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
         image.legend = image.legend?.replace(/"/g, '\\"');
