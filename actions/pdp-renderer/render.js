@@ -206,6 +206,7 @@ function createLocalizer(localisedJson, locale = 'en-us') {
 }
 
 function convertJsonKeysToLowerCase(jsonObj) {
+  if (!jsonObj) return "";
   return Object.fromEntries(
     Object.entries(jsonObj).map(([key, value]) => [key.toLowerCase(), value])
   );
