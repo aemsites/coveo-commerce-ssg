@@ -394,6 +394,10 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.targetsequencesimilarities = product.targetrelevance?.sequenceSimilarities?.join('. ');
       product.targetattr = parseJson(product.raw.adsecondaryantibodyattributesjson);
       product.biochemicalattr = parseJson(product.raw.adbiochemicalattributesjson);
+      if(product.biochemicalattr?.molecularFormula) {
+        const mFormule = product.biochemicalattr.molecularFormula;
+        product.biochemicalattr.molecularFormula = mFormule.replace(/\d/g, (digit) => `<sub>${digit}</sub>`);
+      }
       product.celltargetattr = parseJson(product.raw.adcelllinetargetattributesjson);
       if (product.celltargetattr) {
         product.celltargetattr.knockoutvalidation = product.celltargetattr?.geneEditedCellLineKnockoutValidations?.join(', ');
