@@ -424,7 +424,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
             // Preserve query string if it exists
             const cleanQuery = query ? query.toLowerCase() : '';
             // Reconstruct the tag with modified href
-            return `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
+            return `<a ${prefix}/${product.locale}/${cleanPath}${cleanQuery}"${rest}>`;
           }
         );
       });
