@@ -6,7 +6,11 @@
             <p>We are re-evaluating this product to ensure it meets our strict quality criteria.</p>
             <p>
                 Unfortunately, it will not be available to order during this time. If you need help finding an alternative, our 
+                {{#if locale}}    
                 <a class="text-blue-default" href="{{locale}}/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">Scientific Support team</a> 
+                {{else}}
+                <a class="text-blue-default" href="/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">Scientific Support team</a> 
+                {{/if}}
                 would be happy to help.
             </p>
         </div>
