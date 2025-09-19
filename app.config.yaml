@@ -16,6 +16,7 @@ application:
           COVEO_GENERAL_SEARCHHUB: AbcamGeneral
           COVEO_AUTH: $COVEO_AUTH
           AEM_TOKEN: $AEM_TOKEN
+          AIO_AUTH: $AIO_AUTH
           # HLX_LOCALES: comma-seprated list of allowed locales.
           # i.e. us,uk,it,de,fr,es - or just one
           # null if there is a single store and no
@@ -50,6 +51,7 @@ application:
             runtime: nodejs:22
             annotations:
               final: true
+              require-auth: true
           webhook-product-removes:
             function: actions/webhook-product-removes/index.js
             web: 'yes'
