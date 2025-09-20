@@ -12,9 +12,9 @@
   "offers": {
     "@type": "Offer",
     {{#if locale}}
-    "url": "https://{{host}}/{{locale}}/products/{{raw?.adseoclasslevelone}}/{{raw?.adproductslug}}",
+    "url": "https://{{host}}{{locale}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
     {{else}}
-    "url": "https://{{host}}/products/{{raw?.adseoclasslevelone}}/{{raw?.adproductslug}}",
+    "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
     {{/if}}
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
