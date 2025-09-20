@@ -452,7 +452,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
       product.associatedproducts?.forEach((item) => {
         item.locale = product.locale;
-        item.locale = product.host;
+        item.host = product.host;
       })
 
       product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
