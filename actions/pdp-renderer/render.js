@@ -450,8 +450,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.tabledata = parseJson(product.raw.reactivitytabledata);
       product.summarynotes = parseJson(product.raw.adtargetsummarynotesjson);
       product.associatedproducts = parseJson(product.raw.adassociatedproductsjson);
-      if (product.associatedproducts) product.associatedproducts.locale = product.locale;
-      if (product.host) product.associatedproducts.host = product.host;
+      product.associatedproducts?.forEach((item) => {
+        item.locale = product.locale;
+        item.locale = product.host;
+      })
+
       product.alternateproducts = parseJson(product.raw.addirectreplacementjson);
       if (product.alternateproducts) product.alternateproducts.type = product.alternateproducts?.seoClass?.levelOne;
       product.toprecommendedproducts = parseJson(product.raw.adtoprecommendedproductsjson);
