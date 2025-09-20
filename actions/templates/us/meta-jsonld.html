@@ -11,7 +11,11 @@
   "sku": "{{raw.adassetdefinitionnumber}}",
   "offers": {
     "@type": "Offer",
-    "url": "https://{{host}}{{raw.sysclickableuri}}",
+    {{#if locale}}
+    "url": "https://{{host}}/{{locale}}/products/{{raw?.adseoclasslevelone}}/{{raw?.adproductslug}}",
+    {{else}}
+    "url": "https://{{host}}/products/{{raw?.adseoclasslevelone}}/{{raw?.adproductslug}}",
+    {{/if}}
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
     "availability": "https://schema.org/InStock",
