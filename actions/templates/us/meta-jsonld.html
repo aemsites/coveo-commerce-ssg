@@ -11,7 +11,7 @@
   "sku": "{{raw.adassetdefinitionnumber}}",
   "offers": {
     "@type": "Offer",
-    "url": "https://www.abcam.com{{raw.sysclickableuri}}",
+    "url": "https://{{host}}{{raw.sysclickableuri}}",
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
     "availability": "https://schema.org/InStock",
@@ -106,12 +106,12 @@
     {{#if @last}}
         {
             "@type": "Product",
-            "url": "{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         }
     {{else}}
         {
             "@type": "Product",
-            "url": "{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         },
     {{/if}}
     {{/each}}
