@@ -106,12 +106,12 @@
     {{#if @last}}
         {
             "@type": "Product",
-            "url": "https://{{host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{this.host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         }
     {{else}}
         {
             "@type": "Product",
-            "url": "https://{{host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{this.host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         },
     {{/if}}
     {{/each}}
