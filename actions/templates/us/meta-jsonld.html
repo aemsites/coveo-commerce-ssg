@@ -13,11 +13,11 @@
     "@type": "Offer",
     {{#if locale}}
     "url": "https://{{host}}{{locale}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
+    "priceCurrency": "USD",
+    "price": "{{raw.adpriceusa}}",
     {{else}}
     "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
     {{/if}}
-    "priceCurrency": "USD",
-    "price": "{{raw.adpriceusa}}",
     "availability": "https://schema.org/InStock",
     "itemCondition": "https://schema.org/NewCondition",
     "seller": {  
