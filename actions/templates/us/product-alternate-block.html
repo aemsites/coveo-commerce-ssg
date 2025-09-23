@@ -15,18 +15,15 @@
    </div>
    <div>
       {{#if locale}}
-      <div><a href="{{concat locale 'products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat locale 'products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">{{ viewproduct }}</a></div>
       {{else}}
-      <div><a href="{{concat '/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat '/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">{{ viewproduct }}</a></div>
       {{/if}}
    </div>
    <div>
 	   <div>
          <h6>{{whyisthisrecommended}}</h6>
-         <p>
-            We’re constantly upgrading our range to offer the highest quality products.
-            We have selected this alternative product for your review because it gives improved performance, is easier and
-            more convenient to use, or is available faster.
+         <p>{{haveyouthoughtaboutthisalternative1}}          
          </p>
 	   </div>      
    </div>
@@ -56,10 +53,10 @@
          {{/if}}
          {{#if this.productSlug}}
          <div>
-            {{#if locale}}
-            <div><a href="{{concat locale 'products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            {{#if this.locale}}
+            <div><a href="{{concat this.locale 'products' this.type this.productSlug}}" target="_blank">{{this.viewproduct}}</a></div>
             {{else}}
-            <div><a href="{{concat '/products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            <div><a href="{{concat '/products' this.type this.productSlug}}" target="_blank">{{this.viewproduct}}</a></div>
             {{/if}}
          </div>
          {{/if}}
@@ -68,15 +65,13 @@
    <div>
 		<div>
          <h6>{{whyisthisrecommended}}</h6>
-         <p>
-            We recommend this product because it’s often used in the same experiment or related research.
-         </p>
+         <p>{{youmaybeinterestedin1}}</p>
          <p>            
-            We advise that you always check the datasheet to ensure it fits your experiments, or contact our
-            {{#if locale}}    
-            <a href="{{concat locale 'contact-us'}}">technical team</a> for help.
+            {{youmaybeinterestedin2}}
+            {{#if locale}}
+            <a href="{{concat locale 'contact-us'}}">{{youmaybeinterestedin3}}</a>{{youmaybeinterestedin4}}
             {{else}}
-            <a href="{{concat '/contact-us'}}">technical team</a> for help.
+            <a href="{{concat '/contact-us'}}">{{youmaybeinterestedin3}}</a>{{youmaybeinterestedin4}}
             {{/if}}
          </p>
 		</div>
