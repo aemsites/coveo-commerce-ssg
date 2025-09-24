@@ -358,14 +358,14 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise4 = getLocalizedValue('product-promise-p4');
       product.viewalternnamesheading = getLocalizedValue('view-alternative-names');
       product.whatisthis = getLocalizedValue('what-is-this');
-      product.youmaybeinterestedin = getLocalizedValue('you-may-be-interested-in');
-      product.youmaybeinterestedin1 = getLocalizedValue('you-may-be-interested-in-p1');
-      product.youmaybeinterestedin2 = getLocalizedValue('you-may-be-interested-in-p2');
-      product.youmaybeinterestedin3 = getLocalizedValue('you-may-be-interested-in-p3');
-      product.youmaybeinterestedin4 = getLocalizedValue('you-may-be-interested-in-p4');      
-      product.haveyouthoughtaboutthisalternative = getLocalizedValue('have-you-thought-about-this-alternative');
-      product.haveyouthoughtaboutthisalternative1 = getLocalizedValue('have-you-thought-about-this-alternative-p1');
-      product.viewproduct = getLocalizedValue('view-product');
+      product.recommendationTitle = getLocalizedValue('you-may-be-interested-in');
+      product.recommendationItem1 = getLocalizedValue('you-may-be-interested-in-p1');
+      product.recommendationItem2 = getLocalizedValue('you-may-be-interested-in-p2');
+      product.recommendationItem3 = getLocalizedValue('you-may-be-interested-in-p3');
+      product.recommendationItem4 = getLocalizedValue('you-may-be-interested-in-p4');
+      product.alternativeTitle = getLocalizedValue('have-you-thought-about-this-alternative');
+      product.alternativeItem1 = getLocalizedValue('have-you-thought-about-this-alternative-p1');
+      product.viewProductLabel = getLocalizedValue('view-product');
 
       product.host = ctx.config.coveoHost;
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
@@ -467,7 +467,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
         if (toprecommendedproduct) {
           toprecommendedproduct.type = toprecommendedproduct?.seoClass?.levelOne;
-          toprecommendedproduct.viewproduct = getLocalizedValue('view-product');
+          toprecommendedproduct.viewProductLabel = getLocalizedValue('view-product');
           toprecommendedproduct.locale = product.locale;
         }
       });
