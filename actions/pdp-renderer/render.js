@@ -306,9 +306,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.recommendedalternatives = getLocalizedValue('recommended-alternatives');
       product.relatedconjugatesandformulations = getLocalizedValue('related-conjugates-and-formulations');
       product.reactivitydata = getLocalizedValue('reactivity-data');
-      product.haveyouthoughtaboutthisalternative = getLocalizedValue('have-you-thought-about-this-alternative');
-      product.whyisthisrecommended = getLocalizedValue('why-is-this-recommended');
-      product.youmaybeinterestedin = getLocalizedValue('you-may-be-interested-in');
+      product.whyisthisrecommended = getLocalizedValue('why-is-this-recommended');      
       product.productdetails = getLocalizedValue('product-details');
       product.sequenceinfoheading = getLocalizedValue('sequence-info');
       product.precision = getLocalizedValue('precision');
@@ -360,6 +358,14 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productpromise4 = getLocalizedValue('product-promise-p4');
       product.viewalternnamesheading = getLocalizedValue('view-alternative-names');
       product.whatisthis = getLocalizedValue('what-is-this');
+      product.recommendationTitle = getLocalizedValue('you-may-be-interested-in');
+      product.recommendationItem1 = getLocalizedValue('you-may-be-interested-in-p1');
+      product.recommendationItem2 = getLocalizedValue('you-may-be-interested-in-p2');
+      product.recommendationItem3 = getLocalizedValue('you-may-be-interested-in-p3');
+      product.recommendationItem4 = getLocalizedValue('you-may-be-interested-in-p4');
+      product.alternativeTitle = getLocalizedValue('have-you-thought-about-this-alternative');
+      product.alternativeItem1 = getLocalizedValue('have-you-thought-about-this-alternative-p1');
+      product.viewProductLabel = getLocalizedValue('view-product');
 
       product.host = ctx.config.coveoHost;
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
@@ -461,6 +467,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.toprecommendedproducts?.forEach((toprecommendedproduct) => {
         if (toprecommendedproduct) {
           toprecommendedproduct.type = toprecommendedproduct?.seoClass?.levelOne;
+          toprecommendedproduct.viewProductLabel = getLocalizedValue('view-product');
+          toprecommendedproduct.locale = product.locale;
         }
       });
       if (product.alternateproducts) {

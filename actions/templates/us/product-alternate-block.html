@@ -1,7 +1,7 @@
 <div class="product-alternate {{class}}">
    {{#if alternateproducts}}
    <div>
-      <div><h3>{{haveyouthoughtaboutthisalternative}}</h3></div>
+      <div><h3>{{alternativeTitle}}</h3></div>
    </div>
    <div>
       <div><p>{{ alternateproducts.productCode }}</p></div>
@@ -15,26 +15,23 @@
    </div>
    <div>
       {{#if locale}}
-      <div><a href="{{concat locale 'products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat locale 'products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">{{viewProductLabel}}</a></div>
       {{else}}
-      <div><a href="{{concat '/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">View product</a></div>
+      <div><a href="{{concat '/products' alternateproducts.type alternateproducts.productSlug}}" target="_blank">{{viewProductLabel}}</a></div>
       {{/if}}
    </div>
    <div>
 	   <div>
          <h6>{{whyisthisrecommended}}</h6>
-         <p>
-            We’re constantly upgrading our range to offer the highest quality products.
-            We have selected this alternative product for your review because it gives improved performance, is easier and
-            more convenient to use, or is available faster.
+         <p>{{alternativeItem1}}
          </p>
-	   </div>      
+	   </div>
    </div>
    {{/if}}
 
    {{#if toprecommendedproducts}}
    <div>
-      <div><h3>{{youmaybeinterestedin}}:</h3></div>
+      <div><h3>{{recommendationTitle}}:</h3></div>
    </div>
    <div>
       {{#each toprecommendedproducts}}
@@ -56,10 +53,10 @@
          {{/if}}
          {{#if this.productSlug}}
          <div>
-            {{#if locale}}
-            <div><a href="{{concat locale 'products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            {{#if this.locale}}
+            <div><a href="{{concat this.locale 'products' this.type this.productSlug}}" target="_blank">{{this.viewProductLabel}}</a></div>
             {{else}}
-            <div><a href="{{concat '/products' this.type this.productSlug}}" target="_blank">View product</a></div>
+            <div><a href="{{concat '/products' this.type this.productSlug}}" target="_blank">{{this.viewProductLabel}}</a></div>
             {{/if}}
          </div>
          {{/if}}
@@ -68,15 +65,13 @@
    <div>
 		<div>
          <h6>{{whyisthisrecommended}}</h6>
+         <p>{{recommendationItem1}}</p>
          <p>
-            We recommend this product because it’s often used in the same experiment or related research.
-         </p>
-         <p>            
-            We advise that you always check the datasheet to ensure it fits your experiments, or contact our
-            {{#if locale}}    
-            <a href="{{concat locale 'contact-us'}}">technical team</a> for help.
+            {{recommendationItem2}}
+            {{#if locale}}
+            <a href="{{concat locale 'contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
             {{else}}
-            <a href="{{concat '/contact-us'}}">technical team</a> for help.
+            <a href="{{concat '/contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
             {{/if}}
          </p>
 		</div>
