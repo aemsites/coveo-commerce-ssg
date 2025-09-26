@@ -67,11 +67,10 @@
          <h6>{{whyisthisrecommended}}</h6>
          <p>{{recommendationItem1}}</p>
          <p>
-            {{recommendationItem2}}
             {{#if locale}}
-            <a href="{{concat locale 'contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
+               {{recommendationItem2}}<a href="{{concat locale 'contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
             {{else}}
-            <a href="{{concat '/contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
+               {{recommendationItem2}}<a href="{{concat '/contact-us'}}">{{recommendationItem3}}</a>{{recommendationItem4}}
             {{/if}}
          </p>
 		</div>
