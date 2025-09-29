@@ -9,6 +9,9 @@
             <h2>{{englishtitle}}</h2>
             {{/if}}
             <ul>
+            {{#each hazardtags}}
+            <li>{{this}}</li>
+            {{/if}}
             {{#each raw.adtags}}
             <li>{{ this }}</li>
             {{/each}}
