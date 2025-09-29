@@ -52,6 +52,10 @@ async function main(params) {
     const presignTargetUrlJP = await filesLib.generatePresignURL('check-target-changes/ja-jp.csv', { expiryInSeconds: 3600 })
     const presignSanitizedtUrlJP = await filesLib.generatePresignURL('check-product-changes/sanitized/ja-jp.csv', { expiryInSeconds: 3600 })
 
+    const presignUrlCN = await filesLib.generatePresignURL('check-product-changes/zh-cn.csv', { expiryInSeconds: 3600 })
+    const presignTargetUrlCN = await filesLib.generatePresignURL('check-target-changes/zh-cn.csv', { expiryInSeconds: 3600 })
+    const presignSanitizedtUrlCN = await filesLib.generatePresignURL('check-product-changes/sanitized/zh-cn.csv', { expiryInSeconds: 3600 })
+
     // Delete the test file
     logger.info(`Deleting test file "${testFileName}"`);
     await filesLib.delete(testFileName);
@@ -67,7 +71,10 @@ async function main(params) {
         parseCSVSanitizedtUrl: `${presignSanitizedtUrl}`, 
         parseCSVUrlJP: `${presignUrlJP}`, 
         parseCSVTargetUrlJP: `${presignTargetUrlJP}`,
-        parseCSVSanitizedtUrlJP: `${presignSanitizedtUrlJP}`
+        parseCSVSanitizedtUrlJP: `${presignSanitizedtUrlJP}`,
+        parseCSVUrlCN: `${presignUrlCN}`, 
+        parseCSVTargetUrlCN: `${presignTargetUrlCN}`,
+        parseCSVSanitizedtUrlCN: `${presignSanitizedtUrlCN}`
       }
     };
   } catch (error) {

@@ -10,6 +10,23 @@ const { Core, State } = require('@adobe/aio-sdk');
  */
 async function main(params) {
   const logger = Core.Logger('webhook-product-updates', { level: params.LOG_LEVEL || 'info' });
+
+  const authHeader = params.__ow_headers?.authorization || "";
+  
+  if (!authHeader.startsWith("Basic ")) {
+    return { statusCode: 401, body: "Unauthorized" };
+  }
+
+  const [uName, pWord] = params.AIO_AUTH.split(":");
+  const base64Credentials = authHeader.split(" ")[1];
+  const credentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
+  const [username, password] = credentials.split(":");
+
+  if (username !== uName || password !== pWord) {
+    // return { statusCode: 403, body: `Forbidden uName: ${uName} - ${username} pWord: ${pWord} - ${password}` };
+    return { statusCode: 403, body: `Forbidden` };
+  }
+
   logger.debug(params.__ow_path);
   // Initialize state library
   const stateLib = await State.init(params.libInit || {});

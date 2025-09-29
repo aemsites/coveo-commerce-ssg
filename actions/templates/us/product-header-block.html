@@ -6,7 +6,7 @@
         <div>
             <h1>{{title}}</h1>
             {{#if englishtitle}}
-            <h6>{{englishtitle}}</h6>
+            <h2>{{englishtitle}}</h2>
             {{/if}}
             <ul>
             {{#each raw.adtags}}
@@ -14,7 +14,7 @@
             {{/each}}
             {{#if (eqnumber (len raw.adtags) 0)}}
             {{else}}
-            <li><a href="#">What is this?</a></li>
+            <li><a href="#">{{whatisthis}}</a></li>
             {{/if}}
             </ul>
             {{#if raw.adreviewscount}}
@@ -44,7 +44,7 @@
             {{/if}}
             {{#if alternativenames}}
             <div>
-                <p>View alternative names</p>
+                <p>{{viewalternnamesheading}}</p>
                 <div>
                     {{alternativenames}}
                 </div>
