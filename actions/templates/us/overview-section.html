@@ -32,10 +32,6 @@
 </div>
 {{/if}}
 <div>
-  {{> product-alternate-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-<div>
   {{> product-notes-block class="reduced-width"}}
   {{> section-metadata-block style='left-column'}}
 </div>
@@ -133,31 +129,24 @@
   {{> section-metadata-block style='left-column'}}
 </div>
 <div>
-  {{> product-promise-block class="reduced-width"}}
-  {{> section-metadata-block style='left-column'}}
-</div>
-<div>
   {{> product-buybox-block }}
   {{> product-downloads-block }}
   {{> section-metadata-block style='right-column'}}
 </div>
+{{#if relatedProducts}}
 <div>
-  {{> associated-products-block class='associatedproducts'}}
+  {{> product-related-products class="reduced-width"}}
 </div>
-<div>
-  <div class="recommended-products">
-    <div>
-      <div></div>
-    </div>
-  </div>
-  {{> section-metadata-block style='bg-slate-100'}}
-</div>
+{{/if}}
 <div>
   <div class="recently-viewed">
     <div>
       <div></div>
     </div>
   </div>
+</div>
+<div>
+  {{> product-promise-block class="reduced-width"}}
 </div>
 <div>
   <p> Please note: All products are 'FOR RESEARCH USE ONLY. NOT FOR USE IN DIAGNOSTIC OR THERAPEUTIC PROCEDURES'. </p>
