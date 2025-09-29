@@ -509,11 +509,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
-      product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
-      product.hazardtags = [];
-      product.hazards?.forEach((tag) => {
-        product.hazardtags.push(tag.label);
-      })
+      // product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
+      // product.hazardtags = [];
+      // product.hazards?.forEach((tag) => {
+      //   product.hazardtags.push(tag.label);
+      // })
 
       if(product.raw.adrelatedtargets){
         const stateLib = await State.init({});
