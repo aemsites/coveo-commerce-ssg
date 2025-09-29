@@ -512,7 +512,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
       product.hazardtags = [];
       product.hazards?.forEach((tag) => {
-        product.hazardtags.push(tag.label);
+        product.hazardtags.push(`${tag.value}:${tag.label}`);
       })
 
       if(product.raw.adrelatedtargets){
