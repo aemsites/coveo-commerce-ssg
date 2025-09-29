@@ -2,8 +2,8 @@
 {
   "@context": "https://schema.org/", 
   "@type": "Product", 
-  "name": "{{title}}",
-  "description": "{{raw.admetadescription}}",
+  "name": "{{productmetatitle}}",
+  "description": "{{productmetadescription}}",
   "brand": {
     "@type": "Brand",
     "name": "Abcam Limited"
@@ -11,9 +11,13 @@
   "sku": "{{raw.adassetdefinitionnumber}}",
   "offers": {
     "@type": "Offer",
-    "url": "https://www.abcam.com{{raw.sysclickableuri}}",
+    {{#if locale}}
+    "url": "https://{{host}}{{locale}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
+    {{else}}
+    "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
+    {{/if}}
     "availability": "https://schema.org/InStock",
     "itemCondition": "https://schema.org/NewCondition",
     "seller": {  
@@ -40,14 +44,20 @@
                 "@type": "ImageObject",
                 "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
                 "name": "{{this.santizedTitle}}",
-                "caption": "{{this.santizedTitle}}"
+                "creator": {
+                  "@type": "Organization",
+                  "name": "Abcam Limited"
+                }
             }
         {{else}}
             {
                 "@type": "ImageObject",
                 "contentUrl": "https://content.abcam.com/{{ this.imgSeoUrl }}",
                 "name": "{{this.santizedTitle}}",
-                "caption": "{{this.santizedTitle}}"
+                "creator": {
+                  "@type": "Organization",
+                  "name": "Abcam Limited"
+                }
             },
         {{/if}}
         {{/isValidImageUrl}}
@@ -58,7 +68,11 @@
       {
         "@type": "ImageObject",
         "contentUrl": "https://www.abcam.com/eds/icons/default-meta-image.png",
-        "name": "{{title}}"
+        "name": "{{title}}",
+        "creator": {
+          "@type": "Organization",
+          "name": "Abcam Limited"
+        }
       }
     ],     
   {{/if}}
@@ -96,12 +110,12 @@
     {{#if @last}}
         {
             "@type": "Product",
-            "url": "{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{this.host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         }
     {{else}}
         {
             "@type": "Product",
-            "url": "{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
+            "url": "https://{{this.host}}{{this.locale}}/products/{{this.associatedProduct.seoClass.levelOne}}/{{this.associatedProduct.productSlug}}"
         },
     {{/if}}
     {{/each}}
