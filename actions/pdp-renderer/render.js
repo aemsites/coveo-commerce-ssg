@@ -193,7 +193,7 @@ function getFormattedDate(indexedDate) {
 
 Handlebars.registerHelper('trimColons', function (text) {
   if (typeof text === 'string') {
-    return text.replace(/:\s*/g, ' : '); // Removes leading and trailing colons
+    return text.replace(/(?<!https?):\s*/g, ' : '); // Removes leading and trailing colons
   }
   return text; // Return as-is if not a string
 });
@@ -507,6 +507,12 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+
+      product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
+      product.hazardtags = [];
+      product.hazards?.forEach((tag) => {
+        product.hazardtags.push(`${tag.value}:${tag.label}`);
+      })
 
       if(product.raw.adrelatedtargets){
         const stateLib = await State.init({});
