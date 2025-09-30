@@ -193,8 +193,7 @@ function getFormattedDate(indexedDate) {
 
 Handlebars.registerHelper('trimColons', function (text) {
   if (typeof text === 'string') {
-    // return text.replace(/:\s*/g, ' : '); // Removes leading and trailing colons
-    return text.replace(/(?<!https):\s*/g, ' : ')
+    return text.replace(/(?<!https?):\s*/g, ' : '); // Removes leading and trailing colons
   }
   return text; // Return as-is if not a string
 });
