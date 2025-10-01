@@ -259,7 +259,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.targetspecificity = getLocalizedValue('target-specificity');
       product.minimalcrossreactivity = getLocalizedValue('minimal-cross-reactivity');
       product.preadsorbed = getLocalizedValue('pre-adsorbed');
-      product.target = getLocalizedValue('target');
+      product.targetheading = getLocalizedValue('target');
       product.assaytype = getLocalizedValue('assay-type');
       product.storagebuffer = getLocalizedValue('storage-buffer');
       product.form = getLocalizedValue('form');
@@ -509,10 +509,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
 
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
-      product.hazardtags = [];
-      product.hazards?.forEach((tag) => {
-        product.hazardtags.push(`${tag.value}:${tag.label}`);
-      })
+      if (locale === 'ja-jp' && Array.isArray(product.hazards)) {
+        product.hazardtags = product.hazards.map(tag => `${tag.value}:${tag.label}`);
+      } else {
+        product.hazardtags = [];
+      }
 
       if(product.raw.adrelatedtargets){
         const stateLib = await State.init({});
