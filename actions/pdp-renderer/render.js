@@ -142,33 +142,6 @@ Handlebars.registerHelper('replaceQuotes', function (input) {
   return input.replace(/"([^"]+(?="))"/g, '$1');
 });
 
-Handlebars.registerHelper('splitJoin', function(value, splitDelim, joinDelim) {
-  // default delimiters if not provided
-  splitDelim = (typeof splitDelim === 'string') ? splitDelim : ',';
-  joinDelim  = (typeof joinDelim  === 'string') ? joinDelim  : ', ';
-
-  if (!value && value !== 0) {
-    return '';
-  }
-
-  let parts = [];
-
-  // If value is an array already
-  if (Array.isArray(value)) {
-    parts = value.slice(); // shallow copy
-  } else {
-    // coerce to string and split
-    parts = String(value).split(splitDelim);
-  }
-
-  // Trim whitespace and remove empty strings
-  parts = parts.map(item => (item == null ? '' : String(item).trim()))
-               .filter(item => item.length > 0);
-
-  // Join and return (Handlebars escapes output automatically in most runtimes)
-  return parts.join(joinDelim);
-});
-
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
