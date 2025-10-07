@@ -89,7 +89,7 @@
             {{#if raw.adspecies}}
             <div>
                 <h6>{{reactswith}}</h6>
-                <p>{{raw.adspecies}}</p>
+                <p>{{splitJoin raw.adspecies "," ", "}}</p>
             </div>
             {{/if}}
             
@@ -103,6 +103,7 @@
                     {{/if}}
                     {{/each}}
                 </p>
+                <p><a href="#">applications</a></p>
             </div>
             {{/if}}
 
@@ -114,32 +115,37 @@
                     <em>This product was produced with the following immunogens:</em>
                 </div>
                 {{/if}}
-                {{#each relatedimmunogens}}
-                    {{#if this.sensitivity}}
-                        <p>{{this.sensitivity}}</p>
-                    {{/if}}
-                    {{#if this.description}}
-                    <p>
-                        {{this.description}}
-                        {{#if this.databaseLinks}}
-                        {{#each this.databaseLinks}}
-                        Database link <a href="{{this.value}}">{{this.label}}</a>
-                        {{/each}}
+                {{#if relatedimmunogens}}
+                    {{#each relatedimmunogens}}
+                        {{#if this.sensitivity}}
+                            <p>{{this.sensitivity}}</p>
                         {{/if}}
-                    </p>
-                    {{/if}}
-                {{/each}}
+                        {{#if this.description}}
+                        <p>
+                            {{this.description}}
+                            {{#if this.databaseLinks}}
+                            {{#each this.databaseLinks}}
+                            Database link <a href="{{this.value}}">{{this.label}}</a>
+                            {{/each}}
+                            {{/if}}
+                        </p>
+                        {{/if}}
+                    {{/each}}
+                    <p><a href="#">immunogen</a></p>
+                {{/if}}
             </div>
             {{else}}            
                 {{#if (and immunogenlinkjson immunogendesc)}}
                 <div>
                     <h6>{{immunogen}}</h6>
                     <p>{{immunogendesc}} {{raw.adimmunogencommercialsensitivity}}</p> <a href="{{immunogenlinkjson.value}}">{{immunogenlinkjson.label}}</a>
+                    <p><a href="#">immunogen</a></p>
                 </div>
                 {{else if raw.adimmunogencommercialsensitivity}}
                 <div>
                     <h6>{{immunogen}}</h6>
                     <p>{{raw.adimmunogencommercialsensitivity}}</p>
+                    <p><a href="#">immunogen</a></p>
                 </div>
                 {{/if}}
             {{/if}}
@@ -251,6 +257,7 @@
                     {{/if}}
                     {{/each}}
                 </p>
+                <p><a href="#">applications</a></p>
             </div>
             {{/if}}
 
@@ -348,6 +355,7 @@
                     {{/if}}
                     {{/each}}
                 </p>
+                <p><a href="#">applications</a></p>
             </div>
             {{/if}}
 
@@ -355,6 +363,7 @@
             <div>
                 <h6>{{targetheading}}</h6>
                 <p>{{target.adPrimaryTargetName}}</p>
+                <p><a href="#">target</a></p>
             </div>
             {{/if}}
 
@@ -368,7 +377,7 @@
             {{#if raw.adspecies}}
             <div>
                 <h6>{{reactswith}}</h6>
-                <p>{{raw.adspecies}}</p>
+                <p>{{splitJoin raw.adspecies "," ", "}}</p>
             </div>
             {{/if}}
 
@@ -423,6 +432,7 @@
             <div>
                 <h6>{{form}}</h6>
                 <p>{{raw.adform}}</p>
+                <p><a href="#">form</a></p>           
             </div>
             {{/if}}
 
@@ -430,6 +440,7 @@
             <div>
                 <h6>{{storagebuffer}}</h6>
                 <p>{{raw.adformulation}}</p>
+                <p><a href="#">storage-buffer</a></p>
             </div>
             {{/if}}
 
@@ -455,6 +466,7 @@
             <div>
                 <h6>{{form}}</h6>
                 <p>{{raw.adform}}</p>
+                <p><a href="#">form</a></p>
             </div>
             {{/if}}
 
@@ -596,7 +608,7 @@
             {{#if raw.adspecies}}
             <div>
                 <h6>{{reactswith}}</h6>
-                <p>{{raw.adspecies}}</p>
+                <p>{{splitJoin raw.adspecies "," ", "}}</p>
             </div>
             {{/if}}
 
@@ -610,7 +622,7 @@
             {{#if raw.adkitsensitivity}}
             <div>
                 <h6>{{sensitivity}}</h6>
-                <p>{{raw.adkitsensitivity}}</p>
+                <p>{{replaceQuotes raw.adkitsensitivity}}</p>
             </div>
             {{/if}}
 
@@ -683,7 +695,7 @@
             {{#if raw.adspecies}}
             <div>
                 <h6>{{reactswith}}</h6>
-                <p>{{raw.adspecies}}</p>
+                <p>{{splitJoin raw.adspecies "," ", "}}</p>
             </div>
             {{/if}}
 
@@ -697,7 +709,7 @@
             {{#if raw.adkitsensitivity}}
             <div>
                 <h6>{{sensitivity}}</h6>
-                <p>{{raw.adkitsensitivity}}</p>
+                <p>{{replaceQuotes raw.adkitsensitivity}}</p>
             </div>
             {{/if}}
 
@@ -759,6 +771,7 @@
                     {{/if}}
                     {{/each}}
                 </p>
+                <p><a href="#">applications</a></p>
             </div>
             {{/if}}
 
@@ -864,6 +877,7 @@
             <div>
                 <h6>{{storagebuffer}}</h6>
                 <p>{{raw.adformulation}}</p>
+                <p><a href="#">storage-buffer</a></p>
             </div>
             {{/if}}
 
@@ -896,6 +910,7 @@
             <div>
                 <h6>{{form}}</h6>
                 <p>{{raw.adform}}</p>
+                <p><a href="#">form</a></p>
             </div>
             {{/if}}
 
@@ -948,7 +963,7 @@
             {{#if raw.adspecies}}
             <div>
                 <h6>{{reactswith}}</h6>
-                <p>{{raw.adspecies}}</p>
+                <p>{{splitJoin raw.adspecies "," ", "}}</p>
             </div>
             {{/if}}
 
@@ -956,6 +971,7 @@
             <div>
                 <h6>{{targetheading}}</h6>
                 <p>{{target.adPrimaryTargetName}}</p>
+                <p><a href="#">target</a></p>
             </div>
             {{/if}}
 
@@ -969,6 +985,7 @@
                     {{/if}}
                     {{/each}}
                 </p>
+                <p><a href="#">applications</a></p>
             </div>
             {{/if}}
 
