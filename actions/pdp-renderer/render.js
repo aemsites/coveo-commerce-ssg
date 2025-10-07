@@ -412,7 +412,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
       product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
       product.raw.admetadescription = product.raw.admetadescription?.trim();
-
+      product.speciesvalue = product.raw.adspecies?.join(', ');
       product.categorytype = product.raw.adcategorytype;
       product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
       product.targetdata = parseJson(product.raw.targetjson);
