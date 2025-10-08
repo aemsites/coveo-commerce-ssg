@@ -432,7 +432,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
             const cleanQuery = query ? query.toLowerCase() : '';
             // Reconstruct the tag with modified href
             let link;
-            if(product.locale) link = `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
+            if(!localeCnJp.includes(locale)) link = `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
             else link = `<a ${prefix}/${cleanPath}${cleanQuery}"${rest}>`
             return link;
           }
