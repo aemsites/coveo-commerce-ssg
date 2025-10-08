@@ -420,9 +420,12 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
           const trimmedHref = hrefValue.trim();
           return `href="${trimmedHref}"`;
         });
+
         note.statement = note.statement?.replace(
-            /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi, '<a href="$1"'
-          );
+          /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi,
+          '<a href="$1"'
+        );
+
         note.statement = note.statement?.replace(
           /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
           (match, prefix, pathPrefix, path, query, rest) => {
@@ -430,14 +433,20 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
             const cleanPath = path.replace(/^(\.\.\/)+/, '').replace(/^\//, '').toLowerCase();
             // Preserve query string if it exists
             const cleanQuery = query ? query.toLowerCase() : '';
+
+            // Check locale condition
+            const shouldAddLocale = locale && !localeCnJp.includes(locale);
+
             // Reconstruct the tag with modified href
-            let link;
-            if(product.locale) link = `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
-            else link = `<a ${prefix}/${cleanPath}${cleanQuery}"${rest}>`
+            const link = shouldAddLocale
+              ? `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`
+              : `<a ${prefix}/${cleanPath}${cleanQuery}"${rest}>`;
+
             return link;
           }
         );
       });
+
       product.images = parseJson(product.raw.imagesjson);      
       product.images?.forEach((image) =>{
         product.ogimage = `https://content.abcam.com/${image.imgSeoUrl}`;
