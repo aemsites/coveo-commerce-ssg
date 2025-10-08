@@ -415,34 +415,38 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
       product.conjugations = parseJson(product.raw.adconjugationsjson);
       product.notes = parseJson(product.raw?.adnotesjson);
+
+      const shouldAddLocale = locale && !localeCnJp.includes(locale);
+
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(/href="([^"]*?)"/gi, (match, hrefValue) => {
           const trimmedHref = hrefValue.trim();
           return `href="${trimmedHref}"`;
         });
 
+        // Convert full Abcam URLs to relative
         note.statement = note.statement?.replace(
           /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi,
           '<a href="$1"'
         );
 
+        // Handle relative links and locale injection
         note.statement = note.statement?.replace(
           /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
           (match, prefix, pathPrefix, path, query, rest) => {
-            // Remove ../ segments and normalize path
             const cleanPath = path.replace(/^(\.\.\/)+/, '').replace(/^\//, '').toLowerCase();
-            // Preserve query string if it exists
             const cleanQuery = query ? query.toLowerCase() : '';
 
-            // Check locale condition
-            const shouldAddLocale = locale && !localeCnJp.includes(locale);
+            let hrefPart;
+            if (shouldAddLocale) {
+              hrefPart = `/${locale}/${cleanPath}${cleanQuery}`;
+            } else {
+              hrefPart = `/${cleanPath}${cleanQuery}`;
+            }
 
-            // Reconstruct the tag with modified href
-            const link = shouldAddLocale
-              ? `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`
-              : `<a ${prefix}/${cleanPath}${cleanQuery}"${rest}>`;
+            hrefPart = hrefPart.replace(/\/{2,}/g, '/');
 
-            return link;
+            return `<a ${prefix}${hrefPart}"${rest}>`;
           }
         );
       });
