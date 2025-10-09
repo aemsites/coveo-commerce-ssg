@@ -366,14 +366,12 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.alternativeTitle = getLocalizedValue('have-you-thought-about-this-alternative');
       product.alternativeItem1 = getLocalizedValue('have-you-thought-about-this-alternative-p1');
       product.viewProductLabel = getLocalizedValue('view-product');
-
       product.unavaialble1heading1 = getLocalizedValue('product-unavailable-quarantined-heading1');
       product.unavaialble1heading2 = getLocalizedValue('product-unavailable-quarantined-heading2');
       product.unavaialble1p1 = getLocalizedValue('product-unavailable-quarantined-p1');
       product.unavaialble1p2 = getLocalizedValue('product-unavailable-quarantined-p2');
       product.unavaialble1anc = getLocalizedValue('product-unavailable-quarantined-anc');
       product.unavaialble1p3 = getLocalizedValue('product-unavailable-quarantined-p3');
-
       product.unavaialble2heading = getLocalizedValue('product-unavailable-inactive-h');
       product.unavaialble2para = getLocalizedValue('product-unavailable-inactive-p');
 
