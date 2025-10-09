@@ -2,24 +2,24 @@
     {{#if (and (eq raw.adstatus "quarantined") (eq raw.adawaitinginactivation "false"))}}
     <div>
         <div>
-            <h1>We are sorry, {{title}} ({{raw.adassetdefinitionnumber}}) is temporarily unavailable</h1>
-            <p>We are re-evaluating this product to ensure it meets our strict quality criteria.</p>
+            <h1>{{unavaialble1heading1}} {{title}} ({{raw.adassetdefinitionnumber}}) {{unavaialble1heading2}}</h1>
+            <p>{{unavaialble1p1}}</p>
             <p>
-                Unfortunately, it will not be available to order during this time. If you need help finding an alternative, our 
+                {{unavaialble1p2}} 
                 {{#if locale}}    
-                <a class="text-blue-default" href="{{locale}}/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">Scientific Support team</a> 
+                <a class="text-blue-default" href="{{locale}}/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">{{unavaialble1anc}}</a> 
                 {{else}}
-                <a class="text-blue-default" href="/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">Scientific Support team</a> 
+                <a class="text-blue-default" href="/contact-us" data-di-id="di-id-bbaacdc1-44c009ba">{{unavaialble1anc}}</a> 
                 {{/if}}
-                would be happy to help.
+                {{unavaialble1p3}} 
             </p>
         </div>
     </div>
     {{else if (isOneOf raw.adstatus values="inactive,quarantined")}}
     <div>
         <div>
-            <h1>{{title}} ({{raw.adassetdefinitionnumber}}) is unavailable</h1>
-            <p>This product is discontinued.</p>
+            <h1>{{title}} ({{raw.adassetdefinitionnumber}}) {{unavaialble2heading}}</h1>
+            <p>{{unavaialble2para}}</p>
         </div>
     </div>
     {{/if}}
