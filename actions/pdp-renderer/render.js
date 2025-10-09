@@ -236,6 +236,16 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       }
     })
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
+    product.unavaialble1heading1 = getLocalizedValue('product-unavailable-quarantined-heading1');
+    product.unavaialble1heading2 = getLocalizedValue('product-unavailable-quarantined-heading2');
+    product.unavaialble1p1 = getLocalizedValue('product-unavailable-quarantined-p1');
+    product.unavaialble1p2 = getLocalizedValue('product-unavailable-quarantined-p2');
+    product.unavaialble1anc = getLocalizedValue('product-unavailable-quarantined-anc');
+    product.unavaialble1p3 = getLocalizedValue('product-unavailable-quarantined-p3');
+    product.unavaialble2heading = getLocalizedValue('product-unavailable-inactive-h');
+    product.unavaialble2para = getLocalizedValue('product-unavailable-inactive-p');
+    product.title = product.raw.title;
+    product.productmetatitle = product.title;
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
 
@@ -376,6 +386,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
       product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
 
+     
       const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
       const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
       product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
