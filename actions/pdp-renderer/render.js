@@ -375,6 +375,9 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.unavaialble2heading = getLocalizedValue('product-unavailable-inactive-h');
       product.unavaialble2para = getLocalizedValue('product-unavailable-inactive-p');
 
+      logger.debug('unavaialble1heading1 ',product.unavaialble1heading1);
+      logger.debug('unavaialble1heading2 ',product.unavaialble1heading2);
+
       product.host = ctx.config.coveoHost;
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
       product.englishtitle = locale === 'en-us' ? null : product.title;
@@ -384,6 +387,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
       product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
 
+      logger.debug('productmetatitle ',product.productmetatitle);
+      
       const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
       const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
       product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
