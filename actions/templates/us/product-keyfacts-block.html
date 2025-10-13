@@ -131,7 +131,6 @@
                         </p>
                         {{/if}}
                     {{/each}}
-                    <p><a href="#">immunogen</a></p>
                 {{/if}}
             </div>
             {{else}}            
@@ -139,13 +138,11 @@
                 <div>
                     <h6>{{immunogen}}</h6>
                     <p>{{immunogendesc}} {{raw.adimmunogencommercialsensitivity}}</p> <a href="{{immunogenlinkjson.value}}">{{immunogenlinkjson.label}}</a>
-                    <p><a href="#">immunogen</a></p>
                 </div>
                 {{else if raw.adimmunogencommercialsensitivity}}
                 <div>
                     <h6>{{immunogen}}</h6>
                     <p>{{raw.adimmunogencommercialsensitivity}}</p>
-                    <p><a href="#">immunogen</a></p>
                 </div>
                 {{/if}}
             {{/if}}
