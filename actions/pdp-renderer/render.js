@@ -137,6 +137,11 @@ Handlebars.registerHelper("replaceTagTitle", function (value) {
   }
 });
 
+Handlebars.registerHelper('replaceQuotes', function (input) {
+  if (typeof input !== 'string') return input;
+  return input.replace(/"([^"]+(?="))"/g, '$1');
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -193,7 +198,7 @@ function getFormattedDate(indexedDate) {
 
 Handlebars.registerHelper('trimColons', function (text) {
   if (typeof text === 'string') {
-    return text.replace(/(?<!https?):\s*/g, ' : '); // Removes leading and trailing colons
+    return text.replace(/(?<!https?:\/\/):\s*/g, ' : ');
   }
   return text; // Return as-is if not a string
 });
@@ -391,7 +396,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
       product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
       product.raw.admetadescription = product.raw.admetadescription?.trim();
-
+      product.speciesvalue = product.raw.adspecies?.join(', ');
       product.categorytype = product.raw.adcategorytype;
       product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
       product.targetdata = parseJson(product.raw.targetjson);
