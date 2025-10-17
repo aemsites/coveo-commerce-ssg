@@ -381,6 +381,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.alternativeTitle = getLocalizedValue('have-you-thought-about-this-alternative');
       product.alternativeItem1 = getLocalizedValue('have-you-thought-about-this-alternative-p1');
       product.viewProductLabel = getLocalizedValue('view-product');
+      product.viewAllpublicationsLabel = getLocalizedValue('view-all-publications');
+      product.fullListLabel = getLocalizedValue('full-list');
 
       product.host = ctx.config.coveoHost;
       const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
