@@ -9,15 +9,12 @@
     "name": "Abcam Limited"
   },
   "sku": "{{raw.adassetdefinitionnumber}}",
+  {{#if locale}}
   "offers": {
     "@type": "Offer",
-    {{#if locale}}
     "url": "https://{{host}}{{locale}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
     "priceCurrency": "USD",
     "price": "{{raw.adpriceusa}}",
-    {{else}}
-    "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
-    {{/if}}
     "availability": "https://schema.org/InStock",
     "itemCondition": "https://schema.org/NewCondition",
     "seller": {  
@@ -25,6 +22,9 @@
       "name": "Abcam Limited"  
     }
   },
+  {{else}}
+    "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
+  {{/if}}
   {{#if raw.adreviewsaggregaterating}}
   "aggregateRating": {
   "@type": "AggregateRating",
@@ -67,7 +67,7 @@
     "image": [
       {
         "@type": "ImageObject",
-        "contentUrl": "https://www.abcam.com/eds/icons/default-meta-image.png",
+        "contentUrl": "https://{{host}}/eds/icons/default-meta-image.png",
         "name": "{{title}}",
         "creator": {
           "@type": "Organization",
@@ -96,7 +96,7 @@
         (object "@type" "PropertyValue" "name" "Assay time" "value" raw.adkitassaytime)
         (object "@type" "PropertyValue" "name" "Range" "value" raw.adkitrange)
         (object "@type" "PropertyValue" "name" "Citation Count" "value" raw.adpublicationscount)
-        (object "@type" "PropertyValue" "name" "Sensitivity" "value" raw.adkitsensitivity)
+        (object "@type" "PropertyValue" "name" "Sensitivity" "value" (replaceQuotes raw.adkitsensitivity))
         
       ) "value") as |property|}}
     {{#unless @first}},{{/unless}}

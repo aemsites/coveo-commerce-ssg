@@ -138,6 +138,11 @@ Handlebars.registerHelper("replaceTagTitle", function (value) {
   }
 });
 
+Handlebars.registerHelper('replaceQuotes', function (input) {
+  if (typeof input !== 'string') return input;
+  return input.replace(/"([^"]+(?="))"/g, '$1');
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -194,7 +199,7 @@ function getFormattedDate(indexedDate) {
 
 Handlebars.registerHelper('trimColons', function (text) {
   if (typeof text === 'string') {
-    return text.replace(/:\s*/g, ' : '); // Removes leading and trailing colons
+    return text.replace(/(?<!https?:\/\/):\s*/g, ' : ');
   }
   return text; // Return as-is if not a string
 });
@@ -237,6 +242,16 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       }
     })
     product.unpublishedReplacements = getUnpublishedReplacements(product?.raw?.adunpublishedattributes);
+    product.unavaialble1heading1 = getLocalizedValue('product-unavailable-quarantined-heading1');
+    product.unavaialble1heading2 = getLocalizedValue('product-unavailable-quarantined-heading2');
+    product.unavaialble1p1 = getLocalizedValue('product-unavailable-quarantined-p1');
+    product.unavaialble1p2 = getLocalizedValue('product-unavailable-quarantined-p2');
+    product.unavaialble1anc = getLocalizedValue('product-unavailable-quarantined-anc');
+    product.unavaialble1p3 = getLocalizedValue('product-unavailable-quarantined-p3');
+    product.unavaialble2heading = getLocalizedValue('product-unavailable-inactive-h');
+    product.unavaialble2para = getLocalizedValue('product-unavailable-inactive-p');
+    product.title = product.raw.title;
+    product.productmetatitle = product.title;
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
 
@@ -260,7 +275,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.targetspecificity = getLocalizedValue('target-specificity');
       product.minimalcrossreactivity = getLocalizedValue('minimal-cross-reactivity');
       product.preadsorbed = getLocalizedValue('pre-adsorbed');
-      product.target = getLocalizedValue('target');
+      product.targetheading = getLocalizedValue('target');
       product.assaytype = getLocalizedValue('assay-type');
       product.storagebuffer = getLocalizedValue('storage-buffer');
       product.form = getLocalizedValue('form');
@@ -377,11 +392,12 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
       product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
 
+     
       const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
       const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
       product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
       product.raw.admetadescription = product.raw.admetadescription?.trim();
-
+      product.speciesvalue = product.raw.adspecies?.join(', ');
       product.categorytype = product.raw.adcategorytype;
       product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
       product.targetdata = parseJson(product.raw.targetjson);
@@ -416,29 +432,42 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       if (product.cellattr) product.cellattr.subcultureguidelines = product.cellattr?.subcultureGuidelines?.join(', ')
       product.conjugations = parseJson(product.raw.adconjugationsjson);
       product.notes = parseJson(product.raw?.adnotesjson);
+
+      const shouldAddLocale = locale && !localeCnJp.includes(locale);
+
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(/href="([^"]*?)"/gi, (match, hrefValue) => {
           const trimmedHref = hrefValue.trim();
           return `href="${trimmedHref}"`;
         });
+
+        // Convert full Abcam URLs to relative
         note.statement = note.statement?.replace(
-            /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi, '<a href="$1"'
-          );
+          /<a\s+href="https?:\/\/www\.abcam\.com(\/[^"]*)"/gi,
+          '<a href="$1"'
+        );
+
+        // Handle relative links and locale injection
         note.statement = note.statement?.replace(
           /<a\s([^>]*?href=")((?:\.\.\/)+|(?:\/))([^"?#]+)([^"]*)?"([^>]*)>/gi,
           (match, prefix, pathPrefix, path, query, rest) => {
-            // Remove ../ segments and normalize path
             const cleanPath = path.replace(/^(\.\.\/)+/, '').replace(/^\//, '').toLowerCase();
-            // Preserve query string if it exists
             const cleanQuery = query ? query.toLowerCase() : '';
-            // Reconstruct the tag with modified href
-            let link;
-            if(product.locale) link = `<a ${prefix}/${locale}/${cleanPath}${cleanQuery}"${rest}>`;
-            else link = `<a ${prefix}/${cleanPath}${cleanQuery}"${rest}>`
-            return link;
+
+            let hrefPart;
+            if (shouldAddLocale) {
+              hrefPart = `/${locale}/${cleanPath}${cleanQuery}`;
+            } else {
+              hrefPart = `/${cleanPath}${cleanQuery}`;
+            }
+
+            hrefPart = hrefPart.replace(/\/{2,}/g, '/');
+
+            return `<a ${prefix}${hrefPart}"${rest}>`;
           }
         );
       });
+
       product.images = parseJson(product.raw.imagesjson);      
       product.images?.forEach((image) =>{
         product.ogimage = `https://content.abcam.com/${image.imgSeoUrl}`;
@@ -518,6 +547,13 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.locale);
       if (product.alternateproducts) {
         product.toprecommendedproducts = [];
+      }
+
+      product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
+      if (locale === 'ja-jp' && Array.isArray(product.hazards)) {
+        product.hazardtags = product.hazards.map(tag => `${tag.value}:${tag.label}`);
+      } else {
+        product.hazardtags = [];
       }
 
       if(product.raw.adrelatedtargets){
