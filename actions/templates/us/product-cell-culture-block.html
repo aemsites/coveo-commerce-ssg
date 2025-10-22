@@ -1,5 +1,5 @@
 {{#if (eq raw.adcategorytype "Cell Lines & Lysates")}}
-<div class="product-keyfacts {{class}}">
+<div class="product-cell-culture {{class}}">
     <div>
         <div>
             <h3>{{cellculture}}</h3>
@@ -31,6 +31,40 @@
         <div>
             <h6>{{viability}}</h6>
             <p>{{celltargetattr.viability}}</p>
+        </div>
+        {{/if}}
+    </div>
+    <div>
+        <div>
+            <h3>{{handlingprocedures}}</h3>
+        </div>
+    </div>
+    <div>
+        {{#if cellattr.initialHandlingGuidelines}}
+        <div>
+            <h6>{{initialhandlingguidelines}}</h6>
+            <p>{{{cellattr.initialHandlingGuidelines}}}</p>
+        </div>
+        {{/if}}
+
+        {{#if cellattr.subcultureguidelines}}
+        <div>
+            <h6>{{subcultureguidelines}}</h6>
+            <p>{{{cellattr.subcultureguidelines}}}</p>
+        </div>
+        {{/if}}
+
+        {{#if cellattr.cultureMedium}}
+        <div>
+            <h6>{{culturemedium}}</h6>
+            <p>{{cellattr.cultureMedium}}</p>
+        </div>
+        {{/if}}
+
+        {{#if cellattr.cryopreservationMedium}}
+        <div>
+            <h6>{{cryopreservationmedium}}</h6>
+            <p>{{cellattr.cryopreservationMedium}}</p>
         </div>
         {{/if}}
     </div>
