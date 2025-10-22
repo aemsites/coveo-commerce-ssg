@@ -4,19 +4,20 @@
          <div>
             <h3>{{publicationsheading}} ({{raw.adpublicationscount}})</h3>
          </div>
-         <div>Recent publications for all applications. Explore the <a href="#">full list</a> and refine
-            your search</div>
+         {{#if locale}}
+         <div>Recent publications for all applications. Explore the <a href="{{locale}}/products/publications?productId={{toLowerCase raw.adassetdefinitionnumber}}">{{fullListLabel}}</a> and refine your search</div>
+         {{else}}
+         <div>Recent publications for all applications. Explore the <a href="/products/publications?productId={{toLowerCase raw.adassetdefinitionnumber}}">{{fullListLabel}}</a> and refine your search</div>
+         {{/if}}
       </div>
    </div>
-
    {{#each publications}}
    <div>
       <div>
          <div>
             <span>{{ this.journal }}</span>
             <span>{{ this.volume }}:{{ this.pages }}</span>
-            <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ this.pubmedId }}?dopt=Abstract">PubMed{{ this.pubmedId
-               }}</a>
+            <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{this.pubmedId}}?dopt=Abstract">PubMed{{this.pubmedId}}</a>
          </div>
          <div>
             <span>{{ this.publicationYear }}</span>
@@ -50,10 +51,13 @@
       <div>{{ this.authors }}</div>
    </div>
    {{/each}}
-
    <div>
       <div>
-         <p>View all publications</p>
+         {{#if locale}}
+         <p><a href="{{locale}}/products/publications?productId={{toLowerCase raw.adassetdefinitionnumber}}">{{viewAllpublicationsLabel}}</a></p>
+         {{else}}
+         <p><a href="/products/publications?productId={{toLowerCase raw.adassetdefinitionnumber}}">{{viewAllpublicationsLabel}}</a></p>
+         {{/if}}
       </div>
    </div>
 </div>
