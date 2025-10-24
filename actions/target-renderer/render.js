@@ -143,7 +143,15 @@ function getFormattedDate(previewedDate){
 }
 
 async function generateTargetHtml(target, ctx, state) {
-  const { logger } = ctx;
+  const { logger, aioLibs } = ctx;
+  const { jsonFilesLib } = aioLibs;
+  const buffer = await jsonFilesLib.read('targets/aidata.json');
+  const targetJsonStr = buffer?.toString();
+  const targetAIContent = JSON.parse(targetJsonStr);
+
+  if(targetAIContent.length > 0){
+    target.aicontent = targetAIContent[0];
+  }
 
   try {
     logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");

@@ -1,6 +1,26 @@
 <div>
   <div>
     <h1>{{raw.tgtname}}</h1>
+    {{#if aicontent}}
+      <h2>GeneName</h2>
+      <div><p>{{aicontent.GeneName}}</p></div>
+      <h2>Function</h2>
+      <div><p>{{aicontent.Function}}</p></div>
+      <h2>Importance</h2>
+      <div><p>{{aicontent.Importance}}</p></div>
+      <h2>Observations</h2>
+      <div><p>{{aicontent.Observations}}</p></div>
+      <h2>Table</h2>
+      <div><p>{{aicontent.Table}}</p></div>
+      <h2>Function</h2>
+      <div><p>{{aicontent.Function}}</p></div>
+      <h2>Function</h2>
+      <div><p>{{aicontent.Function}}</p></div>
+      <h2>Function</h2>
+      <div><p>{{aicontent.Function}}</p></div>
+      <h2>Function</h2>
+      <div><p>{{aicontent.Function}}</p></div>
+    {{/if}}
     {{#if developmentalstage}}
     <h2>Developmental stage</h2>
     <div>
