@@ -146,16 +146,21 @@ function getFormattedDate(previewedDate){
   return isoWithoutMs;
 }
 
+
+function getItemByTargetNumber(data, targetNumber) {
+  return data.find(item => item.T0_TargetNumber === targetNumber);
+}
+
+
 async function generateTargetHtml(target, ctx, state) {
   const { logger, aioLibs } = ctx;
   const { filesLib } = aioLibs;
   const buffer = await filesLib.read('targets/aidata.json');
-  logger.debug(buffer)
   const targetJsonStr = buffer?.toString();
   const targetAIContent = JSON.parse(targetJsonStr);
 
   if(targetAIContent.length > 0){
-    target.aicontent = targetAIContent[0];
+    target.aicontent = getItemByTargetNumber(targetAIContent, target?.raw?.tgtnumber);
     logger.debug(target.aicontent)
   }
 
