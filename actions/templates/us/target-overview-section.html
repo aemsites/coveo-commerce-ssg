@@ -14,9 +14,9 @@
       <h2>Importance</h2>
       <div><p>{{aicontent.Importance}}</p></div>
       {{/if}}
-      {{#if aicontent["Top Products"]}}
-      <h2>Top Products</h2>
-      <div><p>{{aicontent["Top Products"]}}</p></div>
+      {{#if (get aicontent "Top Products")}}
+        <h2>Top Products</h2>
+        <div>{{{get aicontent "Top Products"}}}</div>
       {{/if}}
       {{#if aicontent.Observations}}
       <h2>Observations</h2>

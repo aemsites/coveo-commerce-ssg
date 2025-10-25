@@ -119,6 +119,10 @@ Handlebars.registerHelper("replaceTagTitle", function (value) {
   }
 });
 
+Handlebars.registerHelper('get', function (obj, key) {
+  return obj && obj[key];
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
