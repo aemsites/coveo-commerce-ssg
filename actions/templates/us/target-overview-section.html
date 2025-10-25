@@ -2,24 +2,26 @@
   <div>
     <h1>{{raw.tgtname}}</h1>
     {{#if aicontent}}
+      {{#if aicontent.GeneName}}
       <h2>GeneName</h2>
       <div><p>{{aicontent.GeneName}}</p></div>
+      {{/if}}
+      {{#if aicontent.Function}}
       <h2>Function</h2>
       <div><p>{{aicontent.Function}}</p></div>
+      {{/if}}
+      {{#if aicontent.Importance}}
       <h2>Importance</h2>
       <div><p>{{aicontent.Importance}}</p></div>
+      {{/if}}
+      {{#if aicontent.Observations}}
       <h2>Observations</h2>
       <div><p>{{aicontent.Observations}}</p></div>
+      {{/if}}
+      {{#if aicontent.Table}}
       <h2>Table</h2>
       <div><p>{{aicontent.Table}}</p></div>
-      <h2>Function</h2>
-      <div><p>{{aicontent.Function}}</p></div>
-      <h2>Function</h2>
-      <div><p>{{aicontent.Function}}</p></div>
-      <h2>Function</h2>
-      <div><p>{{aicontent.Function}}</p></div>
-      <h2>Function</h2>
-      <div><p>{{aicontent.Function}}</p></div>
+      {{/if}}
     {{/if}}
     {{#if developmentalstage}}
     <h2>Developmental stage</h2>
