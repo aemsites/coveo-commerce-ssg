@@ -144,13 +144,15 @@ function getFormattedDate(previewedDate){
 
 async function generateTargetHtml(target, ctx, state) {
   const { logger, aioLibs } = ctx;
-  const { jsonFilesLib } = aioLibs;
-  const buffer = await jsonFilesLib.read('targets/aidata.json');
+  const { filesLib } = aioLibs;
+  const buffer = await filesLib.read('targets/aidata.json');
+  logger.debug(buffer)
   const targetJsonStr = buffer?.toString();
   const targetAIContent = JSON.parse(targetJsonStr);
 
   if(targetAIContent.length > 0){
     target.aicontent = targetAIContent[0];
+    logger.debug(target.aicontent)
   }
 
   try {
