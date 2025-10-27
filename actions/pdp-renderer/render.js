@@ -476,7 +476,23 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
         image.legend = image.legend?.replace(/"/g, '\\"');
         image.imagesusage = parseJson(image?.imgImageUsageJSON);
-      })
+        // Ensure bands is always an array to avoid template errors when code assumes an array
+        const _bands = image.imagesusage?.bands;
+        if (Array.isArray(_bands)) {
+          image.bands = _bands;
+        } else if (_bands !== undefined && _bands !== null && _bands !== '') {
+          // Coerce single value into array
+          image.bands = [_bands];
+        } else {
+          image.bands = [];
+        }
+        if (image.bands.length) {
+          image.hasBands = true;
+        } else {
+          image.hasBands = false;
+        }        
+      });
+
       product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
       product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
       product.purityassessment = product.raw.adpurityassessment || '';
