@@ -263,8 +263,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw?.adgenshortdescriptionlocalisedjson));
     const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw?.admetadescriptionlocalisedjson));
     product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
-    product.productmetadescription = product.productmetadescription?.trim();
-    
+    product.productmetadescription = product.productmetadescription?.trim();    
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
 
