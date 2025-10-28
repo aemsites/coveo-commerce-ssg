@@ -5,6 +5,7 @@ const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
 const { loadState } = require('../check-target-changes/target-fetcher');
+const { getAllReviews } = require('./payload');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -567,6 +568,11 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         const filesLib = await Files.init({});
         product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
       }
+
+      product.reviews = await getProductReviews(product.id);
+      product.filteredReviews = product.reviews.filteredReviews;
+      product.reviewsSummary = product.reviews.reviewsBreakdown;
+      logger.debug('Product reviews fetched successfully : ',product.reviews);
     }
 
     // load the templates
@@ -638,6 +644,42 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
   } catch (error) {
     logger.error(`Error parsing JSON for key: ${ctx.path}`, error);
   }
+}
+
+const POST_METHOD = 'POST';
+const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'X-Abcam-App-Id': 'b2c-public-website',
+};
+
+async function getProductReviews(productId) {
+  const productCode = productId;
+  const sortMode = 'NEWEST';
+  const allApplications = [];
+  const allSpecies = [];
+  const allRatings = [];
+
+  const response = await fetch("https://proxy-gateway.abcam.com/review/public", {
+    method: POST_METHOD,
+    headers: DEFAULT_HEADERS,
+    body: getAllReviews({
+        productCode,
+        sortMode,
+        applications: allApplications,
+        species: allSpecies,
+        ratings: allRatings,
+      }),
+  });
+
+  const result = await response.json();
+
+  // Handle potential GraphQL or network errors
+  if (!response.ok || result.errors) {
+    console.error("GraphQL Error:", result.errors || response.statusText);
+    throw new Error("Failed to fetch reviews");
+  }
+
+  return result.data;
 }
 
 module.exports = {
