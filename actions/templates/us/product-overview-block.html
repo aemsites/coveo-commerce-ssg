@@ -40,25 +40,27 @@
           {{/if}}
         {{/each}}
 
-        {{#if (gt (len this.imagesusage.bands.predicted 0) 0)}}
-          <p>Predicted band size:
-          {{#each this.imagesusage.bands.predicted}}
-          {{#if @last}} {{this}}
-          {{else}}{{this}},
+          {{#if this.bands}}
+            {{#if this.hasBands}}
+              {{#each this.bands}}
+              {{#if this.predicted}}
+              <p>Predicted band size:
+                {{#if @last}} {{this.predicted}}
+                {{else}}{{this.predicted}},
+                {{/if}}
+              </p>
+              {{/if}}
+              {{#if this.observed}}
+              <p>Observed band size:
+                {{#if @last}} {{this.observed}}
+                {{else}}{{this.observed}},
+                {{/if}}
+              </p>
+              {{/if}}
+              {{/each}}
+            {{/if}}
           {{/if}}
-          {{/each}}
-          </p>
-        {{/if}}
 
-        {{#if (gt (len this.imagesusage.bands.observed 0) 0)}}
-          <p>Observed band size:
-          {{#each this.imagesusage.bands.observed}}
-          {{#if @last}} {{this}}
-          {{else}}{{this}},
-          {{/if}}
-          {{/each}}
-          </p>
-        {{/if}}
       {{/if}}
 
       {{#if this.imgEcl}}<div><em>{{this.imgEcl}}</em></div>{{/if}}
