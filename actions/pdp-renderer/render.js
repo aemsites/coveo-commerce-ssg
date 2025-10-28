@@ -249,8 +249,21 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     product.unavaialble1p3 = getLocalizedValue('product-unavailable-quarantined-p3');
     product.unavaialble2heading = getLocalizedValue('product-unavailable-inactive-h');
     product.unavaialble2para = getLocalizedValue('product-unavailable-inactive-p');
-    product.title = product.raw.title;
-    product.productmetatitle = product.title;
+    product.title = product.raw?.title;
+
+    const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw?.adassetdefinitionnamelocalisedjson));
+    product.englishtitle = locale === 'en-us' ? null : product.title;
+    product.title = localisedtitle[locale] || product.title;
+
+    const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw?.adgentitlelocalisedjson));
+    const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw?.admetatitlelocalisedjson));
+    product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
+
+    product.productmetadescription = product.raw?.admetadescription?.trim();    
+    const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw?.adgenshortdescriptionlocalisedjson));
+    const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw?.admetadescriptionlocalisedjson));
+    product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
+    product.productmetadescription = product.productmetadescription?.trim();    
 
     if(product.status !== 'inactive' && product.status !== 'quarantined'){
 
@@ -386,19 +399,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.fullListLabel = getLocalizedValue('full-list');
 
       product.host = ctx.config.coveoHost;
-      const localisedtitle = convertJsonKeysToLowerCase(parseJson(product.raw.adassetdefinitionnamelocalisedjson));
-      product.englishtitle = locale === 'en-us' ? null : product.title;
-      product.title = localisedtitle[locale] || product.title;
-
-      const localisedgentitle = convertJsonKeysToLowerCase(parseJson(product.raw.adgentitlelocalisedjson));
-      const localisedmetatitle = convertJsonKeysToLowerCase(parseJson(product.raw.admetatitlelocalisedjson));
-      product.productmetatitle = localisedmetatitle[locale] || localisedgentitle[locale] || product.title;
-
-     
-      const localisedgenshortdescription = convertJsonKeysToLowerCase(parseJson(product.raw.adgenshortdescriptionlocalisedjson));
-      const localisedmetadescription = convertJsonKeysToLowerCase(parseJson(product.raw.admetadescriptionlocalisedjson));
-      product.productmetadescription = localisedmetadescription[locale] || localisedgenshortdescription[locale] || '';
-      product.raw.admetadescription = product.raw.admetadescription?.trim();
       product.speciesvalue = product.raw.adspecies?.join(', ');
       product.categorytype = product.raw.adcategorytype;
       product.reviewssummary = parseJson(product.raw.reviewssummaryjson);
@@ -477,7 +477,23 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         image.legend = image.imgLegend?.replace(/\r\n|\n|\r/g, '') || '';
         image.legend = image.legend?.replace(/"/g, '\\"');
         image.imagesusage = parseJson(image?.imgImageUsageJSON);
-      })
+        // Ensure bands is always an array to avoid template errors when code assumes an array
+        const _bands = image.imagesusage?.bands;
+        if (Array.isArray(_bands)) {
+          image.bands = _bands;
+        } else if (_bands !== undefined && _bands !== null && _bands !== '') {
+          // Coerce single value into array
+          image.bands = [_bands];
+        } else {
+          image.bands = [];
+        }
+        if (image.bands.length) {
+          image.hasBands = true;
+        } else {
+          image.hasBands = false;
+        }        
+      });
+
       product.schemapurificationtechnique = product.raw.adpurificationtechnique || '' + ' ' + product.raw.adpurificationtechniquereagent || '';
       product.purity = product.raw.adpurity || product.raw.adpurificationfraction || undefined;
       product.purityassessment = product.raw.adpurityassessment || '';
