@@ -146,11 +146,9 @@ function getFormattedDate(previewedDate){
   return isoWithoutMs;
 }
 
-
 function getItemByTargetNumber(data, targetNumber) {
   return data.find(item => item.T0_TargetNumber === targetNumber);
 }
-
 
 async function generateTargetHtml(target, ctx, state) {
   const { logger, aioLibs } = ctx;
