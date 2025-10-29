@@ -5,7 +5,7 @@ const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
 const { loadState } = require('../check-target-changes/target-fetcher');
-const { getAllReviews } = require('./payload');
+const { allReviews } = require('./payload');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -569,10 +569,13 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
       }
 
-      product.reviews = await getProductReviews(product.id);
-      product.filteredReviews = product.reviews.filteredReviews;
-      product.reviewsSummary = product.reviews.reviewsBreakdown;
-      logger.debug('Product reviews fetched successfully : ',product.reviews);
+      const productId = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+      const { reviews = [], filteredReviews = [], reviewsBreakdown = {} } = 
+        await getProductReviews(productId) ?? {};
+
+      logger.debug('Product reviews : ', reviews);
+      logger.debug('Product filteredReviews : ', filteredReviews);
+      logger.debug('Product reviewsBreakdown : ', reviewsBreakdown);    
     }
 
     // load the templates
@@ -662,13 +665,13 @@ async function getProductReviews(productId) {
   const response = await fetch("https://proxy-gateway.abcam.com/review/public", {
     method: POST_METHOD,
     headers: DEFAULT_HEADERS,
-    body: getAllReviews({
-        productCode,
-        sortMode,
-        applications: allApplications,
-        species: allSpecies,
-        ratings: allRatings,
-      }),
+    body: allReviews({
+      productCode,
+      sortMode,
+      applications: allApplications,
+      species: allSpecies,
+      ratings: allRatings,
+    }),
   });
 
   const result = await response.json();

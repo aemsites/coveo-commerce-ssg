@@ -1,4 +1,4 @@
-const getAllReviews = ({ productCode, applications = [], species = [], ratings = [], sortMode = 'NEWEST' }) =>
+const allReviews = ({ productCode, applications = [], species = [], ratings = [], sortMode = 'NEWEST' }) =>
   JSON.stringify({
     query: `query Reviews {
     reviews(
@@ -70,4 +70,55 @@ const getAllReviews = ({ productCode, applications = [], species = [], ratings =
   }`,
   });
 
-module.exports = { getAllReviews }
+const singleReview = ({ indexId, reviewId }) =>
+  JSON.stringify({
+    query: `query ReviewDetails {
+    reviewDetails(
+      id: ${indexId},
+      reviewId: "${reviewId}"
+    ) {
+      application {
+        fullName
+        __typename
+      }
+      content {
+        GroupName
+        GroupOrder
+        Pairs {
+          name
+          value
+          __typename
+        }
+        __typename
+      }
+      datePublished
+      easeOfUse {
+        value
+        interpretation
+        __typename
+      }
+      id
+      reviewImage {
+        fullPath
+        thumbnailPath
+        __typename
+      }
+      reviewer {
+        firstName
+        lastName
+        title
+        __typename
+      }
+      speciesName
+      starRating {
+        value
+        interpretation
+        __typename
+      }
+      title
+      __typename
+    }
+  }`,
+  });
+
+module.exports = { allReviews, singleReview }
