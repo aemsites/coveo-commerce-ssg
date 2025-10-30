@@ -378,6 +378,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.viability = getLocalizedValue('viability');
       product.productprotocols = getLocalizedValue('product-protocols');
       product.targetdataheading = getLocalizedValue('target-data');
+      product.targetsupplementaryheading = getLocalizedValue('target-data-supplementary-info');
       product.additionaltargets = getLocalizedValue('additional-targets');
       product.publicationsheading = getLocalizedValue('publications');
       product.productpromise = getLocalizedValue('product-promise');

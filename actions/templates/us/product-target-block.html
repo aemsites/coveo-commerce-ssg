@@ -1,7 +1,13 @@
 <div class="product-target-data {{class}}">
     <div>
         <div>
+            {{#if (isOneOf raw.adseoclasslevelone values="primary-antibodies,secondary-antibodies")}}
+            {{#if summarynotes}}
+            <h3>{{targetsupplementaryheading}}</h3>
+            {{/if}}
+            {{else}}
             <h3>{{targetdataheading}}</h3>
+            {{/if}}
         </div>
     </div>
     {{#if targetfunction}}
@@ -46,6 +52,7 @@
     </div>
     {{/if}}
 
+    {{#if (isOneOf raw.adseoclasslevelone values="primary-antibodies,secondary-antibodies")}}
     {{#if summarynotes}}
     <div>
         <div>
@@ -69,5 +76,6 @@
         </div>
     </div>
     {{/each}}
+    {{/if}}
     {{/if}}
 </div>
