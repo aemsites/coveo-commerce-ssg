@@ -5,6 +5,7 @@ const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
 const { loadState } = require('../check-target-changes/target-fetcher');
+const { allReviews } = require('./payload');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -567,6 +568,37 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         const filesLib = await Files.init({});
         product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
       }
+
+      // Fetch customer reviews
+      const productId = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+      const reviewsData = await getCustomerReviews(productId, ctx) ?? {};
+      let {
+        reviews = [],
+        filteredReviews = {},
+        reviewsBreakdown = {},
+      } = reviewsData;
+
+      let normalizedFilteredReviews = [];
+      if (Array.isArray(filteredReviews)) {
+        normalizedFilteredReviews = filteredReviews;
+      } else if (filteredReviews && Array.isArray(filteredReviews.content)) {
+        normalizedFilteredReviews = filteredReviews.content;
+      } else if (filteredReviews && typeof filteredReviews === 'object') {
+        normalizedFilteredReviews = Object.values(filteredReviews).filter(v => v && typeof v === 'object');
+      }
+
+      // Extract pairs into a flat array so they can be fetched/processed separately
+      const pairsArray = extractPairsFromNormalized(normalizedFilteredReviews);
+      logger.debug('extracted pairs count:', pairsArray.length);
+      Object.entries(pairsArray).forEach(([k, v]) => {
+        logger.debug('entry key:', k, 'entry value:', JSON.stringify(v));
+      });
+      product.reviews = reviews;
+      product.filteredReviews = pairsArray;
+      product.reviewsBreakdown = reviewsBreakdown;
+      logger.debug('Product reviews : ', reviews);
+      logger.debug('Product filteredReviews : ', filteredReviews);
+      logger.debug('Product reviewsBreakdown : ', reviewsBreakdown);
     }
 
     // load the templates
@@ -586,6 +618,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "product-reactivity-block",
       "product-datasheet-block",
       "product-protocols-block",
+      "customer-reviews-block",
       "product-promise-block",
       "product-storage-block",
       "product-notes-block",
@@ -639,6 +672,105 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     logger.error(`Error parsing JSON for key: ${ctx.path}`, error);
   }
 }
+
+/** GraphQL query to fetch customer reviews for a product */
+const POST_METHOD = 'POST';
+const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'X-Abcam-App-Id': 'b2c-public-website',
+};
+
+async function getCustomerReviews(productId, ctx) {
+  const { logger } = ctx || {};
+  const productCode = productId;
+  const sortMode = 'NEWEST';
+  const allApplications = [];
+  const allSpecies = [];
+  const allRatings = [];
+
+  const request = await fetch("https://proxy-gateway.abcam.com/review/public", {
+    method: POST_METHOD,
+    headers: DEFAULT_HEADERS,
+    body: allReviews({
+      productCode,
+      sortMode,
+      applications: allApplications,
+      species: allSpecies,
+      ratings: allRatings,
+    }),
+  });
+
+  const response = await request.json();
+
+  // Handle potential GraphQL or network errors
+  if (!request.ok || response.errors) {
+    if (logger && typeof logger.error === 'function') {
+      logger.error('GraphQL Error fetching reviews', response.errors || request.statusText);
+    } else {
+      console.error('GraphQL Error fetching reviews', response.errors || request.statusText);
+    }
+    throw new Error('Failed to fetch reviews');
+  }
+
+  return response?.data ?? {};
+}
+
+function extractPairsFromNormalized(normalized) {
+  const collected = [];
+  if (!normalized) return collected;
+
+  // Case 1: normalized is an array of items
+  if (Array.isArray(normalized)) {
+    normalized.forEach(item => {
+      const pairs = item?.content?.Pairs ?? item?.Pairs;
+      if (Array.isArray(pairs)) {
+        collected.push(...pairs);
+        return;
+      }
+      if (pairs && typeof pairs === 'object') {
+        collected.push(...Object.values(pairs));
+        return;
+      }
+
+      // If item itself is an array of pairs
+      if (Array.isArray(item)) {
+        collected.push(...item);
+        return;
+      }
+
+      // Otherwise treat the item itself as a pair-like object
+      if (item && typeof item === 'object') collected.push(item);
+    });
+    return collected;
+  }
+
+  // Case 2: normalized is an object with top-level Pairs or content.Pairs
+  const topPairs = normalized?.Pairs ?? normalized?.content?.Pairs;
+  if (Array.isArray(topPairs)) return [...topPairs];
+  if (topPairs && typeof topPairs === 'object') return Object.values(topPairs);
+
+  // Case 3: normalized is an object whose values may contain arrays/objects of pairs
+  Object.values(normalized).forEach(v => {
+    if (!v) return;
+    if (Array.isArray(v)) {
+      collected.push(...v);
+      return;
+    }
+    const p = v?.content?.Pairs ?? v?.Pairs;
+    if (Array.isArray(p)) {
+      collected.push(...p);
+      return;
+    }
+    if (p && typeof p === 'object') {
+      collected.push(...Object.values(p));
+      return;
+    }
+    if (v && typeof v === 'object') collected.push(v);
+  });
+
+  return collected;
+}
+// customer reviews functions end here
 
 module.exports = {
   generateProductHtml,
