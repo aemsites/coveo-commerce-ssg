@@ -1,12 +1,86 @@
 <div class="customer-reviews {{class}}">
     <div>
         <div>
-            <h3>Customer Reviews</h3>
+            <h3>Customer Reviews ({{reviewsCount}})</h3>
         </div>
     </div>
     <div>
         <div>
-            <p>{{reviews}}</p>
+            <p>
+            {
+                "data": {
+                    "reviews": [
+                        {{#each reviews}}
+                        {
+                            "speciesName": "{{speciesName}}",
+                            "starRating": {
+                                "value": "{{starRating.value}}",
+                                "interpretation": "{{starRating.interpretation}}"
+                            },
+                            "application": {
+                                "fullName": "{{application.fullName}}",
+                                "shortName": "{{application.shortName}}"
+                            }
+                        }
+                        {{#unless @last}},{{/unless}}
+                        {{/each}}
+                    ],
+                    "filteredReviews": [
+                        {{#each filteredReviews}}
+                            {
+                                "speciesName": "{{speciesName}}",
+                                "starRating": {
+                                    "value": "{{starRating.value}}",
+                                    "interpretation": "{{starRating.interpretation}}"
+                                },
+                                "application": {
+                                    "fullName": "{{application.fullName}}",
+                                    "shortName": "{{application.shortName}}"
+                                },
+                                "title": "{{title}}",
+                                "datePublished": "{{datePublished}}",
+                                "id": "{{id}}",
+                                "reviewId": "{{reviewId}}",
+                                "reviewImage": {
+                                    "thumbnailPath": "{{reviewImage.thumbnailPath}}",
+                                    "fullPath": "{{reviewImage.fullPath}}"
+                                },
+                                "content": [
+                                    {{#each content}}
+                                    {
+                                    "GroupOrder": {{GroupOrder}},
+                                    "GroupName": "{{GroupName}}",
+                                    "Pairs": [
+                                        {{#each Pairs}}
+                                            {
+                                            "name": "{{name}}",
+                                            "value": "{{escapeQuotes value}}"
+                                            }
+                                        {{#unless @last}},{{/unless}}
+                                        {{/each}}
+                                    ]
+                                    }
+                                    {{#unless @last}},{{/unless}}
+                                    {{/each}}
+                                ],
+                                "reviewer": {
+                                    "title": "{{reviewer.title}}",
+                                    "firstName": "{{reviewer.firstName}}",
+                                    "lastName": "{{reviewer.lastName}}"
+                                },
+                                "easeOfUse": "{{easeOfUse}}"
+                            }
+                            {{#unless @last}},{{/unless}}
+                        {{/each}}
+                    ],
+                    "reviewsBreakdown": {
+                        {{#eachProperty reviewsBreakdown}}
+                            "{{key}}": {{value}}{{#if hasComma}}, {{/if}}
+                        {{/eachProperty}}
+                    }
+                }
+            }
+            </p>
         </div>
     </div>
 </div>

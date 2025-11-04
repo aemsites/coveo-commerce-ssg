@@ -143,6 +143,19 @@ Handlebars.registerHelper('replaceQuotes', function (input) {
   return input.replace(/"([^"]+(?="))"/g, '$1');
 });
 
+Handlebars.registerHelper('eachProperty', function (context, options) {
+  let ret = "";
+  const properties = Object.keys(context).filter(prop => context.hasOwnProperty(prop));
+  properties.forEach((prop, index) => {
+    ret += options.fn({
+      key: prop,
+      value: context[prop],
+      hasComma: index < properties.length - 1
+    });
+  });
+  return ret;
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -587,18 +600,17 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         normalizedFilteredReviews = Object.values(filteredReviews).filter(v => v && typeof v === 'object');
       }
 
-      // Extract pairs into a flat array so they can be fetched/processed separately
-      const pairsArray = extractPairsFromNormalized(normalizedFilteredReviews);
-      logger.debug('extracted pairs count:', pairsArray.length);
-      Object.entries(pairsArray).forEach(([k, v]) => {
-        logger.debug('entry key:', k, 'entry value:', JSON.stringify(v));
-      });
+      // Extract data into a flat array so they can be fetched/processed separately
+      const filteredReviewsArray = extractPairsFromNormalized(normalizedFilteredReviews);
+
+      product.reviewsCount = filteredReviewsArray.length;
       product.reviews = reviews;
-      product.filteredReviews = pairsArray;
+      product.filteredReviews = filteredReviewsArray;
       product.reviewsBreakdown = reviewsBreakdown;
-      logger.debug('Product reviews : ', reviews);
-      logger.debug('Product filteredReviews : ', filteredReviews);
-      logger.debug('Product reviewsBreakdown : ', reviewsBreakdown);
+
+      logger.debug('Cust. reviews count: ', product.reviewsCount);
+      // End of customer reviews processing
+
     }
 
     // load the templates
@@ -688,7 +700,9 @@ async function getCustomerReviews(productId, ctx) {
   const allSpecies = [];
   const allRatings = [];
 
-  const request = await fetch("https://proxy-gateway.abcam.com/review/public", {
+  const gatewayUrl = ctx.config.PROXY_GATEWAY_URL || 'https://proxy-gateway.abcam.com';
+  logger.debug('Using PROXY_GATEWAY_URL: ', gatewayUrl);
+  const request = await fetch(`${gatewayUrl}/review/public`, {
     method: POST_METHOD,
     headers: DEFAULT_HEADERS,
     body: allReviews({
