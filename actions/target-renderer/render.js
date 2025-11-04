@@ -66,6 +66,13 @@ Handlebars.registerHelper('isOneOf', function(value, options) {
   return validValues.includes(value) ? true : false;
 });
 
+Handlebars.registerHelper('hasNot', function(value, options) {
+  const validValues = options.hash.values;
+  if (typeof value === 'string') {
+    return !value.includes(validValues);
+  }
+});
+
 Handlebars.registerHelper("object", function () {
     let obj = {};
     for (let i = 0; i < arguments.length - 1; i += 2) {
@@ -147,7 +154,7 @@ function getFormattedDate(previewedDate){
 }
 
 function getItemByTargetNumber(data, targetNumber) {
-  return data.find(item => item.T0_TargetNumber === targetNumber);
+  return data.find(item => item["Target Number - Internal"] === targetNumber);
 }
 
 async function generateTargetHtml(target, ctx, state) {
