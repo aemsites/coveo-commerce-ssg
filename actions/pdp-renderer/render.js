@@ -548,7 +548,21 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       } else {
         product.purificationtechnique = '';
       }
+      //related conjugates and formulations
       product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
+      product.conjugatevariations?.forEach((variation) => {
+        variation.locale = product.locale;        
+        if (variation && typeof variation === 'object') {
+          const conjugation = variation.product?.conjugations?.[0];
+          variation.seoclasslevelone = variation.product?.seoClass?.levelOne || '';
+          variation.conjugationsemission = conjugation?.emission || '';
+          variation.conjugationslabel = conjugation?.label || '';
+          variation.productslug = variation.product?.productSlug || '';
+          variation.productname = variation.product?.name || '';
+          variation.relationship = variation.relationship || '';
+        }
+      });
+
       product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
       product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
