@@ -66,6 +66,13 @@ Handlebars.registerHelper('isOneOf', function(value, options) {
   return validValues.includes(value) ? true : false;
 });
 
+Handlebars.registerHelper('hasNot', function(value, options) {
+  const validValues = options.hash.values;
+  if (typeof value === 'string') {
+    return !value.includes(validValues);
+  }
+});
+
 Handlebars.registerHelper("object", function () {
     let obj = {};
     for (let i = 0; i < arguments.length - 1; i += 2) {
@@ -119,6 +126,10 @@ Handlebars.registerHelper("replaceTagTitle", function (value) {
   }
 });
 
+Handlebars.registerHelper('get', function (obj, key) {
+  return obj && obj[key];
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -142,8 +153,21 @@ function getFormattedDate(previewedDate){
   return isoWithoutMs;
 }
 
+function getItemByTargetNumber(data, targetNumber) {
+  return data.find(item => item["Target Number - Internal"] === targetNumber);
+}
+
 async function generateTargetHtml(target, ctx, state) {
-  const { logger } = ctx;
+  const { logger, aioLibs } = ctx;
+  const { filesLib } = aioLibs;
+  const buffer = await filesLib.read('targets/aidata.json');
+  const targetJsonStr = buffer?.toString();
+  const targetAIContent = JSON.parse(targetJsonStr);
+
+  if(targetAIContent.length > 0){
+    target.aicontent = getItemByTargetNumber(targetAIContent, target?.raw?.tgtnumber);
+    logger.debug(target.aicontent)
+  }
 
   try {
     logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
