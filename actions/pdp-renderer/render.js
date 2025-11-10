@@ -222,11 +222,12 @@ const localeCnJp = ['zh-cn', 'ja-jp'];
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
   const { localisedJson } = state;
-  logger.debug(localisedJson || "No localisedJson found");
+  logger.info("Locale in generateProductHtml:", locale);
+  logger.debug("Localised JSON:", localisedJson);
   const getLocalizedValue = createLocalizer(localisedJson, locale);
   try {
     // const product = JSON.parse(data?.toString());
-    logger.debug(product?.raw?.adproductslug || "No adproductslug found");
+    logger.info(`Generating HTML for product SKU: ${product.raw?.adproductslug} in locale: ${locale}`);
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);

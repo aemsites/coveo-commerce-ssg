@@ -5,7 +5,7 @@ application:
       coveo-commerce-ssg:
         license: Apache-2.0
         inputs:
-          LOG_LEVEL: error
+          LOG_LEVEL: info
           LOG_INGESTOR_ENDPOINT: "https://log-ingestor.aem-storefront.com/api/v1/services/change-detector"
           HLX_ORG_NAME: "abcam-ltd"
           HLX_SITE_NAME: $AEM_ENVIRONMENT

@@ -163,15 +163,16 @@ async function generateTargetHtml(target, ctx, state) {
   const buffer = await filesLib.read('targets/aidata.json');
   const targetJsonStr = buffer?.toString();
   const targetAIContent = JSON.parse(targetJsonStr);
-
+  
+  logger.info(`Target number: ${target?.raw?.tgtnumber}` || "No target number found");
+  logger.info(`Loaded AI content for ${targetAIContent.length} targets`);
   if(targetAIContent.length > 0){
     target.aicontent = getItemByTargetNumber(targetAIContent, target?.raw?.tgtnumber);
     logger.debug(target.aicontent)
   }
 
   try {
-    logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
-
+    logger.info(`Target grouping name: ${target?.raw?.tgttargetgroupingname}` || "No target page found");
     target.title = `${target.raw.tgtname} | Abcam `;
     target.publihseddate = getFormattedDate(target?.raw?.indexeddate);
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);
