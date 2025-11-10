@@ -25,4 +25,13 @@
             </ul>
         </div>
     </div>
+    <div>
+        <div>
+        {{#each notes}}
+            {{#if (eq this.noteType "procedureSummary")}}
+                <div><p>{{{this.statement}}}</p></div>
+            {{/if}}
+        {{/each}}
+        </div>
+    </div>
 </div>
