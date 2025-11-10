@@ -620,7 +620,14 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
 
       product.reviewsCount = filteredReviewsArray.length;
       product.reviews = reviews;
-      product.filteredReviews = filteredReviewsArray;
+      // product.filteredReviews = filteredReviewsArray;
+      if (Array.isArray(filteredReviewsArray)) {
+        product.filteredReviews = filteredReviewsArray.length > 5
+          ? filteredReviewsArray.slice(0, 5)
+          : filteredReviewsArray;
+      } else {
+        product.filteredReviews = filteredReviewsArray;
+      }      
       product.reviewsBreakdown = reviewsBreakdown;
 
       logger.debug('Cust. reviews count: ', product.reviewsCount);
