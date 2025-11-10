@@ -13,7 +13,6 @@ governing permissions and limitations under the License.
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
 const { isValidUrl, getTargetUrl } = require('../utils');
-const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateTargetHtml } = require('../target-renderer/render');
 const crypto = require('crypto');
@@ -210,10 +209,9 @@ function shouldProcessTarget(target) {
  */
 async function enrichTargetWithMetadata(target, state, context, locale) {
   const { logger } = context;
-  // Need to be updated
   const { tgtnumber: skuOriginal } = target?.raw;
-  // Need to be updated
-  logger.info('tgtnumber - ', skuOriginal);
+  logger.info(`Enriching target with SKU: ${skuOriginal}`);
+  let targetResponse = null;
   const id = skuOriginal;
   const lastPreviewDate = state.ids[id]?.lastPreviewedAt || new Date(0);
   let newHash = null;
@@ -241,12 +239,12 @@ async function enrichTargetWithMetadata(target, state, context, locale) {
         const targetPath = getTargetUrl(target, locale);
         const htmlPath = `/public/pdps${targetPath}`;
         await filesLib.write(htmlPath, targettHtml);
-        logger.debug(`Saved HTML for product ${id} to ${htmlPath}`);
+        logger.info(`Saved HTML for product ${id} to ${htmlPath}`);
       } catch (e) {
         logger.error(`Error saving HTML for product ${id}:`, e);
       }
     } else {
-      logger.debug(`Skipping product ${id} because it should not be processed`);
+      logger.info(`Skipping product ${id} because no updates to process`);
       context.counts.ignored++;
     }
     
@@ -309,7 +307,7 @@ function enrichWithPath(ids, state, logger) {
  */
 async function processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger) {
   if (!ids.length) return;
-  logger.debug("processDeletedTargets --- locale", ids, locale);
+  logger.info(`Processing delete for ${ids.length} targets in locale ${locale}`);
   try {
     const { filesLib } = aioLibs;
 
@@ -332,7 +330,7 @@ async function processDeletedTargets(ids, locale, state, counts, context, adminA
                 const targetUrl = state.ids[id]?.path;
                 const htmlPath = `/public/pdps${targetUrl}`;
                 filesLib.delete(htmlPath);
-                logger.debug(`Deleted HTML file for product ${record.id} from ${htmlPath}`);
+                logger.info(`Deleted HTML file for product ${record.id} from ${htmlPath}`);
               }
             } catch (e) {
               logger.error(`Error deleting HTML file for product ${record.id}:`, e);
@@ -408,13 +406,13 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
-
+    logger.info(`Found key to process: ${firstKey}`);
     const country = getCountry(firstKey);
     const locales = {
       cn: 'zh-cn',
       jp: 'ja-jp'
     };
-
+    logger.info(`Determined country code: ${country}`);
     const locale = locales[country] || 'en-us';
     logger.info(`Fetching for locale ${locale}`);
 
@@ -467,8 +465,8 @@ async function fetcher(params, aioLibs) {
             }
           }
         } else {
-          logger.info(`Processing deletion of ${ids}`);
-          processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger); 
+          logger.info(`Processing unpublish targets for ${ids.length} ids`);
+          await processDeletedTargets(ids, locale, state, counts, context, adminApi, aioLibs, logger, failedIds); 
         }
 
         const now = new Date();
@@ -478,7 +476,7 @@ async function fetcher(params, aioLibs) {
         if (counts.failed > 0) {
           logger.error(`Failed to process ${counts.failed} products, creating new webhook with failed SKUs and deleting key: ${firstKey}`);
           const sKey = `${firstKey?.split('.')[0]}.${timestampMs}`;
-          logger.error(`Webhook request created with failed SKUs: ${sKey}`);
+          logger.error(`New Webhook request created with failed SKUs: ${sKey} to process later.`);
           // Store Failed SKUs in state with a TTL of 24 hours (86400 seconds)
           await stateLib.put(sKey, JSON.stringify(failedIds), { ttl: 86400 });
         } else {
