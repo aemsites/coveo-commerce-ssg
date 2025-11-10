@@ -13,7 +13,6 @@ governing permissions and limitations under the License.
 const { Timings, aggregate } = require('../lib/benchmark');
 const { AdminAPI } = require('../lib/aem');
 const { isValidUrl, getProductUrl, getSanitizedProductUrl } = require('../utils');
-const { GetLastModifiedQuery } = require('../queries');
 const { Core } = require('@adobe/aio-sdk');
 const { generateProductHtml } = require('../pdp-renderer/render');
 const crypto = require('crypto');
@@ -277,7 +276,8 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
   const { logger, aioLibs } = context;
   const { sku: skuOriginal, adproductslug: urlKey } = product?.raw;
   const sku = skuOriginal.split('-')[0].toLowerCase();
-  logger.info('sku - urlKey', sku, urlKey);
+  logger.info(`Enriching product with SKU: ${sku}`);
+  let productResponse = null;
   const lastPreviewDate = state.skus[sku]?.lastPreviewedAt || new Date(0);
   let newHash = null;
   let productHtml = null;
@@ -296,7 +296,7 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
     const { filesLib } = aioLibs;
     const buffer = await filesLib.read('localisation/pdp-headings.json');
     const localisedStr = buffer?.toString();
-    logger.debug("localisedStr", localisedStr);
+    logger.info(`Loaded localisation for PDP headings: ${localisedStr?.length} characters`);
     state.localisedJson = JSON.parse(localisedStr);
     productResponse = await generateProductHtml(product, context, state, locale);
     productHtml = productResponse?.body;
@@ -320,12 +320,12 @@ async function enrichProductWithMetadata(product, state, sanitizedState, context
         const productPath = getSanitizedProductUrl(product, locale);
         const htmlPath = `/public/pdps${productPath}`;
         await filesLib.write(htmlPath, productHtml);
-        logger.debug(`Saved HTML for product ${sku} to ${htmlPath}`);
+        logger.info(`Saved HTML for product ${sku} to ${htmlPath}`);
       } catch (e) {
         logger.error(`Error saving HTML for product ${sku}:`, e);
       }
     } else {
-      logger.debug(`Skipping product ${sku} because it should not be processed`);
+      logger.info(`Skipping product ${sku} because no updates to process`);
       context.counts.ignored++;
     }
     
@@ -389,7 +389,7 @@ function enrichWithPath(skus, state, logger) {
  */
 async function processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus) {
   if (!skus.length) return;
-  logger.debug("processUnpublishBatches --- locale", skus, locale);
+  logger.info(`Processing unpublish for ${skus.length} SKUs in locale ${locale}`);
   try {
     const { filesLib } = aioLibs;
 
@@ -412,7 +412,7 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
                 const productUrl = state.skus[product]?.path;
                 const htmlPath = `/public/pdps${productUrl}`;
                 filesLib.delete(htmlPath);
-                logger.debug(`Deleted HTML file for product ${record.sku} from ${htmlPath}`);
+                logger.info(`Deleted HTML file for product ${record.sku} from ${htmlPath}`);
               }
             } catch (e) {
               logger.error(`Error deleting HTML file for product ${record.sku}:`, e);
@@ -505,16 +505,19 @@ async function fetcher(params, aioLibs) {
         break;
       }
     }
+    logger.info(`Processing state key: ${firstKey || 'none found'}`);
+    timings.sample('fetchedKeys');
     const country = getCountry(firstKey);
     // const siteNameCountry = getSiteName(siteName, firstKey);
     const locales = {
       cn: 'zh-cn',
       jp: 'ja-jp'
     };
-
+    timings.sample('determinedLocale');
+    logger.info(`Determined country code: ${country || 'default'}`);
     const locale = locales[country] || 'en-us';
 
-    logger.info(`Fetching for locale ${locale}`);
+    logger.info(`Using locale: ${locale}`);
     // load state
     const state = await loadState(locale, aioLibs, logger);
     const sanitizedState = await loadSanitizedState(locale, aioLibs, logger);
@@ -565,7 +568,8 @@ async function fetcher(params, aioLibs) {
             }
           }
         } else {
-          processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
+          logger.info(`Processing unpublish for ${skus.length} SKUs`);
+          await processUnpublishBatches(skus, locale, state, counts, context, adminApi, aioLibs, logger, failedSkus); 
         }
         
         const now = new Date();
