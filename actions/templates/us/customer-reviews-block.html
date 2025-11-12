@@ -68,7 +68,10 @@
                                     "firstName": "{{reviewer.firstName}}",
                                     "lastName": "{{reviewer.lastName}}"
                                 },
-                                "easeOfUse": "{{easeOfUse}}"
+                                "easeOfUse": {
+                                    {{#if easeOfUse.value}}"value": {{easeOfUse.value}},{{/if}}
+                                    {{#if easeOfUse.interpretation}}"interpretation": "{{easeOfUse.interpretation}}"{{/if}}
+                                }
                             }
                             {{#unless @last}},{{/unless}}
                         {{/each}}
