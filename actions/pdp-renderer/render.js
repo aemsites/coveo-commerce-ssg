@@ -629,7 +629,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         product.filteredReviews = filteredReviewsArray;
       }      
       product.reviewsBreakdown = reviewsBreakdown;
-
       logger.debug('Cust. reviews count: ', product.reviewsCount);
       // End of customer reviews processing
 
@@ -721,9 +720,9 @@ async function getCustomerReviews(productId, ctx) {
   const allApplications = [];
   const allSpecies = [];
   const allRatings = [];
-
-  const gatewayUrl = ctx.config.PROXY_GATEWAY_URL || 'https://proxy-gateway.abcam.com';
-  logger.debug('Using PROXY_GATEWAY_URL: ', gatewayUrl);
+  
+  const gatewayUrl = ctx.config.proxyGatewayUrl || 'https://proxy-gateway.abcam.com';
+  logger.debug('Using proxyGatewayUrl ***: ', gatewayUrl);
   const request = await fetch(`${gatewayUrl}/review/public`, {
     method: POST_METHOD,
     headers: DEFAULT_HEADERS,
