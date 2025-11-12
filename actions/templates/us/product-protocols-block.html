@@ -5,9 +5,11 @@
         </div>
     </div>
     <div>
+        {{#if (eq raw.adseoclasslevelone "primary-antibodies")}}
         <div>
             <p>For this product, it's our understanding that no specific protocols are required. You can visit:</p>
         </div>
+        {{/if}}
         <div>
             <ul>
                 <li>Visit the <a href="{{locale}}/technical-resources/protocols">General protocols</a></li>
@@ -23,6 +25,15 @@
                 {{/each}}
                 {{/if}}
             </ul>
+        </div>
+    </div>
+    <div>
+        <div>
+        {{#each notes}}
+            {{#if (eq this.noteType "procedureSummary")}}
+                <div><p>{{{this.statement}}}</p></div>
+            {{/if}}
+        {{/each}}
         </div>
     </div>
 </div>
