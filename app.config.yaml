@@ -17,6 +17,7 @@ application:
           COVEO_AUTH: $COVEO_AUTH
           AEM_TOKEN: $AEM_TOKEN
           AIO_AUTH: $AIO_AUTH
+          PROXY_GATEWAY_URL: $PROXY_GATEWAY_URL
           # HLX_LOCALES: comma-seprated list of allowed locales.
           # i.e. us,uk,it,de,fr,es - or just one
           # null if there is a single store and no
