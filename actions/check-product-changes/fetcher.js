@@ -372,11 +372,10 @@ async function processPublishBatches(promiseBatches, locale, state, counts, prod
 }
 
 function enrichWithPath(skus, state, logger) {
-  logger.debug("Enriching records with product paths:", skus);
-
-  const records = skus.map((sku) => ({
-    sku,
-    path: state.skus?.[sku]?.path || '', 
+  logger.info("Enriching records with product paths:", skus);
+  const records = skus?.map((sku) => ({
+    sku: sku?.toLowerCase(),
+    path: state.skus?.[sku?.toLowerCase()]?.path || '', 
   }));
 
   logger.debug("Enriched records:", records);
@@ -398,7 +397,7 @@ async function processUnpublishBatches(skus, locale, state, counts, context, adm
       // delete in batches of BATCH_SIZE, then save state in case we get interrupted
       const batches = createBatches(skus, context);
       const products = batches?.map(skus => enrichWithPath(skus, state, logger));
-
+      logger.info(`Created ${batches.length} batches for unpublishing/deleting products`);
       const promiseBatches = unpublishAndDelete(products, locale, adminApi);
 
       const response = await Promise.all(promiseBatches);

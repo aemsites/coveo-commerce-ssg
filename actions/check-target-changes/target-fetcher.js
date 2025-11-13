@@ -294,7 +294,7 @@ function enrichWithPath(ids, state, logger) {
   logger.debug("Enriching records with product paths:", ids);
 
   const records = ids.map((id) => ({
-    id,
+    id: id?.toLowerCase(),
     path: state.ids?.[id]?.path || '', 
   }));
 
