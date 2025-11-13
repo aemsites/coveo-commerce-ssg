@@ -217,6 +217,17 @@ Handlebars.registerHelper('trimColons', function (text) {
   return text; // Return as-is if not a string
 });
 
+Handlebars.registerHelper('formatReviewDate', function (dateInput, locale) {
+  try {
+    const parsedDate = new Date(dateInput);
+    if (Number.isNaN(parsedDate.getTime())) return String(dateInput);
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(parsedDate);
+  } catch (err) {    
+    console.error('formatReviewDate error:', err);
+    return String(dateInput);
+  }
+});
+
 function createLocalizer(localisedJson, locale = 'en-us') {
   return function(key) {
     const item = localisedJson.find(entry => entry.Key === key);
