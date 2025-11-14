@@ -291,11 +291,11 @@ async function processPublishBatches(promiseBatches, locale, state, counts, targ
 }
 
 function enrichWithPath(ids, state, logger) {
-  logger.debug("Enriching records with product paths:", ids);
+  logger.info("Enriching records with product paths:", ids);
 
   const records = ids.map((id) => ({
     id,
-    path: state.ids?.[id]?.path || '', 
+    path: state.ids?.[id?.toLowerCase()]?.path || '', 
   }));
 
   logger.debug("Enriched records:", records);
