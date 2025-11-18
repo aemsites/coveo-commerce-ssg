@@ -6,7 +6,7 @@
     <div>
         <div>
         {{#each notes}}
-            {{#if (eq this.noteType "overview")}}
+            {{#if (noteq this.noteType "procedureSummary")}}
                 <div><p>{{{this.statement}}}</p></div>
             {{/if}}
         {{/each}}
