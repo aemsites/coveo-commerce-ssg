@@ -2,6 +2,7 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
+const { linkifyAbids } = require('../pdp-renderer/linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -157,7 +158,7 @@ function getItemByTargetNumber(data, targetNumber) {
   return data.find(item => item["Target Number - Internal"] === targetNumber);
 }
 
-async function generateTargetHtml(target, ctx, state) {
+async function generateTargetHtml(target, ctx, state, pdpstate) {
   const { logger, aioLibs } = ctx;
   const { filesLib } = aioLibs;
   const buffer = await filesLib.read('targets/aidata.json');
@@ -168,6 +169,7 @@ async function generateTargetHtml(target, ctx, state) {
   logger.info(`Loaded AI content for ${targetAIContent.length} targets`);
   if(targetAIContent.length > 0){
     target.aicontent = getItemByTargetNumber(targetAIContent, target?.raw?.tgtnumber);
+    target.ailinkifiedcontent = linkifyAbids(target.aicontent, pdpstate.skus, logger);
     logger.debug(target.aicontent)
   }
 
