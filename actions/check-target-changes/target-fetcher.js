@@ -16,7 +16,7 @@ const { isValidUrl, getTargetUrl } = require('../utils');
 const { Core } = require('@adobe/aio-sdk');
 const { generateTargetHtml } = require('../target-renderer/render');
 const crypto = require('crypto');
-const { FILE_TARGET_PREFIX, FILE_EXT, requestTargetCOVEO } = require('../utils');
+const { FILE_TARGET_PREFIX, FILE_EXT, FILE_PREFIX, requestTargetCOVEO } = require('../utils');
 const BATCH_SIZE = 150;
 
 function getStateFileLocation(stateKey) {
@@ -32,6 +32,46 @@ function getStateFileLocation(stateKey) {
 /**
  * @typedef {import('@adobe/aio-sdk').Files.Files} FilesProvider
  */
+
+/**
+ * Saves the state to the cloud file system.
+ *
+ * @param {String} locale - The locale (or store code).
+ * @param {Object} aioLibs - The libraries required for loading the state.
+ * @param {Object} aioLibs.filesLib - The file library for reading state files.
+ * @param {Object} aioLibs.stateLib - The state library for retrieving state information.
+ * @returns {Promise<PollerState>} - A promise that resolves when the state is loaded, returning the state object.
+ */
+async function loadPDPState(locale, aioLibs, logger) {
+  logger.debug(`Locale to load state ${locale}`);
+  const { filesLib } = aioLibs;
+  const stateObj = { locale };
+  try {
+    const stateKey = locale || 'default';
+    const fileLocation = `${FILE_PREFIX}/${stateKey}.${FILE_EXT}`;
+    const buffer = await filesLib.read(fileLocation);
+    const stateData = buffer?.toString();
+    if (stateData) {
+      const lines = stateData.split('\n');
+      stateObj.skus = lines.reduce((acc, line) => {
+        // the format of the state object is:
+        // <sku1>,<timestamp>,<hash>,<path>
+        // <sku2>,<timestamp>,<hash>,<path>
+        // ...
+        // each row is a set of SKUs, last previewed timestamp and hash
+        const [sku, time, hash, path] = line.split(',');
+        acc[sku] = { lastPreviewedAt: new Date(parseInt(time)), hash, path };
+        return acc;
+      }, {});
+    } else {
+      stateObj.skus = {};
+    }
+  // eslint-disable-next-line no-unused-vars
+  } catch (e) {
+    stateObj.skus = {};
+  }
+  return stateObj;
+}
 
 /**
  * Saves the state to the cloud file system.
@@ -207,7 +247,7 @@ function shouldProcessTarget(target) {
  * @param {Object} context - The context object with logger and other utilities
  * @returns {Object} Enhanced product with additional metadata
  */
-async function enrichTargetWithMetadata(target, state, context, locale) {
+async function enrichTargetWithMetadata(target, state, context, locale, pdpstate) {
   const { logger } = context;
   const { tgtnumber: skuOriginal } = target?.raw;
   logger.info(`Enriching target with SKU: ${skuOriginal}`);
@@ -218,7 +258,7 @@ async function enrichTargetWithMetadata(target, state, context, locale) {
   let targettHtml = null;
   
   try {
-    targetResponse = await generateTargetHtml(target, context, state);
+    targetResponse = await generateTargetHtml(target, context, state, pdpstate);
     targettHtml = targetResponse?.body;
     newHash = crypto.createHash('sha256').update(targettHtml).digest('hex');
     
@@ -418,6 +458,7 @@ async function fetcher(params, aioLibs) {
 
     // load state
     const state = await loadState(locale, aioLibs, logger);
+    const pdpstate = await loadPDPState(locale, aioLibs, logger);
     timings.sample('loadedState');
 
     const adminApi = new AdminAPI({
@@ -446,7 +487,7 @@ async function fetcher(params, aioLibs) {
             const results = Array.isArray(resp?.results) ? resp.results : [];
             // Enrich targets with metadata
             const targets = await Promise.all(
-              results?.map(target => enrichTargetWithMetadata(target, state, context, locale))
+              results?.map(target => enrichTargetWithMetadata(target, state, context, locale, pdpstate))
             );
             
             const filteredTargets = targets.filter(target => target).filter(shouldProcessTarget);
