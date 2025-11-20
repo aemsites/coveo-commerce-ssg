@@ -573,7 +573,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
-      product.keybenefits = product.productsummary?.keyBenefits || [];
+      product.keybenefits = product.productsummary?.keyBenefits;
 
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
       if (locale === 'ja-jp' && Array.isArray(product.hazards)) {
