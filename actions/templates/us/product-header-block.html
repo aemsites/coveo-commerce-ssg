@@ -54,5 +54,17 @@
             </div>
             {{/if}}
         </div>
+        {{#if keybenefits}}
+        <div>
+            <div>
+                <p>Key benefits</p>
+            </div>
+            <ul>
+            {{#each keybenefits}}
+                {{#if this}}<li>{{this}}</li>{{/if}}
+            {{/each}}
+            </ul>
+        </div>
+        {{/if}}
     </div>
 </div>
