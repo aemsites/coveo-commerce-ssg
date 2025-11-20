@@ -11,6 +11,10 @@ Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
 });
 
+Handlebars.registerHelper("noteq", function(a, b) {
+  return a?.toLowerCase() !== b?.toLowerCase();
+});
+
 Handlebars.registerHelper("eqnumber", function(a, b) {
   return a === b;
 });

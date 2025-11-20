@@ -2,6 +2,8 @@
  * @typedef {{[key: string]: {path: string}}} Skus
  */
 
+const { log } = require("handlebars")
+
 /**
  * @param {string} str
  * @param {RegExp} match
@@ -72,6 +74,22 @@ const linkifyAbids = (product, skus, logger) => {
   const linkifyHandler = (content) => linkifyContent(content, currentProductCode, skus, logger)
 
   const updatedProduct = { ...product }
+  logger.debug('linkifyContent start', updatedProduct);
+  if(product && (product['Abcam Product Citation Table'] || product['Top Products'])) {
+    const targetTable = product['Abcam Product Citation Table'];
+    const topProducts = product['Top Products'];
+
+    if(topProducts) { 
+      updatedProduct['Top Products'] = linkifyHandler(topProducts)
+    }
+
+    if(targetTable) {
+      updatedProduct['Abcam Product Citation Table'] = linkifyHandler(targetTable)
+    }
+
+    return updatedProduct;
+  }
+
   updatedProduct.notes = product.notes?.map((note) => ({
     ...note,
     statement: linkifyHandler(note.statement || ''),
