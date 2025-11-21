@@ -4,6 +4,7 @@ const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
+const { mapRelatedProducts } = require('./map-related-products');
 const { loadState } = require('../check-target-changes/target-fetcher');
 
 Handlebars.registerHelper("eq", function(a, b) {
@@ -573,6 +574,17 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+      product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
+      product.relatedProducts = mapRelatedProducts({
+      alternateproducts: product.alternateproducts ? [product.alternateproducts] : [],
+      associatedproducts: product.associatedproducts,
+      toprecommendedproducts: product.toprecommendedproducts,
+      crosssell: product.crosssell,
+      },
+      product.locale);
+      if (product.alternateproducts) {
+        product.toprecommendedproducts = [];
+      }
 
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
       if (locale === 'ja-jp' && Array.isArray(product.hazards)) {
@@ -622,6 +634,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "section-metadata-block",
       "product-kitcomponent-block",
       "product-header-inactive-block",
+      "product-related-products",
       "product-downloads-inactive-block",
       "product-unpublished-replacements-block",
       "meta-jsonld",
