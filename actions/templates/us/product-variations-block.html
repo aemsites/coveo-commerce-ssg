@@ -9,16 +9,29 @@
     <div>
       <ul>
         {{#each conjugatevariations}}
-        <li>
-          {{#if this.product.conjugations.[0].emission}}
-          <em>{{this.product.conjugations.[0].emission}}</em>
-          {{/if}}
-          <a href="{{locale}}/products/{{this.product.seoClass.levelOne}}/{{this.product.productSlug}}">
-            {{#if this.product.conjugations.[0].label}} {{this.product.conjugations.[0].label}}
-            {{else}} {{replaceTagTitle this.relationship}} {{/if}}
-          </a>
-          <p>{{this.product.name}}</p>
-        </li>
+          <li>
+            {{#if this.conjugationsemission}}
+              <em>{{this.conjugationsemission}}</em>
+            {{/if}}
+            {{#if this.locale}}
+              <a href="{{concat this.locale 'products' this.seoclasslevelone this.productslug}}">
+                {{#if this.conjugationslabel}}
+                  {{this.conjugationslabel}}
+                {{else}}
+                  {{replaceTagTitle this.relationship}}
+                {{/if}}
+              </a>
+              {{else}}
+              <a href="{{concat '/products' this.seoclasslevelone this.productslug}}">
+                {{#if this.conjugationslabel}}
+                  {{this.conjugationslabel}}
+                {{else}}
+                  {{replaceTagTitle this.relationship}}
+                {{/if}}
+              </a>
+            {{/if}}
+            <p>{{this.productname}}</p>
+          </li>
         {{/each}}
       </ul>
     </div>

@@ -1,6 +1,16 @@
 <div>
   <div>
     <h1>{{raw.tgtname}}</h1>
+    {{#if aicontent}}
+      {{#each ailinkifiedcontent}}
+        {{#if this}}
+          {{#if (hasNot @key values="Internal")}}
+          <h2>{{@key}}</h2>
+          <p>{{{this}}}</p>
+          {{/if}}
+        {{/if}}
+      {{/each}}
+    {{/if}}
     {{#if developmentalstage}}
     <h2>Developmental stage</h2>
     <div>

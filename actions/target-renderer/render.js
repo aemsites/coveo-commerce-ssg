@@ -2,6 +2,7 @@ const { errorResponse } = require('../utils');
 const { Files } = require('@adobe/aio-sdk')
 const fs = require('fs');
 const Handlebars = require('handlebars');
+const { linkifyAbids } = require('../pdp-renderer/linkify-abids');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -66,6 +67,13 @@ Handlebars.registerHelper('isOneOf', function(value, options) {
   return validValues.includes(value) ? true : false;
 });
 
+Handlebars.registerHelper('hasNot', function(value, options) {
+  const validValues = options.hash.values;
+  if (typeof value === 'string') {
+    return !value.includes(validValues);
+  }
+});
+
 Handlebars.registerHelper("object", function () {
     let obj = {};
     for (let i = 0; i < arguments.length - 1; i += 2) {
@@ -119,6 +127,10 @@ Handlebars.registerHelper("replaceTagTitle", function (value) {
   }
 });
 
+Handlebars.registerHelper('get', function (obj, key) {
+  return obj && obj[key];
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -142,12 +154,27 @@ function getFormattedDate(previewedDate){
   return isoWithoutMs;
 }
 
-async function generateTargetHtml(target, ctx, state) {
-  const { logger } = ctx;
+function getItemByTargetNumber(data, targetNumber) {
+  return data.find(item => item["Target Number - Internal"] === targetNumber);
+}
+
+async function generateTargetHtml(target, ctx, state, pdpstate) {
+  const { logger, aioLibs } = ctx;
+  const { filesLib } = aioLibs;
+  const buffer = await filesLib.read('targets/aidata.json');
+  const targetJsonStr = buffer?.toString();
+  const targetAIContent = JSON.parse(targetJsonStr);
+  
+  logger.info(`Target number: ${target?.raw?.tgtnumber}` || "No target number found");
+  logger.info(`Loaded AI content for ${targetAIContent.length} targets`);
+  if(targetAIContent.length > 0){
+    target.aicontent = getItemByTargetNumber(targetAIContent, target?.raw?.tgtnumber);
+    target.ailinkifiedcontent = linkifyAbids(target.aicontent, pdpstate.skus, logger);
+    logger.debug(target.aicontent)
+  }
 
   try {
-    logger.debug(target?.raw?.tgttargetgroupingname || "No target page found");
-
+    logger.info(`Target grouping name: ${target?.raw?.tgttargetgroupingname}` || "No target page found");
     target.title = `${target.raw.tgtname} | Abcam `;
     target.publihseddate = getFormattedDate(target?.raw?.indexeddate);
     target.relevancejson = parseJson(target.raw.tgtrelevancejson);

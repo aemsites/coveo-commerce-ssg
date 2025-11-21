@@ -11,6 +11,10 @@ Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
 });
 
+Handlebars.registerHelper("noteq", function(a, b) {
+  return a?.toLowerCase() !== b?.toLowerCase();
+});
+
 Handlebars.registerHelper("eqnumber", function(a, b) {
   return a === b;
 });
@@ -223,11 +227,12 @@ const localeCnJp = ['zh-cn', 'ja-jp'];
 async function generateProductHtml(product, ctx, state, locale, dirname = __dirname) {
   const { logger } = ctx;
   const { localisedJson } = state;
-  logger.debug(localisedJson || "No localisedJson found");
+  logger.info("Locale in generateProductHtml:", locale);
+  logger.debug("Localised JSON:", localisedJson);
   const getLocalizedValue = createLocalizer(localisedJson, locale);
   try {
     // const product = JSON.parse(data?.toString());
-    logger.debug(product?.raw?.adproductslug || "No adproductslug found");
+    logger.info(`Generating HTML for product SKU: ${product.raw?.adproductslug} in locale: ${locale}`);
     product.status = product.raw.adstatus?.toLowerCase();
     product.publihseddate = getFormattedDate(product?.raw?.indexeddate);
     logger.debug("published Date :",product.publihseddate);
@@ -549,7 +554,21 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       } else {
         product.purificationtechnique = '';
       }
+      //related conjugates and formulations
       product.conjugatevariations = parseJson(product?.raw?.advariationsjson);
+      product.conjugatevariations?.forEach((variation) => {
+        variation.locale = product.locale;        
+        if (variation && typeof variation === 'object') {
+          const conjugation = variation.product?.conjugations?.[0];
+          variation.seoclasslevelone = variation.product?.seoClass?.levelOne || '';
+          variation.conjugationsemission = conjugation?.emission || '';
+          variation.conjugationslabel = conjugation?.label || '';
+          variation.productslug = variation.product?.productSlug || '';
+          variation.productname = variation.product?.name || '';
+          variation.relationship = variation.relationship || '';
+        }
+      });
+
       product.dissociationconstant = parseJson(product?.raw?.adantibodydissociationconstantjson);
       product.speciesreactivity = parseJson(product?.raw?.adspeciesreactivityjson);
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
