@@ -46,6 +46,11 @@
             "@type": "Person",
             "name": "{{reviewer.firstName}} {{#if reviewer.lastName}}{{reviewer.lastName}}{{/if}}"
           },
+        {{else}}
+          "author": {
+            "@type": "Person",
+            "name": "Abcam user community"
+          },
         {{/if}}
         "reviewRating": {
           "@type": "Rating",
