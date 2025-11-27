@@ -427,6 +427,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.viewProductLabel = getLocalizedValue('view-product');
       product.viewAllpublicationsLabel = getLocalizedValue('view-all-publications');
       product.fullListLabel = getLocalizedValue('full-list');
+      product.alternateproductsheading = getLocalizedValue('alternate-products');
+      product.complimentaryproductsheading = getLocalizedValue('complimentary-products');
 
       product.host = ctx.config.coveoHost;
       product.speciesvalue = product.raw.adspecies?.join(', ');
