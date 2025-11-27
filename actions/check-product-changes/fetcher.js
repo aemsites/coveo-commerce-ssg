@@ -464,6 +464,7 @@ function makeContext(params) {
     coveoPipeline: params.COVEO_GENERAL_PIPELINE,
     coveoSearchHub: params.COVEO_GENERAL_SEARCHHUB,
     coveoAuth: params.COVEO_AUTH,
+    proxyGatewayUrl: params.PROXY_GATEWAY_URL,
   }
 	return ctx;
 }
