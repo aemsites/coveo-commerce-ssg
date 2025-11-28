@@ -4,7 +4,9 @@ const fs = require('fs');
 const Handlebars = require('handlebars');
 const { linkifyAbids } = require('./linkify-abids');
 const { getUnpublishedReplacements } = require('./get-unpublished-replacements');
+const { mapRelatedProducts } = require('./map-related-products');
 const { loadState } = require('../check-target-changes/target-fetcher');
+const { allReviews } = require('./payload');
 
 Handlebars.registerHelper("eq", function(a, b) {
   return a?.toLowerCase() === b?.toLowerCase();
@@ -146,6 +148,19 @@ Handlebars.registerHelper('replaceQuotes', function (input) {
   return input.replace(/"([^"]+(?="))"/g, '$1');
 });
 
+Handlebars.registerHelper('eachProperty', function (context, options) {
+  let ret = "";
+  const properties = Object.keys(context).filter(prop => context.hasOwnProperty(prop));
+  properties.forEach((prop, index) => {
+    ret += options.fn({
+      key: prop,
+      value: context[prop],
+      hasComma: index < properties.length - 1
+    });
+  });
+  return ret;
+});
+
 function parseJson(jsonString) {
   try {
     return jsonString ? JSON.parse(jsonString) : null;
@@ -205,6 +220,17 @@ Handlebars.registerHelper('trimColons', function (text) {
     return text.replace(/(?<!https?:\/\/):\s*/g, ' : ');
   }
   return text; // Return as-is if not a string
+});
+
+Handlebars.registerHelper('formatReviewDate', function (dateInput, locale) {
+  try {
+    const parsedDate = new Date(dateInput);
+    if (Number.isNaN(parsedDate.getTime())) return String(dateInput);
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(parsedDate);
+  } catch (err) {    
+    console.error('formatReviewDate error:', err);
+    return String(dateInput);
+  }
 });
 
 function createLocalizer(localisedJson, locale = 'en-us') {
@@ -401,6 +427,8 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.viewProductLabel = getLocalizedValue('view-product');
       product.viewAllpublicationsLabel = getLocalizedValue('view-all-publications');
       product.fullListLabel = getLocalizedValue('full-list');
+      product.alternateproductsheading = getLocalizedValue('alternative-products');
+      product.complementaryproductsheading = getLocalizedValue('complementary-products');
 
       product.host = ctx.config.coveoHost;
       product.speciesvalue = product.raw.adspecies?.join(', ');
@@ -573,6 +601,17 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       product.secondaryantibodytargetisotypes = product?.raw?.adsecondaryantibodyattributestargetisotypes?.split(';')?.join(', ') || '';
       product.productsummary = parseJson(product?.raw?.adproductsummaryjson);
       product.generalsummary = product.productsummary?.generalSummary || product.raw.adproductsummary;
+      product.crosssell = parseJson(product?.raw?.adcrosssellrecommendationsjson);
+      product.relatedProducts = mapRelatedProducts({
+      alternateproducts: product.alternateproducts ? [product.alternateproducts] : [],
+      associatedproducts: product.associatedproducts,
+      toprecommendedproducts: product.toprecommendedproducts,
+      crosssell: product.crosssell,
+      },
+      product.locale);
+      if (product.alternateproducts) {
+        product.toprecommendedproducts = [];
+      }
       product.keybenefits = product.productsummary?.keyBenefits;
 
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
@@ -587,6 +626,42 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
         const filesLib = await Files.init({});
         product.relatedtargets = await getRelatedTargets(product.raw.adrelatedtargets, { stateLib, filesLib }, locale, logger);
       }
+
+      // Fetch customer reviews
+      const productId = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+      const reviewsData = await getCustomerReviews(productId, ctx) ?? {};
+      let {
+        reviews = [],
+        filteredReviews = {},
+        reviewsBreakdown = {},
+      } = reviewsData;
+
+      let normalizedFilteredReviews = [];
+      if (Array.isArray(filteredReviews)) {
+        normalizedFilteredReviews = filteredReviews;
+      } else if (filteredReviews && Array.isArray(filteredReviews.content)) {
+        normalizedFilteredReviews = filteredReviews.content;
+      } else if (filteredReviews && typeof filteredReviews === 'object') {
+        normalizedFilteredReviews = Object.values(filteredReviews).filter(v => v && typeof v === 'object');
+      }
+
+      // Extract data into a flat array so they can be fetched/processed separately
+      const filteredReviewsArray = extractPairsFromNormalized(normalizedFilteredReviews);
+
+      product.reviewsCount = filteredReviewsArray.length;
+      product.reviews = reviews;
+      // product.filteredReviews = filteredReviewsArray;
+      if (Array.isArray(filteredReviewsArray)) {
+        product.filteredReviews = filteredReviewsArray.length > 5
+          ? filteredReviewsArray.slice(0, 5)
+          : filteredReviewsArray;
+      } else {
+        product.filteredReviews = filteredReviewsArray;
+      }      
+      product.reviewsBreakdown = reviewsBreakdown;
+      logger.debug('Cust. reviews count: ', product.reviewsCount);
+      // End of customer reviews processing
+
     }
 
     // load the templates
@@ -606,6 +681,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "product-reactivity-block",
       "product-datasheet-block",
       "product-protocols-block",
+      "customer-reviews-block",
       "product-promise-block",
       "product-storage-block",
       "product-notes-block",
@@ -623,6 +699,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "section-metadata-block",
       "product-kitcomponent-block",
       "product-header-inactive-block",
+      "product-related-products",
       "product-downloads-inactive-block",
       "product-unpublished-replacements-block",
       "meta-jsonld",
@@ -659,6 +736,107 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
     logger.error(`Error parsing JSON for key: ${ctx.path}`, error);
   }
 }
+
+/** GraphQL query to fetch customer reviews for a product */
+const POST_METHOD = 'POST';
+const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'X-Abcam-App-Id': 'b2c-public-website',
+};
+
+async function getCustomerReviews(productId, ctx) {
+  const { logger } = ctx || {};
+  const productCode = productId;
+  const sortMode = 'NEWEST';
+  const allApplications = [];
+  const allSpecies = [];
+  const allRatings = [];
+  
+  const gatewayUrl = ctx.config.proxyGatewayUrl || 'https://proxy-gateway.abcam.com';
+  logger.debug('Using proxyGatewayUrl ***: ', gatewayUrl);
+  const request = await fetch(`${gatewayUrl}/review/public`, {
+    method: POST_METHOD,
+    headers: DEFAULT_HEADERS,
+    body: allReviews({
+      productCode,
+      sortMode,
+      applications: allApplications,
+      species: allSpecies,
+      ratings: allRatings,
+    }),
+  });
+
+  const response = await request.json();
+
+  // Handle potential GraphQL or network errors
+  if (!request.ok || response.errors) {
+    if (logger && typeof logger.error === 'function') {
+      logger.error('GraphQL Error fetching reviews', response.errors || request.statusText);
+    } else {
+      console.error('GraphQL Error fetching reviews', response.errors || request.statusText);
+    }
+    throw new Error('Failed to fetch reviews');
+  }
+
+  return response?.data ?? {};
+}
+
+function extractPairsFromNormalized(normalized) {
+  const collected = [];
+  if (!normalized) return collected;
+
+  // Case 1: normalized is an array of items
+  if (Array.isArray(normalized)) {
+    normalized.forEach(item => {
+      const pairs = item?.content?.Pairs ?? item?.Pairs;
+      if (Array.isArray(pairs)) {
+        collected.push(...pairs);
+        return;
+      }
+      if (pairs && typeof pairs === 'object') {
+        collected.push(...Object.values(pairs));
+        return;
+      }
+
+      // If item itself is an array of pairs
+      if (Array.isArray(item)) {
+        collected.push(...item);
+        return;
+      }
+
+      // Otherwise treat the item itself as a pair-like object
+      if (item && typeof item === 'object') collected.push(item);
+    });
+    return collected;
+  }
+
+  // Case 2: normalized is an object with top-level Pairs or content.Pairs
+  const topPairs = normalized?.Pairs ?? normalized?.content?.Pairs;
+  if (Array.isArray(topPairs)) return [...topPairs];
+  if (topPairs && typeof topPairs === 'object') return Object.values(topPairs);
+
+  // Case 3: normalized is an object whose values may contain arrays/objects of pairs
+  Object.values(normalized).forEach(v => {
+    if (!v) return;
+    if (Array.isArray(v)) {
+      collected.push(...v);
+      return;
+    }
+    const p = v?.content?.Pairs ?? v?.Pairs;
+    if (Array.isArray(p)) {
+      collected.push(...p);
+      return;
+    }
+    if (p && typeof p === 'object') {
+      collected.push(...Object.values(p));
+      return;
+    }
+    if (v && typeof v === 'object') collected.push(v);
+  });
+
+  return collected;
+}
+// customer reviews functions end here
 
 module.exports = {
   generateProductHtml,
