@@ -16,13 +16,6 @@
     <div>
       <div></div>
     </div>
-    {{#if raw.adpriceusa}}
-      <div>
-        <div>
-          <p><strong>Price: Starts from ${{raw.adpriceusa}}</strong></p>
-        </div>
-      </div>
-    {{/if}}
   </div>
   {{> product-header-block class="reduced-width"}}
   {{#if (len images 0)}}
@@ -147,6 +140,13 @@
       <div></div>
     </div>
   </div>
+  {{#if raw.adpriceusa}}
+  <div class="product-pricing hidden">
+      <div>
+          <div>Price: Starts from ${{raw.adpriceusa}}</div>
+      </div>
+  </div>
+  {{/if}}
 </div>
 <div>
   {{> product-promise-block class="reduced-width"}}
