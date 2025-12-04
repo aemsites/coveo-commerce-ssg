@@ -140,12 +140,14 @@
       <div></div>
     </div>
   </div>
-  {{#if raw.adpriceusa}}
-  <div class="product-pricing hidden">
-      <div>
-          <div>Price: Starts from ${{raw.adpriceusa}}</div>
-      </div>
-  </div>
+  {{#if locale}}  
+    {{#if raw.adpriceusa}}
+    <div class="product-pricing hidden">
+        <div>
+            <div>Price: Starts from ${{raw.adpriceusa}}</div>
+        </div>
+    </div>
+    {{/if}}
   {{/if}}
 </div>
 <div>
