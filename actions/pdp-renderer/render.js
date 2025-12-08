@@ -469,6 +469,23 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
 
       const shouldAddLocale = locale && !localeCnJp.includes(locale);
 
+      if(locale && locale === 'en-us'){        
+        product.url = `https://${product.host}/${locale}/products/${product.raw?.adseoclasslevelone}/${product.raw?.adproductslug}`;
+        product.price = product.raw?.adpriceusa;
+        product.currency = "USD";
+        product.label = "$";
+      } else if(locale && locale === 'zh-cn'){
+        product.url = `https://${product.host}/products/${product.raw?.adseoclasslevelone}/${product.raw?.adproductslug}`;
+        product.price = product.raw?.adpricechina;
+        product.currency = "CNY";
+        product.label = "¥";
+      } else if(locale && locale === 'ja-jp'){
+        product.url = `https://${product.host}/products/${product.raw?.adseoclasslevelone}/${product.raw?.adproductslug}`;
+        product.price = product.raw?.adpricejapan;
+        product.currency = "JPY";
+        product.label = "¥";
+      }      
+
       product.notes?.forEach((note) => {
         note.statement = note.statement?.replace(/href="([^"]*?)"/gi, (match, hrefValue) => {
           const trimmedHref = hrefValue.trim();

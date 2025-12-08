@@ -10,12 +10,11 @@
     "name": "Abcam Limited"
   },
   "sku": "{{raw.adassetdefinitionnumber}}",
-  {{#if locale}}
   "offers": {
     "@type": "Offer",
-    "url": "https://{{host}}{{locale}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
-    "priceCurrency": "USD",
-    "price": "{{raw.adpriceusa}}",
+    "url": "{{url}}",
+    "currency": "{{currency}}",
+    "price": "{{price}}",
     "availability": "https://schema.org/InStock",
     "itemCondition": "https://schema.org/NewCondition",
     "seller": {  
@@ -23,9 +22,6 @@
       "name": "Abcam Limited"  
     }
   },
-  {{else}}
-    "url": "https://{{host}}/products/{{raw.adseoclasslevelone}}/{{raw.adproductslug}}",
-  {{/if}}
   {{#if raw.adreviewsaggregaterating}}
     "aggregateRating": {
       "@type": "AggregateRating",
