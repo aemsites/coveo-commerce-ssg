@@ -632,6 +632,7 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       if (product.alternateproducts) {
         product.toprecommendedproducts = [];
       }
+      product.keybenefits = product.productsummary?.keyBenefits;
 
       product.hazards = parseJson(product.raw?.adhandlinghazardsjson);
       if (locale === 'ja-jp' && Array.isArray(product.hazards)) {
