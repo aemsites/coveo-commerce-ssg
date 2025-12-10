@@ -35,34 +35,6 @@
       "ratingCount": "{{raw.adreviewscount}}"
     },
   {{/if}}  
-  {{#if filteredReviews}}
-    "review": [
-      {{#each filteredReviews}}
-      {
-        "@type": "Review",
-        {{#if reviewer.firstName}}
-          "author": {
-            "@type": "Person",
-            "name": "{{reviewer.firstName}} {{#if reviewer.lastName}}{{reviewer.lastName}}{{/if}}"
-          },
-        {{else}}
-          "author": {
-            "@type": "Person",
-            "name": "Abcam user community"
-          },
-        {{/if}}
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "{{starRating.value}}",
-          "bestRating": "5"
-        },
-        "reviewBody": "{{application.fullName}} ({{application.shortName}})",
-        "datePublished": "{{formatReviewDate datePublished locale}}"
-      }
-      {{#unless @last}},{{/unless}}
-      {{/each}}
-    ],
-  {{/if}}
   {{#if (len images 0)}}
     "image": [
       {{#each images}}

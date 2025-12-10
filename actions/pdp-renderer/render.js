@@ -647,39 +647,39 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       }
 
       // Fetch customer reviews
-      const productId = product?.raw?.adassetdefinitionnumber?.toLowerCase();
-      const reviewsData = await getCustomerReviews(productId, ctx) ?? {};
-      let {
-        reviews = [],
-        filteredReviews = {},
-        reviewsBreakdown = {},
-      } = reviewsData;
+      // const productId = product?.raw?.adassetdefinitionnumber?.toLowerCase();
+      // const reviewsData = await getCustomerReviews(productId, ctx) ?? {};
+      // let {
+      //   reviews = [],
+      //   filteredReviews = {},
+      //   reviewsBreakdown = {},
+      // } = reviewsData;
 
-      let normalizedFilteredReviews = [];
-      if (Array.isArray(filteredReviews)) {
-        normalizedFilteredReviews = filteredReviews;
-      } else if (filteredReviews && Array.isArray(filteredReviews.content)) {
-        normalizedFilteredReviews = filteredReviews.content;
-      } else if (filteredReviews && typeof filteredReviews === 'object') {
-        normalizedFilteredReviews = Object.values(filteredReviews).filter(v => v && typeof v === 'object');
-      }
+      // let normalizedFilteredReviews = [];
+      // if (Array.isArray(filteredReviews)) {
+      //   normalizedFilteredReviews = filteredReviews;
+      // } else if (filteredReviews && Array.isArray(filteredReviews.content)) {
+      //   normalizedFilteredReviews = filteredReviews.content;
+      // } else if (filteredReviews && typeof filteredReviews === 'object') {
+      //   normalizedFilteredReviews = Object.values(filteredReviews).filter(v => v && typeof v === 'object');
+      // }
 
-      // Extract data into a flat array so they can be fetched/processed separately
-      const filteredReviewsArray = extractPairsFromNormalized(normalizedFilteredReviews);
+      // // Extract data into a flat array so they can be fetched/processed separately
+      // const filteredReviewsArray = extractPairsFromNormalized(normalizedFilteredReviews);
 
-      product.reviewsCount = filteredReviewsArray.length;
-      product.reviews = reviews;
-      // product.filteredReviews = filteredReviewsArray;
-      if (Array.isArray(filteredReviewsArray)) {
-        product.filteredReviews = filteredReviewsArray.length > 5
-          ? filteredReviewsArray.slice(0, 5)
-          : filteredReviewsArray;
-      } else {
-        product.filteredReviews = filteredReviewsArray;
-      }      
-      product.reviewsBreakdown = reviewsBreakdown;
-      logger.debug('Cust. reviews count: ', product.reviewsCount);
-      // End of customer reviews processing
+      // product.reviewsCount = filteredReviewsArray.length;
+      // product.reviews = reviews;
+      // // product.filteredReviews = filteredReviewsArray;
+      // if (Array.isArray(filteredReviewsArray)) {
+      //   product.filteredReviews = filteredReviewsArray.length > 5
+      //     ? filteredReviewsArray.slice(0, 5)
+      //     : filteredReviewsArray;
+      // } else {
+      //   product.filteredReviews = filteredReviewsArray;
+      // }      
+      // product.reviewsBreakdown = reviewsBreakdown;
+      // logger.debug('Cust. reviews count: ', product.reviewsCount);
+      // // End of customer reviews processing
 
     }
 
@@ -700,7 +700,6 @@ async function generateProductHtml(product, ctx, state, locale, dirname = __dirn
       "product-reactivity-block",
       "product-datasheet-block",
       "product-protocols-block",
-      "customer-reviews-block",
       "product-promise-block",
       "product-storage-block",
       "product-notes-block",
